@@ -8,7 +8,8 @@ import './programacion.css';
 
 const ROLES_LISTA = Object.keys(ROLES) as Rol[];
 
-function iniciales(nombre: string): string {
+function iniciales(nombre?: string): string {
+  if (!nombre) return '';
   const partes = nombre.trim().split(/\s+/).filter(Boolean);
   if (partes.length === 0) return '';
   if (partes.length === 1) return partes[0].slice(0, 2).toUpperCase();
@@ -63,10 +64,10 @@ export function Personal({ yo }: { yo: Usuario }) {
 
     api<Integrante[]>('/api/personal')
       .then(lista => {
-        setPersonal(lista);
+        setPersonal(Array.isArray(lista) ? lista : []);
       })
       .catch((err: Error) => {
-        if (/404|not found/i.test(err.message)) {
+        if (/404|not found|no encontrad/i.test(err.message)) {
           setDesplegando(true);
         } else {
           setErrorCarga(err.message);
@@ -81,13 +82,17 @@ export function Personal({ yo }: { yo: Usuario }) {
     recargarPersonal();
   }, []);
 
-  // Filtrado de integrantes
+  // Filtrado de integrantes seguro ante campos nulos o faltantes
   const filtrados = useMemo(() => {
     const q = normalizar(filtroTexto);
     return personal.filter(p => {
       if (filtroRol !== 'todos' && p.rol !== filtroRol) return false;
-      if (q && !normalizar(p.nombre).includes(q) && !normalizar(p.login).includes(q)) {
-        return false;
+      if (q) {
+        const nombreNorm = p.nombre ? normalizar(p.nombre) : '';
+        const loginNorm = p.login ? normalizar(p.login) : '';
+        if (!nombreNorm.includes(q) && !loginNorm.includes(q)) {
+          return false;
+        }
       }
       return true;
     });
@@ -104,6 +109,7 @@ export function Personal({ yo }: { yo: Usuario }) {
   // Actualización de nombre y sugerencia de login
   const handleNombreChange = (nuevoNombre: string) => {
     setNombre(nuevoNombre);
+    setExitoEnvio(null);
     if (!loginModificado) {
       setLogin(sugerirLogin(nuevoNombre));
     }
@@ -136,6 +142,10 @@ export function Personal({ yo }: { yo: Usuario }) {
       setErrorEnvio('Ingrese el nombre de usuario.');
       return;
     }
+    if (clave.length < 8) {
+      setErrorEnvio('La contraseña debe tener al menos 8 caracteres.');
+      return;
+    }
 
     const payload: NuevoIntegrante = {
       nombre: nombreLimpio,
@@ -147,14 +157,14 @@ export function Personal({ yo }: { yo: Usuario }) {
     setEnviando(true);
     try {
       await api<{ id: string }>('/api/personal', payload);
-      setExitoEnvio(`Integrante ${nombreLimpio} guardado correctamente.`);
+      setExitoEnvio(`Integrante ${nombreLimpio} guardado.`);
       limpiarFormulario();
       recargarPersonal();
     } catch (err) {
       const mensaje = err instanceof Error ? err.message : String(err);
-      if (/409|conflict|ya existe/i.test(mensaje)) {
+      if (/409|conflict|ya existe|duplicad|repetid|existente/i.test(mensaje)) {
         setErrorEnvio('Ese usuario ya existe');
-      } else if (/404|not found/i.test(mensaje)) {
+      } else if (/404|not found|no encontrad/i.test(mensaje)) {
         setErrorEnvio('Esta función se está desplegando');
       } else {
         setErrorEnvio(mensaje);
@@ -181,17 +191,20 @@ export function Personal({ yo }: { yo: Usuario }) {
               </span>
             </div>
 
-            <a
-              href="#nuevo"
+            <button
+              type="button"
               className="btn btn-primario"
               aria-controls="nuevo"
+              onClick={() => {
+                document.getElementById('nuevo-nombre')?.focus();
+              }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
                 <path d="M12 5v14" />
                 <path d="M5 12h14" />
               </svg>
               Nuevo integrante
-            </a>
+            </button>
           </div>
 
           {desplegando && (
@@ -359,7 +372,11 @@ export function Personal({ yo }: { yo: Usuario }) {
               className="btn"
               aria-label="Cerrar sin guardar"
               style={{ minWidth: 44, padding: 0, border: 0 }}
-              onClick={limpiarFormulario}
+              onClick={() => {
+                limpiarFormulario();
+                setExitoEnvio(null);
+                setErrorEnvio(null);
+              }}
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
                 <path d="M18 6 6 18" />
@@ -384,6 +401,7 @@ export function Personal({ yo }: { yo: Usuario }) {
             <label className="prog-fl">
               Nombre completo
               <input
+                id="nuevo-nombre"
                 type="text"
                 placeholder="Ej: Sofía Mendoza Ariza"
                 value={nombre}
@@ -414,8 +432,9 @@ export function Personal({ yo }: { yo: Usuario }) {
                 type="text"
                 value={login}
                 onChange={e => {
-                  setLogin(e.target.value);
-                  setLoginModificado(true);
+                  const val = e.target.value;
+                  setLogin(val);
+                  setLoginModificado(val.trim() !== '');
                 }}
                 autoCapitalize="none"
                 required
@@ -432,7 +451,10 @@ export function Personal({ yo }: { yo: Usuario }) {
                   id={claveInputId}
                   type="text"
                   value={clave}
-                  readOnly
+                  onChange={e => setClave(e.target.value)}
+                  minLength={8}
+                  autoComplete="new-password"
+                  aria-describedby={`${claveInputId}-ayuda`}
                   style={{ letterSpacing: '0.02em' }}
                 />
                 <button
@@ -444,8 +466,8 @@ export function Personal({ yo }: { yo: Usuario }) {
                   Generar otra
                 </button>
               </div>
-              <span className="prog-ay">
-                Se muestra solo ahora. Entréguela en persona.
+              <span id={`${claveInputId}-ayuda`} className="prog-ay">
+                Escríbala o genere una. Mínimo 8 caracteres. Se muestra solo ahora: entréguela en persona.
               </span>
             </div>
 
@@ -460,7 +482,11 @@ export function Personal({ yo }: { yo: Usuario }) {
               <button
                 type="button"
                 className="btn"
-                onClick={limpiarFormulario}
+                onClick={() => {
+                  limpiarFormulario();
+                  setExitoEnvio(null);
+                  setErrorEnvio(null);
+                }}
               >
                 Cancelar
               </button>

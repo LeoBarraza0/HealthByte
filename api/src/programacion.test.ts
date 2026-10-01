@@ -70,6 +70,23 @@ test('validarNuevaCirugia valida fecha_programada ISO', () => {
 
   const f2 = { ...cirugiaValida(), fecha_programada: '2026-10-02' }; // sin hora / no ISO 8601 completa
   assert.equal(typeof validarNuevaCirugia(f2), 'string');
+
+  // Fechas fuera de calendario (días no existentes)
+  const f3 = { ...cirugiaValida(), fecha_programada: '2026-02-30T08:00:00Z' };
+  assert.equal(typeof validarNuevaCirugia(f3), 'string');
+
+  const f4 = { ...cirugiaValida(), fecha_programada: '2026-02-29T08:00:00Z' }; // 2026 no bisiesto
+  assert.equal(typeof validarNuevaCirugia(f4), 'string');
+
+  const f5 = { ...cirugiaValida(), fecha_programada: '2026-04-31T08:00:00Z' }; // abril solo tiene 30 días
+  assert.equal(typeof validarNuevaCirugia(f5), 'string');
+
+  const f6 = { ...cirugiaValida(), fecha_programada: '2026-10-02T25:00:00Z' }; // hora inválida
+  assert.equal(typeof validarNuevaCirugia(f6), 'string');
+
+  // Año bisiesto válido
+  const fOkBisiesto = { ...cirugiaValida(), fecha_programada: '2024-02-29T08:00:00Z' };
+  assert.equal(typeof validarNuevaCirugia(fOkBisiesto), 'object');
 });
 
 test('validarNuevaCirugia valida duracion_min entre 15 y 720 entera', () => {
@@ -144,11 +161,13 @@ test('validarNuevoIntegrante rechaza entradas inválidas', () => {
   // Rol inválido
   assert.equal(typeof validarNuevoIntegrante({ nombre: 'Carlos', rol: 'astronauta', login: 'cirujano1', clave: 'password123' }), 'string');
 
-  // Login inválido (mayúsculas, caracteres especiales, longitud < 3 o > 30)
+  // Login inválido (mayúsculas, caracteres especiales, longitud < 3 o > 30, espacios)
   assert.equal(typeof validarNuevoIntegrante({ nombre: 'Carlos', rol: 'cirujano', login: 'AB', clave: 'password123' }), 'string');
   assert.equal(typeof validarNuevoIntegrante({ nombre: 'Carlos', rol: 'cirujano', login: 'CarlosG', clave: 'password123' }), 'string');
   assert.equal(typeof validarNuevoIntegrante({ nombre: 'Carlos', rol: 'cirujano', login: 'carlos@gomez', clave: 'password123' }), 'string');
   assert.equal(typeof validarNuevoIntegrante({ nombre: 'Carlos', rol: 'cirujano', login: 'a'.repeat(31), clave: 'password123' }), 'string');
+  assert.equal(typeof validarNuevoIntegrante({ nombre: 'Carlos', rol: 'cirujano', login: ' carlos.g ', clave: 'password123' }), 'string');
+  assert.equal(typeof validarNuevoIntegrante({ nombre: 'Carlos', rol: 'cirujano', login: 'carlos g', clave: 'password123' }), 'string');
 
   // Clave corta (< 8 caracteres)
   assert.equal(typeof validarNuevoIntegrante({ nombre: 'Carlos', rol: 'cirujano', login: 'carlos.g', clave: '1234567' }), 'string');

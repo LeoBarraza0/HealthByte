@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reporte · Control de consumos</title>
+<!-- Exportado del canvas «HealthByte · Diseño», página «Rediseño». Referencia visual: no se edita a mano. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;background:#E9EFF3}
+.hb,.hb *{box-sizing:border-box}
+.hb{font-family:'IBM Plex Sans','Segoe UI',sans-serif;color:#0D2232;font-variant-numeric:tabular-nums}
+.d{font-family:'Space Grotesk','Segoe UI',sans-serif}
+.sec{margin:0;font-size:12px;font-weight:700;color:#FFFFFF;background:#0B5D8C;padding:4px 10px;border-radius:4px 4px 0 0}
+.gr{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid #B8C7D1;border-top:0;border-radius:0 0 4px 4px}
+.cp{display:flex;flex-direction:column;gap:0;padding:3px 8px;border-right:1px solid #E1E8ED;border-bottom:1px solid #E1E8ED;min-width:0}
+.cp span{font-size:9px;line-height:12px;color:#4D6170}
+.cp b{font-size:11px;line-height:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sn{display:inline-flex;gap:4px}
+.sn i{font-style:normal;font-size:10px;font-weight:600;padding:0 5px;border:1px solid #B8C7D1;border-radius:3px;color:#8FA1AE}
+.sn i.on{background:#0B5D8C;border-color:#0B5D8C;color:#FFFFFF}
+.tb{width:100%;border-collapse:collapse;table-layout:fixed;font-size:10px;line-height:13px}
+.tb caption{text-align:left;font-size:11px;font-weight:700;color:#08405F;background:#E1EEF5;padding:3px 8px;border:1px solid #B8C7D1;border-bottom:0}
+.tb th{font-size:9.5px;font-weight:600;color:#4D6170;text-align:left;padding:2px 6px;border:1px solid #B8C7D1;background:#F5F9FB}
+.tb td{padding:0 6px;border:1px solid #D3DDE4;height:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb .cs{width:104px;color:#4D6170;font-size:9px}
+.tb .t{width:40px;text-align:right}
+.tb .cd{width:52px}
+.tb tr.u td{font-weight:600;color:#0D2232}
+.tb tr.u .cs{color:#0B5D8C;font-weight:500}
+.tb tr.u .t{background:#F0F6FA}
+.mc{margin-left:6px;font-size:8.5px;font-weight:600;color:#0B6B5A;background:#EAF7F2;border-radius:3px;padding:0 4px}
+.eq{display:flex;flex-direction:column;gap:1px;font-size:9.5px;break-inside:avoid;margin-bottom:6px}
+.eq b{font-size:10px;color:#08405F}
+.ck{display:flex;align-items:center;gap:5px;white-space:nowrap}
+.ck i{font-style:normal;width:11px;height:11px;border:1px solid #8FA1AE;border-radius:2px;display:inline-flex;align-items:center;justify-content:center;font-size:9px;line-height:1;flex-shrink:0}
+.ck i.on{background:#0B5D8C;border-color:#0B5D8C;color:#FFFFFF}
+</style>
+</head>
+<body>
+<div class="hb" style="width: 816px; height: 1490px; background: #FFFFFF; padding: 32px 40px 24px; display: flex; flex-direction: column; gap: 10px">
+
+<header style="display: grid; grid-template-columns: 200px minmax(0, 1fr) 190px; align-items: stretch; border: 1px solid #B8C7D1; border-radius: 4px">
+<div style="display: flex; flex-direction: column; justify-content: center; gap: 4px; padding: 8px 12px; border-right: 1px solid #B8C7D1">
+<span style="display: inline-flex; align-items: center; gap: 8px"><svg width="26" height="26" viewBox="0 0 112 112" aria-hidden="true"><rect x="40" y="0" width="32" height="32" rx="7" fill="#0B5D8C"></rect><rect x="0" y="40" width="32" height="32" rx="7" fill="#0B5D8C"></rect><rect x="40" y="40" width="32" height="32" rx="7" fill="#0B5D8C"></rect><rect x="80" y="40" width="32" height="32" rx="7" fill="#0B5D8C"></rect><rect x="40" y="80" width="32" height="32" rx="7" fill="#0B5D8C"></rect><rect x="92" y="0" width="20" height="20" rx="5" fill="#2FB596"></rect></svg><span class="d" style="font-size: 17px; font-weight: 500">Health<b style="color: #0B5D8C; font-weight: 700">Byte</b></span></span>
+<span style="font-size: 11px; color: #364856">Clínica Demo Caribe</span>
+</div>
+<div style="display: flex; align-items: center; justify-content: center; padding: 8px">
+<h1 class="d" style="margin: 0; font-size: 19px; font-weight: 600; text-align: center; line-height: 24px">Control de consumos de cirugía</h1>
+</div>
+<div style="display: grid; grid-template-rows: repeat(3, 1fr); border-left: 1px solid #B8C7D1; font-size: 10px">
+<div style="padding: 3px 8px; border-bottom: 1px solid #E1E8ED"><span style="color: #4D6170">Código</span> <b>HB-CC-001</b></div>
+<div style="padding: 3px 8px; border-bottom: 1px solid #E1E8ED"><span style="color: #4D6170">Generado</span> <b>01/10/2026 15:06</b></div>
+<div style="padding: 3px 8px"><span style="color: #4D6170">Página</span> <b>1 de 1</b></div>
+</div>
+</header>
+
+<section>
+<h2 class="sec">Datos generales</h2>
+<div class="gr">
+<div class="cp"><span>Fecha</span><b>01 / 10 / 2026</b></div><div class="cp" style="grid-column: span 2"><span>Nombre completo del paciente</span><b>Rosa Elena Martínez</b></div><div class="cp"><span>Fecha de nacimiento</span><b>14/03/1968 (58 años)</b></div>
+<div class="cp"><span>N° de documento</span><b>CC 41 728 305</b></div><div class="cp"><span>Historia clínica</span><b>HC 0001</b></div><div class="cp"><span>Empresa</span><b>EPS Demo A</b></div><div class="cp"><span>Plan</span><b>Contributivo</b></div>
+<div class="cp"><span>Atención</span><b>Hospitalización</b></div><div class="cp"><span>Paciente</span><b>Programado</b></div><div class="cp"><span>Sexo</span><b><span class="sn"><i>M</i><i class="on">F</i></span></b></div><div class="cp"><span>Habitación</span><b>304</b></div>
+</div>
+</section>
+
+<section>
+<h2 class="sec">Datos de la cirugía</h2>
+<div class="gr">
+<div class="cp"><span>Quirófano</span><b>Quirófano 1</b></div><div class="cp"><span>Paquete</span><b>No aplica</b></div><div class="cp"><span>Hora de entrada a quirófano</span><b>11:20</b></div><div class="cp"><span>Hora inicia cirugía</span><b>11:58</b></div>
+<div class="cp" style="grid-column: span 2"><span>Cirujano</span><b>Paola Herrera</b></div><div class="cp"><span>Hora termina cirugía</span><b>14:40</b></div><div class="cp"><span>Hora de salida de quirófano</span><b>15:02</b></div>
+<div class="cp" style="grid-column: span 2"><span>Procedimiento</span><b>Revascularización miocárdica</b></div><div class="cp"><span>Especialidad</span><b>Cardiovascular</b></div><div class="cp"><span>N° vía</span><b>1</b></div>
+<div class="cp" style="grid-column: span 2"><span>Diagnóstico</span><b>Enfermedad coronaria multivaso</b></div><div class="cp"><span>Instrumentadora</span><b>Laura Castro</b></div><div class="cp"><span>Auxiliar</span><b>Daniela Rojas</b></div>
+<div class="cp"><span>Anestesia</span><b>General. Jorge Ortiz</b></div><div class="cp"><span>Ayudantía general</span><b><span class="sn"><i class="on">Sí</i><i class="">No</i></span></b></div><div class="cp"><span>Ayudantía especializada</span><b><span class="sn"><i class="">Sí</i><i class="on">No</i></span></b></div><div class="cp"><span>Perfusión</span><b>Ricardo Silva</b></div>
+<div class="cp"><span>Patología</span><b><span class="sn"><i class="">Sí</i><i class="on">No</i></span></b></div><div class="cp"><span>Laboratorio</span><b><span class="sn"><i class="on">Sí</i><i class="">No</i></span></b></div><div class="cp"><span>Congelación</span><b><span class="sn"><i class="">Sí</i><i class="on">No</i></span></b></div><div class="cp"><span>Pediatría</span><b><span class="sn"><i class="">Sí</i><i class="on">No</i></span></b></div>
+</div>
+</section>
+
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 10px">
+<table class="tb"><caption>Insumos generales</caption><thead><tr><th class="cs">Consumo</th><th>Elemento</th><th class="t">Total</th></tr></thead><tbody>
+<tr class="u"><td class="cs">Toque 2 + 2</td><td>Aguja desechable</td><td class="t">4</td></tr>
+<tr><td class="cs"></td><td>Air strip</td><td class="t"></td></tr>
+<tr class="u"><td class="cs">Voz 2</td><td>Apósito</td><td class="t">2</td></tr>
+<tr><td class="cs"></td><td>Barticgras</td><td class="t"></td></tr>
+<tr><td class="cs"></td><td>Cabestrillo</td><td class="t"></td></tr>
+<tr><td class="cs"></td><td>Cotonoides</td><td class="t"></td></tr>
+<tr><td class="cs"></td><td>Equipo cistoflo</td><td class="t"></td></tr>
+<tr><td class="cs"></td><td>Equipo cistoirrig</td><td class="t"></td></tr>
+<tr class="u"><td class="cs">Voz 2</td><td>Equipo de venoclisis</td><td class="t">2</td></tr>
+<tr><td class="cs"></td><td>Férula nasal</td><td class="t"></td></tr>
+<tr><td class="cs"></td><td>Gasitas</td><td class="t"></td></tr>
+<tr class="u"><td class="cs">Voz 2 + 4 · Toque 2</td><td>Guantes, par</td><td class="t">8</td></tr>
+<tr><td class="cs"></td><td>Hemostático absorbible</td><td class="t"></td></tr>
+<tr class="u"><td class="cs">Conteo</td><td>Hoja de bisturí</td><td class="t">3</td></tr>
+<tr><td class="cs"></td><td>Inmovilizador</td><td class="t"></td></tr>
+<tr class="u"><td class="cs">Toque 1</td><td>Jeringa aséptica</td><td class="t">1</td></tr>
+<tr class="u"><td class="cs">Voz 6</td><td>Jeringa desechable</td><td class="t">6</td></tr>
+<tr><td class="cs"></td><td>Liner</td><td class="t"></td></tr>
+<tr class="u"><td class="cs">Toque 1</td><td>Cuchilla de rasuradora</td><td class="t">1</td></tr>
+<tr><td class="cs"></td><td>Mechas</td><td class="t"></td></tr>
+<tr class="u"><td class="cs">Voz 2</td><td>Medias</td><td class="t">2</td></tr>
+<tr class="u"><td class="cs">Toque 1</td><td>Op site</td><td class="t">1</td></tr>
+<tr class="u"><td class="cs">Voz 1</td><td>Placa de electro</td><td class="t">1</td></tr>
+<tr><td class="cs"></td><td>Sonda alimentación</td><td class="t"></td></tr>
+<tr class="u"><td class="cs">Voz 1</td><td>Sonda Foley</td><td class="t">1</td></tr>
+<tr class="u"><td class="cs">Toque 1</td><td>Sonda nasogástrica</td><td class="t">1</td></tr>
+<tr><td class="cs"></td><td>Sonda Nelaton</td><td class="t"></td></tr>
+<tr><td class="cs"></td><td>Steri strip</td><td class="t"></td></tr>
+<tr><td class="cs"></td><td>Tapón nasal</td><td class="t"></td></tr>
+<tr class="u"><td class="cs">Voz 2</td><td>Tubo de tórax</td><td class="t">2</td></tr>
+<tr><td class="cs"></td><td>Venda algodón</td><td class="t"></td></tr>
+<tr><td class="cs"></td><td>Venda de yeso</td><td class="t"></td></tr>
+<tr><td class="cs"></td><td>Venda elástica</td><td class="t"></td></tr>
+<tr><td class="cs"></td><td>Hemovac-Exovac</td><td class="t"></td></tr>
+</tbody></table>
+<table class="tb"><caption>Insumos con código</caption><thead><tr><th class="cs">Consumo</th><th>Elemento</th><th class="cd">Código</th><th class="t">Total</th></tr></thead><tbody>
+<tr><td class="cs"></td><td>Hemoclip amarillo</td><td class="cd"></td><td class="t"></td></tr>
+<tr class="u"><td class="cs">Voz 1</td><td>Hemoclip azul</td><td class="cd"></td><td class="t">1</td></tr>
+<tr><td class="cs"></td><td>Hem-o-lok</td><td class="cd"></td><td class="t"></td></tr>
+<tr><td class="cs"></td><td>Ligaclip LT 300</td><td class="cd"></td><td class="t"></td></tr>
+<tr><td class="cs"></td><td>Paquete artroscopia</td><td class="cd"></td><td class="t"></td></tr>
+<tr class="u"><td class="cs">Toque 1</td><td>Paquete desechable</td><td class="cd"></td><td class="t">1</td></tr>
+</tbody></table>
+</div>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<table class="tb"><caption>Suturas</caption><thead><tr><th class="cs">Consumo</th><th>Elemento</th><th class="t">Total</th></tr></thead><tbody>
+<tr><td class="cs"></td><td>Catgut cromado</td><td class="t"></td></tr>
+<tr><td class="cs"></td><td>Catgut simple</td><td class="t"></td></tr>
+<tr><td class="cs"></td><td>Caprofyl</td><td class="t"></td></tr>
+<tr class="u"><td class="cs">Voz 1</td><td>Cera ósea</td><td class="t">1</td></tr>
+<tr class="u"><td class="cs">Voz 2</td><td>Ethibond</td><td class="t">2</td></tr>
+<tr class="u"><td class="cs">Toque 1</td><td>Monocryl</td><td class="t">1</td></tr>
+<tr><td class="cs"></td><td>Nurolon</td><td class="t"></td></tr>
+<tr><td class="cs"></td><td>PDS</td><td class="t"></td></tr>
+<tr><td class="cs"></td><td>Polysorb</td><td class="t"></td></tr>
+<tr class="u"><td class="cs">Voz 3 + 1</td><td>Prolene</td><td class="t">4</td></tr>
+<tr><td class="cs"></td><td>Polipropileno</td><td class="t"></td></tr>
+<tr class="u"><td class="cs">Voz 2</td><td>Seda</td><td class="t">2</td></tr>
+<tr><td class="cs"></td><td>Sofsilk</td><td class="t"></td></tr>
+<tr><td class="cs"></td><td>Surgipro</td><td class="t"></td></tr>
+<tr class="u"><td class="cs">Voz 3</td><td>Vicryl</td><td class="t">3</td></tr>
+<tr><td class="cs"></td><td>Nylon</td><td class="t"></td></tr>
+<tr class="u"><td class="cs">Toque 1</td><td>Surgicel</td><td class="t">1</td></tr>
+<tr><td class="cs"></td><td>Ticron</td><td class="t"></td></tr>
+</tbody></table>
+<table class="tb"><caption>Otros insumos</caption><thead><tr><th class="cs">Consumo</th><th>Elemento</th><th class="t">Total</th></tr></thead><tbody>
+<tr><td class="cs"></td><td>Dren</td><td class="t"></td></tr>
+<tr><td class="cs"></td><td>Artromatic</td><td class="t"></td></tr>
+<tr class="u"><td class="cs">Toque 1</td><td>Reservorio</td><td class="t">1</td></tr>
+<tr><td class="cs"></td><td>Fixomull</td><td class="t"></td></tr>
+<tr class="u"><td class="cs">Voz 1</td><td>Ioban</td><td class="t">1</td></tr>
+<tr class="u"><td class="cs">Toque 2</td><td>Jelco</td><td class="t">2</td></tr>
+<tr><td class="cs"></td><td>Durapred</td><td class="t"></td></tr>
+<tr class="u"><td class="cs">Voz 3</td><td>SSN 0,9 %</td><td class="t">3</td></tr>
+<tr><td class="cs"></td><td>Agua oxigenada</td><td class="t"></td></tr>
+<tr><td class="cs"></td><td>Afrin</td><td class="t"></td></tr>
+<tr><td class="cs"></td><td>Bupirop</td><td class="t"></td></tr>
+<tr><td class="cs"></td><td>Asfromatic</td><td class="t"></td></tr>
+<tr class="u"><td class="cs">Voz 1</td><td>Xilocaína</td><td class="t">1</td></tr>
+<tr><td class="cs"></td><td>Udrape</td><td class="t"></td></tr>
+<tr><td class="cs"></td><td>Kit traqueostomía</td><td class="t"></td></tr>
+<tr><td class="cs"></td><td>Merocel</td><td class="t"></td></tr>
+<tr class="u"><td class="cs">Conteo</td><td>Compresas<span class="mc">conteo</span></td><td class="t">10</td></tr>
+<tr class="u"><td class="cs">Conteo</td><td>Gasas<span class="mc">conteo</span></td><td class="t">20</td></tr>
+<tr class="u"><td class="cs">Conteo</td><td>Agujas de sutura<span class="mc">conteo</span></td><td class="t">6</td></tr>
+<tr class="u"><td class="cs">Conteo</td><td>Hiladillos<span class="mc">conteo</span></td><td class="t">2</td></tr></tbody></table>
+</div>
+</div>
+
+<section>
+<h2 class="sec">Equipos especiales</h2>
+<div style="column-count: 4; column-gap: 14px; padding: 8px 10px 2px; border: 1px solid #B8C7D1; border-top: 0; border-radius: 0 0 4px 4px"><div class="eq"><b>Cirugía general</b><span class="ck"><i class=""></i>Detector de ganglio centinela</span><span class="ck"><i class=""></i>Fibrobroncoscopio</span><span class="ck"><i class=""></i>Mediastinoscopio</span></div><div class="eq"><b>Ginecología</b><span class="ck"><i class=""></i>Ellman</span><span class="ck"><i class=""></i>Histeroscopio</span><span class="ck"><i class=""></i>Morcelador</span><span class="ck"><i class=""></i>Versapoint</span><span class="ck"><i class=""></i>Video ligadura de trompas</span><span class="ck"><i class=""></i>Video histerectomía</span></div><div class="eq"><b>Ortopedia</b><span class="ck"><i class=""></i>Instrumental de artroscopia</span><span class="ck"><i class=""></i>Intensificador de imagen</span><span class="ck"><i class=""></i>Motor de ortopedia</span><span class="ck"><i class=""></i>Shaver</span><span class="ck"><i class=""></i>Video artroscopia</span></div><div class="eq"><b>Neurocirugía</b><span class="ck"><i class=""></i>Microscopio</span><span class="ck"><i class=""></i>Motor de neuro</span></div><div class="eq"><b>Otorrino</b><span class="ck"><i class=""></i>Motor de oído</span></div><div class="eq"><b>Urología</b><span class="ck"><i class=""></i>Equipo de urología</span><span class="ck"><i class=""></i>Litoclast</span></div><div class="eq"><b>Otros</b><span class="ck"><i class="on">✓</i>Calentador de fluidos</span><span class="ck"><i class=""></i>Instrumental de laparoscopia</span><span class="ck"><i class="on">✓</i>Sistema de compresión dinámica</span><span class="ck"><i class=""></i>Video laparoscopia diagnóstica</span><span class="ck"><i class=""></i>Video laparoscopia operatoria</span><span class="ck"><i class=""></i>Video solo</span></div></div>
+</section>
+
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 230px; gap: 20px; align-items: end">
+<div style="display: flex; flex-direction: column; gap: 2px; font-size: 10.5px"><span style="font-weight: 600; font-size: 12px">Laura Castro</span><span style="border-top: 1px solid #0D2232; padding-top: 3px; color: #4D6170">Firma instrumentador(a)</span></div>
+<div style="display: flex; flex-direction: column; gap: 2px; font-size: 10.5px"><span style="font-weight: 600; font-size: 12px">Daniela Rojas</span><span style="border-top: 1px solid #0D2232; padding-top: 3px; color: #4D6170">Firma auxiliar</span></div>
+<div style="background: #F0F6FA; border-radius: 6px; padding: 8px 10px; font-size: 10.5px; line-height: 15px"><b style="font-size: 12px">32 elementos, 97 unidades</b><br>Revisado en la tablet por Laura Castro a las 15:05.</div>
+</div>
+
+<footer style="margin-top: auto; display: flex; flex-direction: column; gap: 6px; border-top: 1px solid #D3DDE4; padding-top: 8px; font-size: 9.5px; line-height: 14px; color: #4D6170">
+<p style="margin: 0">Generado por HealthByte desde los 47 registros de la cirugía: 32 dictados por voz, 15 marcados en la tablet y las entradas del conteo de material, marcadas <span class="mc" style="margin: 0">conteo</span>. Solo nombres y cantidades: los códigos de facturación y los precios los asigna la clínica en su propio proceso. Datos ficticios de demostración.</p>
+<p style="margin: 0; display: flex; gap: 28px"><span>Original: Historia clínica</span><span>Copia 1: Facturación</span><span>Copia 2: Farmacia</span></p>
+</footer>
+</div>
+</body>
+</html>

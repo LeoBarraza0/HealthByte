@@ -12,8 +12,14 @@ import {
 test('aIsoBogota convierte fecha y hora de Colombia (UTC-5) a ISO UTC', () => {
   assert.equal(aIsoBogota('2026-10-01', '14:30'), '2026-10-01T19:30:00.000Z');
   assert.equal(aIsoBogota('2026-10-01', '07:00'), '2026-10-01T12:00:00.000Z');
+  // Hora sin cero inicial
+  assert.equal(aIsoBogota('2026-10-01', '7:00'), '2026-10-01T12:00:00.000Z');
   // Cambio de día en UTC
   assert.equal(aIsoBogota('2026-10-01', '21:00'), '2026-10-02T02:00:00.000Z');
+  // Entradas vacías o inválidas no lanzan error
+  assert.equal(aIsoBogota('', '14:30'), '');
+  assert.equal(aIsoBogota('2026-10-01', ''), '');
+  assert.equal(aIsoBogota('invalido', '14:30'), '');
 });
 
 test('bloque calcula top y alto en píxeles según hora de inicio y duración', () => {
@@ -28,17 +34,29 @@ test('bloque calcula top y alto en píxeles según hora de inicio y duración', 
   // 09:30 Bogota (14:30 UTC), 120 min (2 h)
   const b3 = bloque('2026-10-01T14:30:00.000Z', 120);
   assert.deepEqual(b3, { top: 202, alto: 156 });
+
+  // Manejo de fecha inválida
+  const bInvalido = bloque('invalido', 60);
+  assert.deepEqual(bInvalido, { top: 2, alto: 0 });
 });
 
 test('horaBogota formatea fecha ISO en hora HH:MM de Colombia', () => {
   assert.equal(horaBogota('2026-10-01T19:30:00.000Z'), '14:30');
   assert.equal(horaBogota('2026-10-01T12:00:00.000Z'), '07:00');
   assert.equal(horaBogota('2026-10-01T05:05:00.000Z'), '00:05');
+  // Fecha inválida no produce NaN:NaN
+  assert.equal(horaBogota('invalido'), '');
 });
 
 test('hoyBogota devuelve la fecha actual en formato YYYY-MM-DD en UTC-5', () => {
   const hoy = hoyBogota();
   assert.match(hoy, /^\d{4}-\d{2}-\d{2}$/);
+
+  // Verificación determinista en bordes de medianoche UTC
+  // 02:00 UTC del 2 de octubre son las 21:00 del 1 de octubre en Colombia
+  assert.equal(hoyBogota(new Date('2026-10-02T02:00:00.000Z')), '2026-10-01');
+  // 05:00 UTC del 2 de octubre son las 00:00 del 2 de octubre en Colombia
+  assert.equal(hoyBogota(new Date('2026-10-02T05:00:00.000Z')), '2026-10-02');
 });
 
 test('sugerirLogin genera inicial más primer apellido en minúsculas sin tildes', () => {
@@ -49,6 +67,10 @@ test('sugerirLogin genera inicial más primer apellido en minúsculas sin tildes
   assert.equal(sugerirLogin('Carmen Fontalvo'), 'cfontalvo');
   assert.equal(sugerirLogin('Admin'), 'admin');
   assert.equal(sugerirLogin(''), '');
+  // Manejo de símbolos y puntuación sin generar nombres de usuario inválidos
+  assert.equal(sugerirLogin('- Juan Pérez'), 'jperez');
+  assert.equal(sugerirLogin('[Maria] Gomez'), 'mgomez');
+  assert.equal(sugerirLogin('---'), '');
 });
 
 test('generarClave produce contraseña legible de al menos 10 caracteres', () => {
@@ -58,4 +80,15 @@ test('generarClave produce contraseña legible de al menos 10 caracteres', () =>
   assert.match(clave1, /^[a-z]+-[a-z]+-\d{2}$/);
   assert.ok(clave2.length >= 10, `Longitud insuficiente: ${clave2.length}`);
   assert.match(clave2, /^[a-z]+-[a-z]+-\d{2}$/);
+});
+
+test('la agenda va de 06:00 a 20:00 y se amplía para mostrar toda cirugía del día', async () => {
+  const { rangoAgenda } = await import('./programacion.ts');
+  assert.deepEqual(rangoAgenda([]), { desde: 6, hasta: 20 });
+  // 20:00 a 22:00 en Colombia (01:00 a 03:00 UTC del día siguiente)
+  assert.deepEqual(rangoAgenda([{ fecha_programada: '2026-10-02T01:00:00.000Z', duracion_min: 120 }]), { desde: 6, hasta: 22 });
+  // 05:30 a 06:30: empieza antes
+  assert.deepEqual(rangoAgenda([{ fecha_programada: '2026-10-01T10:30:00.000Z', duracion_min: 60 }]), { desde: 5, hasta: 20 });
+  // nunca pasa de medianoche
+  assert.deepEqual(rangoAgenda([{ fecha_programada: '2026-10-02T03:00:00.000Z', duracion_min: 300 }]), { desde: 6, hasta: 24 });
 });
