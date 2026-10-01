@@ -34,6 +34,16 @@ Son detalles de implementación que el spec dejaba abiertos. El spec se actualiz
 5. **`cirugia.archivada` y `POST /api/demo/reiniciar`**, para repetir la demo sin borrar eventos. **`clinica.slug`**, para el login.
 6. El stream de Chirp 3 se cierra tras **8 s** de silencio (el spec decía 10 s).
 
+## Base ya creada por el orquestador
+
+Estos archivos ya existen en `main`. Los pasos del plan que los crean o que instalan dependencias **se saltan**:
+
+- `AGENTS.md` (reglas para todos los agentes), `CLAUDE.md`, `README.md` y `.gitignore`.
+- `api/package.json` y `web/package.json` con **todas** las dependencias y scripts, más sus `package-lock.json`. Nadie corre `npm install <paquete>`: solo `npm ci`.
+- `api/tsconfig.json`, `api/.env.example`, `web/tsconfig.json` y `web/vite.config.ts`.
+- `api/src/tipos.ts`, el contrato completo. Respecto al código de la Tarea 1 tiene un cambio: incluye `CanalVoz` y `EventosVoz`, para que `voz.ts` y `sesion.ts` no dependan entre sí.
+- `db/schema.sql` y `db/docker-compose.yml`. El esquema vive en `db/` y no en `api/src/`.
+
 ## Reparto sugerido
 
 | Quién | Tareas |
@@ -46,11 +56,15 @@ Son detalles de implementación que el spec dejaba abiertos. El spec se actualiz
 ## Mapa de archivos
 
 ```
-.gitignore
-docker-compose.yml                Postgres local
+.gitignore  AGENTS.md  CLAUDE.md
 README.md                         cómo correr y desplegar
+cloudbuild.yaml                   construye las imágenes de api y web desde la raíz
+.gcloudignore                     lo que no se sube a Cloud Build
+db/
+  schema.sql                      tablas, rol y políticas RLS
+  docker-compose.yml              Postgres local
 api/
-  package.json  tsconfig.json  .env.example  .gcloudignore  Dockerfile
+  package.json  tsconfig.json  .env.example  Dockerfile
   src/
     tipos.ts          contrato de tipos (API ↔ front)
     numeros.ts        palabras en español → números
@@ -58,8 +72,7 @@ api/
     prueba.ts         ayudas para las pruebas
     estado.ts         eventos → estado de la cirugía
     alertas.ts        reglas de alerta (funciones puras)
-    schema.sql        tablas, rol y políticas RLS
-    db.ts             pool, migrar(), conClinica()
+    db.ts             pool, migrar() (lee db/schema.sql), conClinica()
     clave.ts          hash de contraseñas (scrypt)
     siembra.ts        datos ficticios, historial y demo del día
     repo.ts           consultas
@@ -75,7 +88,7 @@ api/
   scripts/
     frases-oro.json  set-de-oro.ts  probar-voz.ts
 web/
-  package.json  tsconfig.json  vite.config.ts  index.html  .gcloudignore  Dockerfile  nginx.conf.template
+  package.json  tsconfig.json  vite.config.ts  index.html  Dockerfile  nginx.conf.template
   public/  favicon.svg  pcm-worklet.js
   src/
     main.tsx  App.tsx  api.ts  estilos.css  etiquetas.ts  Logo.tsx  Login.tsx  Inicio.tsx
@@ -1005,8 +1018,9 @@ git pull --rebase && git push
 ### Tarea 4: Base de datos con Row-Level Security
 
 **Archivos:**
-- Crear: `docker-compose.yml`, `api/.env.example`, `api/src/schema.sql`, `api/src/db.ts`
+- Crear: `api/src/db.ts`
 - Prueba: `api/src/rls.dbtest.ts`
+- Ya existen (no se tocan): `db/schema.sql`, `db/docker-compose.yml`, `api/.env.example`
 
 **Interfaces:**
 - Produce: `pool: pg.Pool`, `migrar(): Promise<void>`, `conClinica<T>(clinicaId: string, fn: (c: pg.PoolClient) => Promise<T>): Promise<T>`.
@@ -1015,38 +1029,11 @@ Las pruebas `*.dbtest.ts` necesitan Postgres local (Docker Desktop).
 
 - [ ] **Paso 1: Postgres local y variables de entorno**
 
-`docker-compose.yml`:
-
-```yaml
-services:
-  db:
-    image: postgres:16
-    environment:
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: healthbyte
-    ports:
-      - "5432:5432"
-```
-
-`api/.env.example` (cópialo a `api/.env`, que está en `.gitignore`):
-
-```
-PGHOST=localhost
-PGPORT=5432
-PGUSER=postgres
-PGPASSWORD=postgres
-PGDATABASE=healthbyte
-SESION_SECRETO=cambia-esto-por-una-cadena-larga-y-aleatoria
-JEV_API_KEY=
-GOOGLE_CLOUD_PROJECT=
-PORT=8080
-```
-
 Run:
 
 ```bash
-docker compose up -d db
-cd api && cp .env.example .env && npm install pg && npm install -D @types/pg
+docker compose -f db/docker-compose.yml up -d
+cd api && cp .env.example .env && npm ci
 ```
 
 - [ ] **Paso 2: Escribir la prueba de aislamiento**
@@ -1099,99 +1086,9 @@ test('los eventos no se pueden modificar ni borrar', async () => {
 Run: `cd api && npm run test:db`
 Expected: FAIL con `Cannot find module` sobre `db.ts`.
 
-- [ ] **Paso 4: Escribir el esquema**
+- [ ] **Paso 4: Revisar el esquema**
 
-`api/src/schema.sql` (idempotente: se ejecuta en cada arranque):
-
-```sql
-DO $$ BEGIN
-  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'healthbyte_app') THEN
-    CREATE ROLE healthbyte_app NOLOGIN NOBYPASSRLS;
-  END IF;
-END $$;
-GRANT healthbyte_app TO CURRENT_USER;
-
-CREATE TABLE IF NOT EXISTS clinica (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  slug text UNIQUE NOT NULL,
-  nombre text NOT NULL,
-  plan text NOT NULL DEFAULT 'estandar'
-);
-CREATE TABLE IF NOT EXISTS quirofano (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  clinica_id uuid NOT NULL REFERENCES clinica,
-  nombre text NOT NULL
-);
-CREATE TABLE IF NOT EXISTS usuario (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  clinica_id uuid NOT NULL REFERENCES clinica,
-  nombre text NOT NULL,
-  rol text NOT NULL,
-  login text NOT NULL,
-  hash_clave text NOT NULL,
-  UNIQUE (clinica_id, login)
-);
-CREATE TABLE IF NOT EXISTS protocolo (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  clinica_id uuid NOT NULL REFERENCES clinica,
-  especialidad text NOT NULL,
-  definicion jsonb NOT NULL
-);
-CREATE TABLE IF NOT EXISTS paciente (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  clinica_id uuid NOT NULL REFERENCES clinica,
-  nombre text NOT NULL,
-  tipo_doc text NOT NULL,
-  num_doc text NOT NULL,
-  fecha_nacimiento date NOT NULL,
-  eps text NOT NULL,
-  hc text NOT NULL
-);
-CREATE TABLE IF NOT EXISTS cirugia (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  clinica_id uuid NOT NULL REFERENCES clinica,
-  quirofano_id uuid NOT NULL REFERENCES quirofano,
-  paciente_id uuid NOT NULL REFERENCES paciente,
-  protocolo_id uuid NOT NULL REFERENCES protocolo,
-  fecha_programada timestamptz NOT NULL,
-  procedimiento text NOT NULL,
-  diagnostico text NOT NULL,
-  lateralidad text NOT NULL,
-  equipo_programado jsonb NOT NULL,
-  datos_preop jsonb NOT NULL,
-  archivada boolean NOT NULL DEFAULT false
-);
-CREATE TABLE IF NOT EXISTS evento (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  clinica_id uuid NOT NULL REFERENCES clinica,
-  cirugia_id uuid NOT NULL REFERENCES cirugia,
-  ts timestamptz NOT NULL DEFAULT clock_timestamp(),
-  tipo text NOT NULL,
-  datos jsonb NOT NULL,
-  registrado_por uuid REFERENCES usuario,
-  rol_confirma text,
-  origen text NOT NULL CHECK (origen IN ('voz', 'manual')),
-  texto text,
-  confianza real,
-  anula_evento_id uuid REFERENCES evento
-);
-CREATE INDEX IF NOT EXISTS evento_por_cirugia ON evento (cirugia_id, ts);
-
--- Cada tabla con datos de una clínica solo muestra las filas de la clínica fijada en la transacción.
-DO $$ DECLARE t text; BEGIN
-  FOREACH t IN ARRAY ARRAY['quirofano', 'usuario', 'protocolo', 'paciente', 'cirugia', 'evento'] LOOP
-    EXECUTE format('ALTER TABLE %I ENABLE ROW LEVEL SECURITY', t);
-    EXECUTE format('DROP POLICY IF EXISTS por_clinica ON %I', t);
-    EXECUTE format($p$CREATE POLICY por_clinica ON %I
-      USING (clinica_id = current_setting('app.clinica_id', true)::uuid)
-      WITH CHECK (clinica_id = current_setting('app.clinica_id', true)::uuid)$p$, t);
-  END LOOP;
-END $$;
-
-GRANT USAGE ON SCHEMA public TO healthbyte_app;
-GRANT SELECT ON clinica, quirofano, usuario, protocolo, paciente, cirugia, evento TO healthbyte_app;
-GRANT INSERT ON evento TO healthbyte_app; -- sin UPDATE ni DELETE: los eventos son inmutables
-```
+`db/schema.sql` ya existe: crea las tablas, el rol `healthbyte_app` sin `BYPASSRLS`, la política `por_clinica` en cada tabla con datos de una clínica, y solo da `SELECT` e `INSERT` sobre `evento`. Léelo; no lo modifiques.
 
 - [ ] **Paso 5: Implementar `db.ts`**
 
@@ -1209,7 +1106,7 @@ pg.types.setTypeParser(1082, v => v); // date
 export const pool = new pg.Pool({ max: 5 });
 
 export async function migrar(): Promise<void> {
-  await pool.query(await readFile(new URL('./schema.sql', import.meta.url), 'utf8'));
+  await pool.query(await readFile(new URL('../../db/schema.sql', import.meta.url), 'utf8'));
 }
 
 /** Transacción con el rol sin privilegios y la clínica fijada: Row-Level Security filtra todo lo demás. */
@@ -1239,7 +1136,7 @@ Expected: las 3 pruebas de RLS en PASS, las anteriores siguen en PASS y `tsc` si
 - [ ] **Paso 7: Commit**
 
 ```bash
-git add docker-compose.yml api/.env.example api/src/schema.sql api/src/db.ts api/src/rls.dbtest.ts api/package.json api/package-lock.json
+git add api/src/db.ts api/src/rls.dbtest.ts
 git commit -m "feat(api): agregar esquema con Row-Level Security y eventos inmutables"
 git pull --rebase && git push
 ```
@@ -1567,7 +1464,7 @@ function generarEventos(p: Protocolo, equipo: Record<string, Persona>, inicio: n
 - [ ] **Paso 5: Correr las pruebas**
 
 Run: `cd api && npm test && npm run test:db && npm run tipos`
-Expected: todas en PASS y `tsc` sin errores. Si la base ya tenía una siembra vieja, bórrala antes con `docker compose down -v && docker compose up -d db`.
+Expected: todas en PASS y `tsc` sin errores. Si la base ya tenía una siembra vieja, bórrala antes con `docker compose -f db/docker-compose.yml down -v && docker compose -f db/docker-compose.yml up -d`.
 
 - [ ] **Paso 6: Commit**
 
@@ -1845,39 +1742,9 @@ const app = await crearApp();
 await app.listen({ host: '0.0.0.0', port: Number(process.env.PORT ?? 8080) });
 ```
 
-- [ ] **Paso 7: Documentar cómo correr el proyecto en local**
+- [ ] **Paso 7: README**
 
-Reemplaza `README.md` por:
-
-````markdown
-# HealthByte
-
-Tablero inteligente de seguridad quirúrgica que se llena por voz. Diseño: [spec](docs/superpowers/specs/2026-10-01-tablero-seguridad-quirurgica-design.md). Plan: [plan](docs/superpowers/plans/2026-10-01-tablero-seguridad-quirurgica.md).
-
-## Correr en local
-
-Requisitos: Node 24 o superior y Docker Desktop.
-
-```bash
-docker compose up -d db
-cd api && cp .env.example .env && npm install && npm run dev
-```
-
-En otra terminal, cuando exista `web/`:
-
-```bash
-cd web && npm install && npm run dev
-```
-
-Abre http://localhost:5173. La clínica es `caribe` o `norte`, el usuario `circulante` o `coordinador`, y la clave de prueba está en `CLAVE_DEMO` dentro de `api/src/siembra.ts`. Todos los datos son ficticios.
-
-## Pruebas
-
-```bash
-cd api && npm test        # lógica pura
-cd api && npm run test:db # con Postgres local
-```
-````
+`README.md` ya explica cómo correr en local. No lo cambies.
 
 - [ ] **Paso 8: Correr las pruebas y el API**
 
@@ -1890,7 +1757,7 @@ Expected: `{"ok":true}`
 - [ ] **Paso 9: Commit**
 
 ```bash
-git add api/src/repo.ts api/src/auth.ts api/src/app.ts api/src/server.ts api/src/app.dbtest.ts api/package.json api/package-lock.json README.md
+git add api/src/repo.ts api/src/auth.ts api/src/app.ts api/src/server.ts api/src/app.dbtest.ts
 git commit -m "feat(api): agregar login por clínica y rutas de cirugías"
 git pull --rebase && git push
 ```
@@ -1940,7 +1807,7 @@ import type { Decision, MsgServidor, NuevoEvento } from './tipos.ts';
 
 function montar(decision: Decision = { accion: 'ignorar' }) {
   const guardados: NuevoEvento[] = [];
-  const audios: Buffer[] = [];
+  const audios: Uint8Array[] = [];
   let voz: EventosVoz | null = null;
   const salas = crearSalas({
     cargarEstado: async () => derivar(cirugiaPrueba(), PROTOCOLO_CARDIO, guardados.map((e, i) => ({
@@ -2057,12 +1924,11 @@ Expected: FAIL con `Cannot find module` sobre `sesion.ts`.
 `api/src/sesion.ts`:
 
 ```ts
-import type { DatosEvento, Decision, EstadoCirugia, HoraId, MsgCliente, MsgServidor, NuevoEvento, Protocolo, Rol, Sesion } from './tipos.ts';
+import type { CanalVoz, DatosEvento, Decision, EstadoCirugia, EventosVoz, HoraId, MsgCliente, MsgServidor, NuevoEvento, Protocolo, Rol, Sesion } from './tipos.ts';
+export type { CanalVoz, EventosVoz } from './tipos.ts';
 import { HORAS } from './tipos.ts';
 import { vocabulario } from './protocolos.ts';
 
-export interface CanalVoz { escribir(audio: Buffer): void; cerrar(): void }
-export interface EventosVoz { onParcial(texto: string): void; onFinal(texto: string): void; onError(e: Error): void }
 export interface Deps {
   cargarEstado(clinicaId: string, cirugiaId: string): Promise<EstadoCirugia | null>;
   insertarEventos(clinicaId: string, cirugiaId: string, eventos: NuevoEvento[]): Promise<void>;
@@ -3241,7 +3107,7 @@ git pull --rebase && git push
 - Prueba: `api/src/voz.test.ts`
 
 **Interfaces:**
-- Consume: `CanalVoz` y `EventosVoz` (7), `vocabulario` (2).
+- Consume: `CanalVoz` y `EventosVoz` (de `tipos.ts`), `vocabulario` (2).
 - Produce: `crearCanalVoz(o: OpcionesCanal): CanalVoz` y `configuracion(proyecto, frases)`.
 
 El canal abre el stream con la primera voz. Lo cierra tras 8 s sin audio o cuando supera 4,5 minutos (Google limita la duración), y lo reabre con la siguiente voz. Si el stream falla, avisa y se reabre solo en la siguiente escritura.
@@ -3346,7 +3212,7 @@ Expected: FAIL con `Cannot find module` sobre `voz.ts`.
 
 ```ts
 import { v2 } from '@google-cloud/speech';
-import type { CanalVoz, EventosVoz } from './sesion.ts';
+import type { CanalVoz, EventosVoz } from './tipos.ts';
 
 interface Resultado { isFinal?: boolean; alternatives?: { transcript?: string }[] }
 export interface StreamVoz {
@@ -5051,8 +4917,8 @@ git pull --rebase && git push
 ### Tarea 16: Contenedores y servicios en Cloud Run
 
 **Archivos:**
-- Crear: `api/Dockerfile`, `api/.gcloudignore`, `web/Dockerfile`, `web/.gcloudignore`, `web/nginx.conf.template`, `infra/servicios.tf`
-- Modificar: `README.md` (sección de despliegue)
+- Crear: `cloudbuild.yaml`, `.gcloudignore`, `api/Dockerfile`, `web/Dockerfile`, `web/nginx.conf.template`, `infra/servicios.tf`
+- Modificar: `README.md` (agrega la sección de despliegue al final)
 
 **Interfaces:**
 - Consume: la infraestructura de la Tarea 9 (cuenta de servicio, secretos, Cloud SQL, registro de imágenes).
@@ -5062,25 +4928,51 @@ git pull --rebase && git push
 
 - [ ] **Paso 1: Imágenes**
 
-`api/Dockerfile`:
+Las dos imágenes se construyen **desde la raíz del repo**, porque el API necesita `db/schema.sql`. Una sola orden de Cloud Build construye las dos en paralelo.
 
-```dockerfile
-FROM node:24-slim
-WORKDIR /app
-ENV NODE_ENV=production
-COPY package.json package-lock.json ./
-RUN npm ci --omit=dev
-COPY src ./src
-CMD ["node", "src/server.ts"]
+`cloudbuild.yaml`:
+
+```yaml
+steps:
+  - id: api
+    name: gcr.io/cloud-builders/docker
+    args: ['build', '-f', 'api/Dockerfile', '-t', '${_REGISTRO}/api:${_TAG}', '.']
+    waitFor: ['-']
+  - id: web
+    name: gcr.io/cloud-builders/docker
+    args: ['build', '-f', 'web/Dockerfile', '-t', '${_REGISTRO}/web:${_TAG}', '.']
+    waitFor: ['-']
+images:
+  - '${_REGISTRO}/api:${_TAG}'
+  - '${_REGISTRO}/web:${_TAG}'
 ```
 
-`api/.gcloudignore` y `web/.gcloudignore` (el mismo contenido en los dos):
+`.gcloudignore` (en la raíz; sin él se subirían `node_modules`, los `.env` y el estado de Terraform, que tiene secretos):
 
 ```
 .gcloudignore
+.git/
 node_modules/
 dist/
 .env
+infra/
+docs/
+Notas/
+Diseño/
+*.wav
+```
+
+`api/Dockerfile` (conserva la estructura `api/` + `db/` para que `migrar()` encuentre `../../db/schema.sql`):
+
+```dockerfile
+FROM node:24-slim
+WORKDIR /app/api
+ENV NODE_ENV=production
+COPY api/package.json api/package-lock.json ./
+RUN npm ci --omit=dev
+COPY api/src ./src
+COPY db/schema.sql /app/db/schema.sql
+CMD ["node", "src/server.ts"]
 ```
 
 `web/nginx.conf.template` (la imagen oficial de nginx reemplaza `${API_URL}` y `${API_HOST}` al arrancar, y deja intactas las variables propias de nginx como `$http_upgrade`):
@@ -5116,18 +5008,19 @@ server {
 
 ```dockerfile
 FROM node:24-slim AS build
-WORKDIR /app
-COPY package.json package-lock.json ./
+WORKDIR /app/web
+COPY web/package.json web/package-lock.json ./
 RUN npm ci
-COPY . .
+COPY web/ ./
+COPY api/src/tipos.ts /app/api/src/tipos.ts
 RUN npm run build
 
 FROM nginx:1.29-alpine
-COPY nginx.conf.template /etc/nginx/templates/default.conf.template
-COPY --from=build /app/dist /usr/share/nginx/html
+COPY web/nginx.conf.template /etc/nginx/templates/default.conf.template
+COPY --from=build /app/web/dist /usr/share/nginx/html
 ```
 
-El build del front no necesita la carpeta `api/`: solo importa tipos de ella, y Vite los borra al compilar.
+El front solo importa tipos de `api/src/tipos.ts` y Vite los borra al compilar. Se copia igual para que la imagen no dependa de ese detalle.
 
 - [ ] **Paso 2: Servicios en Terraform**
 
@@ -5274,8 +5167,8 @@ Primero exporta de nuevo `GOOGLE_OAUTH_ACCESS_TOKEN` (Tarea 9, Paso 4). Luego:
 ```bash
 PROYECTO=TU_PROJECT_ID
 TAG=$(git rev-parse --short HEAD)
-gcloud builds submit api --tag us-east1-docker.pkg.dev/$PROYECTO/healthbyte/api:$TAG --project=$PROYECTO --configuration=healthbyte
-gcloud builds submit web --tag us-east1-docker.pkg.dev/$PROYECTO/healthbyte/web:$TAG --project=$PROYECTO --configuration=healthbyte
+gcloud builds submit --config=cloudbuild.yaml --project=$PROYECTO --configuration=healthbyte \
+  --substitutions=_REGISTRO=us-east1-docker.pkg.dev/$PROYECTO/healthbyte,_TAG=$TAG
 cd infra && terraform apply -var tag=$TAG
 ```
 
@@ -5304,21 +5197,21 @@ Solo en la cuenta **personal**, con la configuración de gcloud `healthbyte` (ve
 
 ```bash
 export GOOGLE_OAUTH_ACCESS_TOKEN=$(gcloud auth print-access-token --configuration=healthbyte)
-cd infra && terraform init && terraform apply          # infraestructura base (la primera vez)
-TAG=$(git rev-parse --short HEAD)                      # luego las imágenes y los servicios
-gcloud builds submit api --tag us-east1-docker.pkg.dev/<proyecto>/healthbyte/api:$TAG --project=<proyecto> --configuration=healthbyte
-gcloud builds submit web --tag us-east1-docker.pkg.dev/<proyecto>/healthbyte/web:$TAG --project=<proyecto> --configuration=healthbyte
-terraform apply -var tag=$TAG
+terraform -chdir=infra init && terraform -chdir=infra apply   # infraestructura base (la primera vez)
+TAG=$(git rev-parse --short HEAD)                              # imágenes, desde la raíz del repo
+gcloud builds submit --config=cloudbuild.yaml --project=<proyecto> --configuration=healthbyte \
+  --substitutions=_REGISTRO=us-east1-docker.pkg.dev/<proyecto>/healthbyte,_TAG=$TAG
+terraform -chdir=infra apply -var tag=$TAG                     # servicios
 ```
 
 En PowerShell, el token se exporta con `$env:GOOGLE_OAUTH_ACCESS_TOKEN = gcloud auth print-access-token --configuration=healthbyte`.
 
-Día de la demo (sin arranque en frío): `terraform apply -var tag=$TAG -var api_min_instancias=1`
+Día de la demo (sin arranque en frío): `terraform -chdir=infra apply -var tag=$TAG -var api_min_instancias=1`
 
 ## Apagar todo
 
 ```bash
-cd infra && terraform destroy
+terraform -chdir=infra destroy
 gcloud projects list --configuration=healthbyte
 ```
 
@@ -5328,7 +5221,7 @@ gcloud projects list --configuration=healthbyte
 - [ ] **Paso 5: Commit**
 
 ```bash
-git add api/Dockerfile api/.gcloudignore web/Dockerfile web/.gcloudignore web/nginx.conf.template infra/servicios.tf README.md
+git add cloudbuild.yaml .gcloudignore api/Dockerfile web/Dockerfile web/nginx.conf.template infra/servicios.tf README.md
 git commit -m "feat(infra): desplegar api y web en Cloud Run con proxy del mismo origen"
 git pull --rebase && git push
 ```

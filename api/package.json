@@ -1,0 +1,29 @@
+{
+  "name": "healthbyte-api",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "node --watch --env-file=.env src/server.ts",
+    "start": "node src/server.ts",
+    "test": "node --test \"src/**/*.test.ts\"",
+    "test:db": "node --env-file=.env --test --test-concurrency=1 \"src/**/*.dbtest.ts\"",
+    "tipos": "tsc",
+    "oro": "node --env-file=.env scripts/set-de-oro.ts",
+    "probar-voz": "node --env-file=.env scripts/probar-voz.ts"
+  },
+  "dependencies": {
+    "@fastify/cookie": "^11.1.2",
+    "@fastify/websocket": "^11.3.1",
+    "@google-cloud/speech": "^8.1.1",
+    "fastify": "^5.12.5",
+    "pg": "^8.23.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.0",
+    "@types/pg": "^8.23.1",
+    "typescript": "^7.0.2"
+  }
+}

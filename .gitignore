@@ -1,0 +1,7 @@
+node_modules/
+.env
+dist/
+infra/.terraform/
+infra/*.tfstate*
+infra/terraform.tfvars
+*.wav
