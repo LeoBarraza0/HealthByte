@@ -1,4 +1,5 @@
-/* Estilos para el marco de la sesión quirúrgica en vivo (modo pared y modo tablet) */
+/* Estilos del marco de la sesión quirúrgica en vivo (modo tablet y modo pared)
+   Tokens y colores provienen de estilos.css. */
 
 .sesion {
   width: 100%;
@@ -16,6 +17,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  height: 100vh;
   font-size: 24px;
   color: var(--tenue);
 }
@@ -71,6 +73,7 @@
 .sesion.pared .cabecera-nombre-fila { gap: 20px; }
 
 .sesion.tablet .cabecera-nombre {
+  font-family: var(--display);
   font-size: 26px;
   line-height: 30px;
   font-weight: 600;
@@ -78,6 +81,7 @@
 }
 
 .sesion.pared .cabecera-nombre {
+  font-family: var(--display);
   font-size: 50px;
   line-height: 56px;
   font-weight: 600;
@@ -140,11 +144,13 @@
 }
 
 .sesion.tablet .cabecera-procedimiento {
+  font-family: var(--display);
   font-size: 19px;
   font-weight: 500;
 }
 
 .sesion.pared .cabecera-procedimiento {
+  font-family: var(--display);
   font-size: 34px;
   line-height: 40px;
   font-weight: 500;
@@ -180,11 +186,13 @@
 }
 
 .sesion.tablet .cabecera-reloj {
+  font-family: var(--display);
   font-size: 34px;
   font-weight: 500;
 }
 
 .sesion.pared .cabecera-reloj {
+  font-family: var(--display);
   font-size: 76px;
   line-height: 76px;
   font-weight: 500;
@@ -202,9 +210,18 @@
 }
 
 .btn-cabecera {
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 10px;
   background: transparent;
   color: var(--blanco);
-  border-color: var(--azul-medio);
+  border: 1px solid var(--azul-medio);
+  font: 600 15px var(--texto);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
 }
 
 .btn-cabecera:hover {
@@ -214,6 +231,12 @@
 .btn-icono {
   min-width: 44px;
   padding: 0;
+}
+
+.cabecera :focus-visible,
+.barra-voz :focus-visible {
+  outline: 3px solid var(--menta);
+  outline-offset: 2px;
 }
 
 /* ==================== 2. PISTA (LÍNEA DE TIEMPO) ==================== */
@@ -312,11 +335,18 @@
 }
 
 .btn-marcar {
-  min-height: 32px;
-  padding: 0 10px;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 10px;
   font-size: 14px;
+  font-weight: 600;
   color: var(--azul);
-  border-color: var(--azul);
+  border: 1px solid var(--azul);
+  background: var(--blanco);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-marcar:hover {
@@ -397,6 +427,10 @@
 
 .pista-tramo.ahora .pista-tramo-minutos {
   color: var(--azul);
+  font-weight: 600;
+}
+
+.pista-tramo-nombre {
   font-weight: 600;
 }
 
@@ -510,12 +544,19 @@
 
 .btn-mic {
   min-height: 44px;
-  padding: 0 12px;
+  padding: 0 14px;
+  border-radius: 10px;
   font-size: 14px;
+  font-weight: 600;
   background: var(--blanco);
   color: var(--tinta);
   border: 1px solid var(--borde-fuerte);
   align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
 }
 
 .btn-mic.activo {
@@ -539,6 +580,7 @@
 
 .barra-voz-dictado {
   margin: 0;
+  font-family: var(--display);
   color: var(--azul-claro);
 }
 
@@ -626,10 +668,12 @@
 .btn-si {
   min-height: 52px;
   min-width: 72px;
-  font-size: 18px;
+  border-radius: 10px;
+  font: 600 18px var(--texto);
   background: var(--ok);
   color: var(--blanco);
-  border-color: var(--ok);
+  border: 1px solid var(--ok);
+  cursor: pointer;
 }
 
 .btn-si:hover {
@@ -639,7 +683,16 @@
 .btn-no {
   min-height: 52px;
   min-width: 72px;
-  font-size: 18px;
+  border-radius: 10px;
+  font: 600 18px var(--texto);
+  background: var(--blanco);
+  color: var(--tinta);
+  border: 1px solid var(--borde-fuerte);
+  cursor: pointer;
+}
+
+.btn-no:hover {
+  background: var(--azul-tenue);
 }
 
 /* Último registro */
