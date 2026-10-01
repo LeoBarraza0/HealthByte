@@ -41,7 +41,12 @@ export function validarNuevaCirugia(x: unknown): NuevaCirugia | string {
     return 'Protocolo inválido';
   }
 
-  if (typeof obj.fecha_programada !== 'string' || !ISO_FECHA_HORA.test(obj.fecha_programada.trim()) || isNaN(Date.parse(obj.fecha_programada.trim()))) {
+  if (typeof obj.fecha_programada !== 'string') {
+    return 'Fecha programada inválida';
+  }
+  const fechaStr = obj.fecha_programada.trim();
+  const [fechaPart] = fechaStr.split('T');
+  if (!ISO_FECHA_HORA.test(fechaStr) || !esFechaValida(fechaPart) || isNaN(Date.parse(fechaStr))) {
     return 'Fecha programada inválida';
   }
 
@@ -140,7 +145,7 @@ export function validarNuevoIntegrante(x: unknown): NuevoIntegrante | string {
   }
 
   const LOGIN_REGEX = /^[a-z0-9._-]{3,30}$/;
-  if (typeof obj.login !== 'string' || !LOGIN_REGEX.test(obj.login.trim())) {
+  if (typeof obj.login !== 'string' || !LOGIN_REGEX.test(obj.login)) {
     return 'Login inválido (3-30 caracteres en minúsculas, números, puntos, guiones)';
   }
 

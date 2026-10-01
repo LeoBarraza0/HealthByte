@@ -57,7 +57,7 @@ export async function agenda(clinicaId: string, fecha: string): Promise<CirugiaA
       WHERE NOT c.archivada
         AND c.fecha_programada >= ($1 || 'T00:00:00-05:00')::timestamptz
         AND c.fecha_programada < (($1 || 'T00:00:00-05:00')::timestamptz + interval '1 day')
-      ORDER BY c.fecha_programada
+      ORDER BY c.fecha_programada, c.id
     `, [fecha]);
     return rows;
   });
@@ -71,6 +71,9 @@ export async function programarCirugia(clinicaId: string, datos: NuevaCirugia): 
 
     const { rowCount: countProt } = await c.query('SELECT 1 FROM protocolo WHERE id = $1', [datos.protocolo_id]);
     if (!countProt) throw new ErrorHttp(400, 'Protocolo no encontrado');
+
+    // Bloqueo asesor por transacción sobre el quirófano para serializar inserciones concurrentes en el mismo quirófano
+    await c.query('SELECT pg_advisory_xact_lock(hashtext($1::text))', [datos.quirofano_id]);
 
     // 2. Buscar o crear paciente
     let pacienteId: string;
@@ -149,10 +152,17 @@ export async function crearIntegrante(clinicaId: string, datos: NuevoIntegrante)
       throw new ErrorHttp(409, 'Ese usuario ya existe');
     }
     const hash = hashClave(datos.clave);
-    const { rows } = await c.query<{ id: string }>(
-      'INSERT INTO usuario (clinica_id, nombre, rol, login, hash_clave) VALUES ($1, $2, $3, $4, $5) RETURNING id',
-      [clinicaId, datos.nombre, datos.rol, datos.login, hash]
-    );
-    return { id: rows[0].id };
+    try {
+      const { rows } = await c.query<{ id: string }>(
+        'INSERT INTO usuario (clinica_id, nombre, rol, login, hash_clave) VALUES ($1, $2, $3, $4, $5) RETURNING id',
+        [clinicaId, datos.nombre, datos.rol, datos.login, hash]
+      );
+      return { id: rows[0].id };
+    } catch (e: unknown) {
+      if ((e as { code?: string })?.code === '23505') {
+        throw new ErrorHttp(409, 'Ese usuario ya existe');
+      }
+      throw e;
+    }
   });
 }
