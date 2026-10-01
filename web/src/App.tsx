@@ -9,6 +9,7 @@ import { Panel } from './Panel.tsx';
 import { Trazabilidad } from './Trazabilidad.tsx';
 import { Programacion } from './Programacion.tsx';
 import { Personal } from './Personal.tsx';
+import { CelularCamara } from './CelularCamara.tsx';
 
 // Rutas por pathname y navegación con <a href> (recarga completa): sin librería de rutas.
 const SESION = /^\/sesion\/([0-9a-f-]{36})$/;
@@ -20,6 +21,8 @@ export function App() {
   useEffect(() => {
     if (yo && location.pathname === '/entrar') location.replace('/');
   }, [yo]);
+  // El celular que hace de cámara no inicia sesión: entra con el código de un solo uso que muestra la tablet.
+  if (location.pathname === '/camara') return <CelularCamara />;
   if (yo === undefined) return null;
   if (location.pathname === '/entrar') return yo ? null : <Login onEntrar={setYo} />;
   if (yo === null) return location.pathname === '/' ? <Landing /> : <Login onEntrar={setYo} />;

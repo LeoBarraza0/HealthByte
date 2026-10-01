@@ -35,6 +35,34 @@ cd web && npm ci && npm run dev
 
 Abre http://localhost:5173. La clínica es `caribe` o `norte`, el usuario `circulante` o `coordinador`, y la clave de prueba está en `CLAVE_DEMO` dentro de `api/src/siembra.ts`. Todos los datos son ficticios.
 
+## Cámara de la mesa
+
+Un celular hace de cámara sobre la mesa de instrumental y cuenta el material como segundo conteo.
+
+- **Conectar:** en la sesión de la tablet, el botón de la cámara de la cabecera abre la vista y **Conectar una cámara** muestra un QR. El celular lo escanea y abre `/camara`, sin iniciar sesión, con un código de un solo uso que vence a los 5 minutos. Si el celular no lee el QR, se escribe el código a mano.
+- **Contar:** con **Contar** o diciendo «cámara, cuenta la mesa», el celular manda una foto en alta resolución. Gemini 3.8 Flash, en Vertex AI, la analiza y devuelve una caja por objeto. Conti pregunta si se registra lo que vio la cámara, y nada se registra sin un sí, por voz o con un toque.
+  - Antes de la incisión, lo que ve entra al conteo.
+  - Al cierre, lo que ve sale; si no cuadra, se abre el protocolo de conteo de siempre.
+  - Durante la cirugía, la cámara solo informa.
+- **Indicador de esterilización:** «cámara, lee el indicador» propone el ítem del checklist con el lote y la fecha de vencimiento.
+- **Qué queda guardado:** el video no se guarda. Cada foto analizada queda en la tabla `captura`, inmutable y con RLS, con lo que vio la cámara. Los eventos confirmados quedan con origen `camara`.
+
+Credenciales: las mismas de Chirp 3. En local, `gcloud auth application-default login` y `GOOGLE_CLOUD_PROJECT` en `api/.env`. En Cloud Run, la cuenta de servicio de la API con `roles/aiplatform.user`; Terraform ya la declara. Para probar Gemini con una foto real:
+
+```bash
+cd api && npm run probar-camara -- mesa.jpg            # o: -- indicador.jpg esterilizacion
+```
+
+Para probar con un celular en la red local hace falta https, porque el navegador solo deja usar la cámara en una dirección segura:
+
+```bash
+mkdir -p ~/hb-certs && openssl req -x509 -newkey rsa:2048 -nodes -days 30 -subj "/CN=healthbyte-dev" \
+  -keyout ~/hb-certs/dev.key -out ~/hb-certs/dev.crt
+cd web && HB_HTTPS=~/hb-certs npm run dev
+```
+
+Abre la tablet con la dirección de red que muestra Vite (`https://<ip>:5173`, no `localhost`), para que el QR apunte a un servidor que el celular alcance. Acepta el certificado en los dos equipos. Para probar sin celular, el panel trae **Abrir aquí**, que abre la cámara del mismo computador en otra ventana.
+
 ## Desplegar en GCP
 
 Proyecto personal **healthbyte-510314**, cuenta **juniorrdsr12@gmail.com**, configuración de gcloud **healthbyte**. Nunca se usa la configuración corporativa. Terraform mantiene la guardia `cuenta_esperada`.

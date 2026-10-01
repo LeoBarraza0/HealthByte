@@ -411,6 +411,8 @@ export function Trazabilidad({ cirugiaId, yo }: { cirugiaId: string; yo: Usuario
                                 <span className="traza-badge-voz">
                                   Voz{e.confianza != null ? ` ${e.confianza.toFixed(2).replace('.', ',')}` : ''}
                                 </span>
+                              ) : e.origen === 'camara' ? (
+                                <span className="traza-badge-voz">Cámara</span>
                               ) : !e.registrado_por ? (
                                 <span className="traza-badge-alerta">Alerta</span>
                               ) : (

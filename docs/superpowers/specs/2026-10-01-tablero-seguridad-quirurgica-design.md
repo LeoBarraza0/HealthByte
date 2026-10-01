@@ -24,7 +24,8 @@ funcional). Sale de la sesión de definición del 1 de octubre de 2026. Insumos:
 
 | Tema | Decisión |
 | --- | --- |
-| Rumbo | El núcleo es el reto oficial. De la investigación previa se reciclan el conteo con alerta (propuesta B) y las cifras del pitch. Se descartan el 3D y la visión por computador. |
+| Rumbo | El núcleo es el reto oficial. De la investigación previa se reciclan el conteo con alerta (propuesta B) y las cifras del pitch. Se descarta el 3D. |
+| Cámara de la mesa | Agregada el 1 de octubre (antes descartada): un celular vinculado con un código QR de un solo uso transmite la mesa de instrumental. Gemini 3.8 Flash, en Vertex AI, cuenta el material o lee el indicador de esterilización como segundo conteo. Conti pregunta y nada se registra sin un sí; los eventos quedan con origen `camara` y cada foto en la tabla `captura`. Detalle en el README. |
 | Tiempo | De 24 a 48 horas, con prototipo funcional. La demo es una cirugía de punta a punta con datos sembrados. |
 | Dispositivos | Una sola vista de sesión, que funciona completa en un solo dispositivo (TV con mini-PC, tablet o portátil). Otros dispositivos pueden abrir la misma sesión como espejos en vivo. |
 | Entrada | Voz con escucha continua. El instrumentador no toca ningún aparato. La circulante puede registrar y corregir con toques. |

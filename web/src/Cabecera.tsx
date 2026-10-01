@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { EstadoCirugia, MsgCliente } from '../../api/src/tipos.ts';
+import type { EstadoCamara, EstadoCirugia, MsgCliente } from '../../api/src/tipos.ts';
 import type { Modo } from './props.ts';
 import { alergiaVisible } from './marco.ts';
 
@@ -8,6 +8,10 @@ export interface PropsCabecera {
   modo: Modo;
   enviar: (m: MsgCliente) => void;
   onAlternarModo: () => void;
+  // Cámara de la mesa (solo tablet)
+  camara?: EstadoCamara | null;
+  vistaCamara?: boolean;
+  onAlternarCamara?: () => void;
 }
 
 function obtenerHoraActual(): string {
@@ -19,7 +23,7 @@ function obtenerHoraActual(): string {
   });
 }
 
-export function Cabecera({ estado, modo, enviar, onAlternarModo }: PropsCabecera) {
+export function Cabecera({ estado, modo, enviar, onAlternarModo, camara, vistaCamara, onAlternarCamara }: PropsCabecera) {
   const [horaStr, setHoraStr] = useState(obtenerHoraActual);
 
   useEffect(() => {
@@ -110,6 +114,22 @@ export function Cabecera({ estado, modo, enviar, onAlternarModo }: PropsCabecera
               </svg>
               Deshacer
             </button>
+            {onAlternarCamara && (
+              <button
+                className={`btn btn-cabecera btn-icono btn-camara ${vistaCamara ? 'activo' : ''}`}
+                type="button"
+                aria-pressed={Boolean(vistaCamara)}
+                aria-label={`Cámara de la mesa${camara?.conectada ? ', conectada' : ''}`}
+                title="Cámara de la mesa"
+                onClick={onAlternarCamara}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" />
+                  <circle cx="12" cy="13" r="3" />
+                </svg>
+                {camara?.conectada && <span className="btn-camara-punto" aria-hidden="true" />}
+              </button>
+            )}
             <button
               className="btn btn-cabecera btn-icono"
               type="button"

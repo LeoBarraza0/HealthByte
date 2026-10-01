@@ -5,6 +5,7 @@ import { estadoConti } from './estadoConti.ts';
 import { describir, guardarPreferencia, hora, preferencia } from './etiquetas.ts';
 import { iniciarMicrofono } from './microfono.ts';
 import { cierreSeguro, nuevaCritica } from './marco.ts';
+import './camara.css';
 
 export interface PropsBarraVoz {
   estado: EstadoCirugia;
@@ -120,6 +121,9 @@ export function BarraVoz({
   });
 
   const ultimoEvento = estado.eventos.at(-1);
+  // Lo que propone la cámara lo pregunta Conti, en un globo junto a su cara.
+  const preguntaCamara = pendiente?.origen === 'camara' ? pendiente : null;
+  const segundos = (p: Pendiente) => Math.max(0, Math.ceil((p.expira - ahoraMs) / 1000));
 
   return (
     <section aria-label="Registro por voz" aria-live="polite" className="barra-voz">
@@ -183,7 +187,25 @@ export function BarraVoz({
       </div>
 
       <div className="barra-voz-centro">
-        {parcial ? (
+        {preguntaCamara ? (
+          <div className="conti-pregunta" role="group" aria-label="Conti pregunta">
+            <div className="barra-voz-pendiente-info">
+              <span className="barra-voz-pendiente-pregunta">¿Registro lo que vio la cámara?</span>
+              <span className="barra-voz-pendiente-resumen">{preguntaCamara.resumen}</span>
+              <span className="barra-voz-pendiente-expira">
+                {modo === 'pared'
+                  ? `Di «sí» o «no». Se descarta en ${segundos(preguntaCamara)} s.`
+                  : `Mire la foto antes de responder. Se descarta en ${segundos(preguntaCamara)} s`}
+              </span>
+            </div>
+            {modo === 'tablet' && (
+              <>
+                <button className="btn btn-si" type="button" onClick={() => enviar({ tipo: 'confirmar', si: true })}>Sí</button>
+                <button className="btn btn-no" type="button" onClick={() => enviar({ tipo: 'confirmar', si: false })}>No</button>
+              </>
+            )}
+          </div>
+        ) : parcial ? (
           <p className="barra-voz-dictado display">«{parcial}»</p>
         ) : apagar && nivel >= umbral ? (
           <p className="barra-voz-aviso">Te escucho…</p>
@@ -195,7 +217,7 @@ export function BarraVoz({
       </div>
 
       <div className="barra-voz-derecha">
-        {pendiente ? (
+        {preguntaCamara ? null : pendiente ? (
           <div className="barra-voz-pendiente">
             <div className="barra-voz-pendiente-info">
               <span className="barra-voz-pendiente-pregunta">¿Registrar esto?</span>

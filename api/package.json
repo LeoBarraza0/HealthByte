@@ -12,7 +12,8 @@
     "test:db": "node --env-file=.env --test --test-concurrency=1 \"src/**/*.dbtest.ts\"",
     "tipos": "tsc",
     "oro": "node --env-file=.env scripts/set-de-oro.ts",
-    "probar-voz": "node --env-file=.env scripts/probar-voz.ts"
+    "probar-voz": "node --env-file=.env scripts/probar-voz.ts",
+    "probar-camara": "node --env-file=.env scripts/probar-camara.ts"
   },
   "dependencies": {
     "@fastify/cookie": "^11.1.2",

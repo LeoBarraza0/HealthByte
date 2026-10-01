@@ -59,6 +59,7 @@ export function resumenCaptura(c: Captura): string {
     const i = c.resultado.indicador;
     return `Indicador ${INDICADOR[i?.estado ?? 'no_visible']}${i?.lote ? ` · lote ${i.lote}` : ''}`;
   }
-  const partes = Object.entries(c.resultado.conteo).map(([m, n]) => `${m} ${n}`);
+  // jsonb reordena las claves: se ordenan para que el resumen no cambie de una foto a otra.
+  const partes = Object.entries(c.resultado.conteo).sort(([a], [b]) => a.localeCompare(b, 'es')).map(([m, n]) => `${m} ${n}`);
   return partes.join(' · ') || 'Sin material a la vista';
 }

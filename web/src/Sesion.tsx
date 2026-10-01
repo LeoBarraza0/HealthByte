@@ -10,11 +10,14 @@ import { Ahora } from './Ahora.tsx';
 import { Atencion } from './Atencion.tsx';
 import { Lateral } from './Lateral.tsx';
 import { Bitacora } from './Bitacora.tsx';
+import { Camara } from './Camara.tsx';
 import './sesion.css';
 
 export function Sesion({ cirugiaId }: { cirugiaId: string; yo: Usuario }) {
   const [pared, setPared] = useState(() => preferencia('hb_pared') === '1');
   const modo: Modo = pared ? 'pared' : 'tablet';
+  const [verCamara, setVerCamara] = useState(false); // la cámara de la mesa se maneja desde la tablet
+  const alternarCamara = useCallback(() => setVerCamara(v => !v), []);
 
   const alternarModo = useCallback(() => {
     setPared(p => {
@@ -46,16 +49,31 @@ export function Sesion({ cirugiaId }: { cirugiaId: string; yo: Usuario }) {
         modo={modo}
         enviar={s.enviar}
         onAlternarModo={alternarModo}
+        camara={s.camara}
+        vistaCamara={verCamara}
+        onAlternarCamara={alternarCamara}
       />
       <Pista estado={s.estado} modo={modo} enviar={s.enviar} />
-      <main className="sesion-cuerpo">
-        <Ahora estado={s.estado} modo={modo} registrar={registrar} />
-        <aside className="sesion-lateral">
-          <Atencion estado={s.estado} modo={modo} registrar={registrar} />
-          <Lateral estado={s.estado} modo={modo} registrar={registrar} />
-          <Bitacora estado={s.estado} modo={modo} />
-        </aside>
-      </main>
+      {modo === 'tablet' && verCamara ? (
+        <Camara
+          cirugiaId={cirugiaId}
+          estado={s.estado}
+          camara={s.camara}
+          codigo={s.codigoCamara}
+          enviar={s.enviar}
+          onCuadro={s.onCuadro}
+          verCamara={s.verCamara}
+        />
+      ) : (
+        <main className="sesion-cuerpo">
+          <Ahora estado={s.estado} modo={modo} registrar={registrar} />
+          <aside className="sesion-lateral">
+            <Atencion estado={s.estado} modo={modo} registrar={registrar} />
+            <Lateral estado={s.estado} modo={modo} registrar={registrar} />
+            <Bitacora estado={s.estado} modo={modo} />
+          </aside>
+        </main>
+      )}
       <BarraVoz
         estado={s.estado}
         modo={modo}

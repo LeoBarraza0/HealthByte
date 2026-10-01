@@ -1,6 +1,25 @@
 /* Cámara de la mesa: el módulo de la sesión en tablet, el panel para vincular el celular, la pregunta de Conti
    y la página del celular que transmite. Colores y medidas de estilos.css y de Diseño (canvas «Visión por cámara»). */
 
+/* ==================== Botón en la cabecera ==================== */
+
+.btn-camara { position: relative; }
+.btn-camara.activo { background: var(--menta); border-color: var(--menta); color: var(--navy); }
+.btn-camara.activo:hover { background: #29A386; }
+
+.btn-camara-punto {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: var(--menta);
+  box-shadow: 0 0 0 2px var(--navy);
+}
+
+.btn-camara.activo .btn-camara-punto { background: var(--navy); box-shadow: 0 0 0 2px var(--menta); }
+
 /* ==================== Módulo en la sesión (tablet) ==================== */
 
 .camara-cuerpo {
@@ -57,6 +76,7 @@
 
 .camara-video, .camara-foto { width: 100%; height: 100%; display: block; }
 .camara-video { object-fit: contain; }
+.camara-video[hidden] { display: none; } /* sigue montada para recibir cuadros */
 
 .camara-caja {
   fill: none;
@@ -131,6 +151,8 @@
   color: var(--tenue);
 }
 
+.camara-pie .btn, .camara-panel-pie .btn, .camara-tarjeta-cabecera .btn { flex-shrink: 0; white-space: nowrap; text-decoration: none; }
+
 .camara-lateral {
   display: flex;
   flex-direction: column;
@@ -162,7 +184,7 @@
 
 .camara-fila {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 72px 62px 104px;
+  grid-template-columns: minmax(0, 1fr) 78px 58px 116px;
   gap: 8px;
   align-items: center;
   min-height: 38px;
@@ -172,7 +194,7 @@
 
 .camara-fila:last-child { border-bottom: 0; }
 .camara-fila > span:nth-child(2), .camara-fila > span:nth-child(3) { text-align: right; }
-.camara-fila.cabecera { min-height: 30px; font-size: 13px; color: var(--tenue); }
+.camara-fila.encabezado { min-height: 30px; font-size: 13px; color: var(--tenue); }
 .camara-fila.falta { background: var(--critica-fondo); margin: 0 -16px; padding: 0 16px; color: var(--critica-osc); font-weight: 700; }
 .camara-resultado.ok { color: var(--ok); font-weight: 600; }
 .camara-resultado.aviso { color: var(--aviso-txt); font-weight: 600; }

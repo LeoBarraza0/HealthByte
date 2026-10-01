@@ -98,7 +98,7 @@ export function Ahora({ estado, modo, registrar }: PropsBloque) {
                     <span>{hito}</span>
                     <div>
                       {ev ? (
-                        <span style={{ fontSize: '14px', color: 'var(--tenue)' }}>{ev.origen === 'voz' ? 'Por voz' : 'Manual'}</span>
+                        <span style={{ fontSize: '14px', color: 'var(--tenue)' }}>{ev.origen === 'voz' ? 'Por voz' : ev.origen === 'camara' ? 'Por cámara' : 'Manual'}</span>
                       ) : esTablet ? (
                         <button
                           className="btn"
@@ -352,6 +352,11 @@ export function Ahora({ estado, modo, registrar }: PropsBloque) {
                         <path d="M5 11a7 7 0 0 0 14 0" />
                         <path d="M12 18v3" />
                       </svg>
+                    ) : origen === 'camara' ? (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-label="Por cámara">
+                        <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" />
+                        <circle cx="12" cy="13" r="3" />
+                      </svg>
                     ) : (
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-label="A mano">
                         <path d="M12 20h9" />
@@ -359,7 +364,7 @@ export function Ahora({ estado, modo, registrar }: PropsBloque) {
                       </svg>
                     )}
                     {rolConfirma ? ROLES[rolConfirma] : 'Equipo'}, {hora(ts)}
-                    {esTablet && (origen === 'voz' ? ', por voz' : ', a mano')}
+                    {esTablet && (origen === 'voz' ? ', por voz' : origen === 'camara' ? ', por cámara' : ', a mano')}
                   </span>
                 </div>
               );
