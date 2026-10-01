@@ -4,7 +4,7 @@ import { crearApp } from './app.ts';
 import { COOKIE } from './auth.ts';
 import { migrar, pool } from './db.ts';
 import { CLAVE_DEMO, sembrar } from './siembra.ts';
-import type { CirugiaActiva, EstadoCirugia } from './tipos.ts';
+import type { CirugiaActiva, EstadoCirugia, Panel } from './tipos.ts';
 
 const app = await crearApp();
 before(async () => { await migrar(); await sembrar(); });
@@ -57,4 +57,17 @@ test('el WebSocket entrega el estado al unirse', async () => {
   assert.equal(m.tipo, 'estado');
   assert.equal(m.estado.cirugia.id, c.id);
   ws.terminate();
+});
+
+test('el panel resume el último mes de la clínica y respeta su sesión', async () => {
+  assert.equal((await app.inject({ url: '/api/panel?dias=30' })).statusCode, 401);
+  const cookie = await entrar('caribe', 'coordinador');
+  const r = await app.inject({ url: '/api/panel?dias=30', cookies: { [COOKIE]: cookie } });
+  assert.equal(r.statusCode, 200);
+  const p = r.json() as Panel;
+  assert.ok(p.cirugias.realizadas >= 55);
+  assert.ok(p.cumplimiento! > 50);
+  const norte = await entrar('norte', 'coordinador');
+  const otra = (await app.inject({ url: '/api/panel?dias=30', cookies: { [COOKIE]: norte } })).json() as Panel;
+  assert.ok(p.lista.every(c => !otra.lista.some(x => x.id === c.id)));
 });

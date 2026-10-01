@@ -2,7 +2,8 @@ import Fastify from 'fastify';
 import cookie from '@fastify/cookie';
 import websocket from '@fastify/websocket';
 import { COOKIE, leerSesion, login } from './auth.ts';
-import { cargarEstado, cirugiasActivas, insertarEventos, personal } from './repo.ts';
+import { cargarEstado, cargarEstados, cirugiasActivas, insertarEventos, personal } from './repo.ts';
+import { resumir } from './panel.ts';
 import { reiniciarDemo } from './siembra.ts';
 import { crearSalas } from './sesion.ts';
 import type { Cliente, Deps } from './sesion.ts';
@@ -68,6 +69,11 @@ export async function crearApp(opciones: Partial<OpcionesApp> = {}) {
     if (req.sesion.rol !== 'coordinador' && req.sesion.rol !== 'admin') return rep.code(403).send({ error: 'Solo coordinación' });
     await reiniciarDemo();
     return { ok: true };
+  });
+
+  app.get<{ Querystring: { dias?: string } }>('/api/panel', async req => {
+    const dias = Math.min(90, Math.max(1, Number(req.query.dias) || 30));
+    return resumir(await cargarEstados(req.sesion.clinica_id, new Date(Date.now() - dias * 86_400_000).toISOString()));
   });
 
   const salas = crearSalas({ cargarEstado, insertarEventos, interpretar: o.interpretar, abrirVoz: o.abrirVoz });

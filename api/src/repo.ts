@@ -1,6 +1,6 @@
 import { conClinica } from './db.ts';
 import { derivar } from './estado.ts';
-import type { Cirugia, CirugiaActiva, EstadoCirugia, NuevoEvento, Protocolo, Rol } from './tipos.ts';
+import type { Cirugia, CirugiaActiva, EstadoCirugia, Evento, NuevoEvento, Protocolo, Rol } from './tipos.ts';
 
 const SQL_CIRUGIA = `
   SELECT c.id, q.nombre AS quirofano, c.fecha_programada, c.procedimiento, c.diagnostico, c.lateralidad,
@@ -58,4 +58,16 @@ export async function insertarEventos(clinicaId: string, cirugiaId: string, even
 
 export async function personal(clinicaId: string): Promise<{ id: string; nombre: string; rol: Rol }[]> {
   return conClinica(clinicaId, async c => (await c.query('SELECT id, nombre, rol FROM usuario ORDER BY rol, nombre')).rows);
+}
+
+export async function cargarEstados(clinicaId: string, desde: string): Promise<EstadoCirugia[]> {
+  return conClinica(clinicaId, async c => {
+    const { rows } = await c.query(`${SQL_CIRUGIA} WHERE c.fecha_programada >= $1 AND NOT c.archivada`, [desde]);
+    const { rows: eventos } = await c.query<Evento & { cirugia_id: string }>(SQL_EVENTOS, [rows.map(r => r.id)]);
+    const porCirugia = Map.groupBy(eventos, e => e.cirugia_id);
+    return rows.map(fila => {
+      const { cirugia, protocolo } = separar(fila);
+      return derivar(cirugia, protocolo, porCirugia.get(fila.id) ?? []);
+    });
+  });
 }
