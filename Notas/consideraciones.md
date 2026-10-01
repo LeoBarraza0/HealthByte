@@ -1,0 +1,8 @@
+- Un punto diferenciador en este tipo de eventos es definir la identidad visual, crear avatares, gráficos, paletas de colores, etc. puede contribuir a ser mas atractivo y diferenciarte de otros proyectos.
+- Aterrizar el alcance.
+- Aplicar arquitectura empresarial, gerencia estratégica, etc.
+- Aunque sea social, es conveniente definir el modelo de negocio, y como se monetizará.
+- Son 5 minutos para dar el pitch. Se recomienda abreviar la recomendación y que exista un encargado de gestionar las diapositivas para ahorrar tiempo. Definir roles claros en la presentación. Explicar con métricas los resultados (moraleja). Estructura del pitch: Introducción, calentamiento, climax, moraleja. Incluir el hook o gancho inicial.
+- Es posible que, nuevamente, pregunten por el modelo de negocios y retribución económica.
+- Definir roles claros en la presentación: Ingeniero de requisitos, Arquitecto y desarrollo de software, Diseñador UX/UI, Marketing y ventas, Instrumentador quirurjico
+- Incluir el hook o gancho inicial en el pitch.
