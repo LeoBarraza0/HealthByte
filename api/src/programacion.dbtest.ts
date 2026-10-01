@@ -89,3 +89,116 @@ test('GET /api/personal incluye login y cumple Integrante[]', async () => {
   }
   assert.ok(integrantes.some(i => i.login === 'coordinador'));
 });
+
+test('POST /api/cirugias permite a la coordinación programar cirugías y valida conflictos y roles', async () => {
+  const coordCookie = await entrar('caribe', 'coordinador');
+  const circulanteCookie = await entrar('caribe', 'circulante');
+
+  // Obtener catálogos necesarios
+  const qxList = (await app.inject({ url: '/api/quirofanos', cookies: { [COOKIE]: coordCookie } })).json() as Quirofano[];
+  const protList = (await app.inject({ url: '/api/protocolos', cookies: { [COOKIE]: coordCookie } })).json() as ProtocoloResumen[];
+  const persList = (await app.inject({ url: '/api/personal', cookies: { [COOKIE]: coordCookie } })).json() as Integrante[];
+  const cirujano = persList.find(p => p.rol === 'cirujano')!;
+
+  const hoy = hoyBogota();
+  const quirofanoId = qxList[3].id;
+  const protocoloId = protList[0].id;
+  const fechaProgramada = `${hoy}T16:00:00-05:00`;
+
+  const payload = {
+    quirofano_id: quirofanoId,
+    protocolo_id: protocoloId,
+    fecha_programada: fechaProgramada,
+    duracion_min: 120,
+    paciente: {
+      nombre: 'Paciente Test Caribe',
+      tipo_doc: 'CC',
+      num_doc: '99887766',
+      fecha_nacimiento: '1990-01-01',
+      eps: 'EPS Demo A',
+      hc: 'HC-TEST-001',
+    },
+    procedimiento: 'Cirugía de Prueba',
+    diagnostico: 'Diagnóstico de Prueba',
+    lateralidad: 'No aplica',
+    equipo_programado: {
+      cirujano: cirujano.id,
+    },
+    datos_preop: { peso: 75 },
+  };
+
+  let cirugiaId: string | undefined;
+  try {
+    // Como circulante: 403
+    const rCirculante = await app.inject({
+      method: 'POST',
+      url: '/api/cirugias',
+      payload,
+      cookies: { [COOKIE]: circulanteCookie },
+    });
+    assert.equal(rCirculante.statusCode, 403);
+    assert.deepEqual(rCirculante.json(), { error: 'Solo coordinación' });
+
+    // Como coordinador sin procedimiento: 400
+    const rSinProc = await app.inject({
+      method: 'POST',
+      url: '/api/cirugias',
+      payload: { ...payload, procedimiento: '   ' },
+      cookies: { [COOKIE]: coordCookie },
+    });
+    assert.equal(rSinProc.statusCode, 400);
+
+    // Como coordinador: 201
+    const rCrear = await app.inject({
+      method: 'POST',
+      url: '/api/cirugias',
+      payload,
+      cookies: { [COOKIE]: coordCookie },
+    });
+    assert.equal(rCrear.statusCode, 201);
+    const bodyCrear = rCrear.json() as { id: string };
+    cirugiaId = bodyCrear.id;
+    assert.ok(cirugiaId);
+
+    // Aparece en /api/agenda?fecha=hoy
+    const rAgenda = await app.inject({ url: `/api/agenda?fecha=${hoy}`, cookies: { [COOKIE]: coordCookie } });
+    assert.equal(rAgenda.statusCode, 200);
+    const agendaCirugias = rAgenda.json() as CirugiaAgenda[];
+    const enAgenda = agendaCirugias.find(c => c.id === cirugiaId);
+    assert.ok(enAgenda);
+    assert.equal(enAgenda.procedimiento, 'Cirugía de Prueba');
+    assert.equal(enAgenda.estado, 'programada');
+
+    // Aparece en /api/cirugias
+    const rCirugias = await app.inject({ url: '/api/cirugias', cookies: { [COOKIE]: coordCookie } });
+    assert.equal(rCirugias.statusCode, 200);
+    const activas = rCirugias.json() as { id: string; procedimiento: string }[];
+    assert.ok(activas.some(c => c.id === cirugiaId));
+
+    // /api/cirugias/:id la abre
+    const rDetalle = await app.inject({ url: `/api/cirugias/${cirugiaId}`, cookies: { [COOKIE]: coordCookie } });
+    assert.equal(rDetalle.statusCode, 200);
+    const detalle = rDetalle.json() as { cirugia: { id: string; procedimiento: string } };
+    assert.equal(detalle.cirugia.id, cirugiaId);
+    assert.equal(detalle.cirugia.procedimiento, 'Cirugía de Prueba');
+
+    // Segunda en el mismo quirófano y a la misma hora: 409
+    const rConflicto = await app.inject({
+      method: 'POST',
+      url: '/api/cirugias',
+      payload: {
+        ...payload,
+        paciente: { ...payload.paciente, num_doc: '99887767', hc: 'HC-TEST-002' },
+      },
+      cookies: { [COOKIE]: coordCookie },
+    });
+    assert.equal(rConflicto.statusCode, 409);
+    assert.deepEqual(rConflicto.json(), { error: 'El quirófano ya está ocupado a esa hora' });
+  } finally {
+    if (cirugiaId) {
+      await pool.query('DELETE FROM cirugia WHERE id = $1', [cirugiaId]);
+    }
+    await pool.query("DELETE FROM paciente WHERE hc LIKE 'HC-TEST-%'");
+  }
+});
+
