@@ -98,3 +98,10 @@ test('el estado trae insumos y la trazabilidad conserva eventos anulados y aísl
     assert.deepEqual((await app.inject({ url: `/api/cirugias/${id}/eventos`, cookies: { [COOKIE]: sesionCookie } })).json(), []);
   }
 });
+
+test('el estado trae el catálogo de instrumental de la clínica', async () => {
+  const cookie = await entrar('caribe', 'circulante');
+  const c = await demo(cookie);
+  const e = (await app.inject({ url: `/api/cirugias/${c.id}`, cookies: { [COOKIE]: cookie } })).json() as EstadoCirugia;
+  assert.ok(e.instrumentos.some(i => i.codigo === 'INS-030' && i.nombre === 'Pinzas Kelly' && i.categoria === 'Hemostasia'));
+});

@@ -29,6 +29,7 @@ export async function cargarEstado(clinicaId: string, cirugiaId: string): Promis
     const { rows } = await c.query(SQL_EVENTOS, [[cirugiaId]]);
     const estado = derivar(cirugia, protocolo, rows);
     estado.insumos = (await c.query('SELECT nombre, categoria FROM insumo ORDER BY categoria, nombre')).rows;
+    estado.instrumentos = (await c.query('SELECT codigo, nombre, categoria FROM instrumento ORDER BY nombre')).rows;
     return estado;
   });
 }

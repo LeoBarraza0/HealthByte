@@ -168,3 +168,34 @@ test('avisa qué pasó con cada frase dictada', async () => {
   await esperar(5);
   assert.equal(otra.recibidos.filter(m => m.tipo === 'voz').at(-1)?.fase, 'no_entendido');
 });
+
+test('corrige el instrumental antes de interpretar, registrar y difundir la voz', async () => {
+  const s = derivar(cirugiaPrueba(), PROTOCOLO_CARDIO, []);
+  s.instrumentos = [{ codigo: 'INS-030', nombre: 'Pinzas Kelly', categoria: 'Hemostasia' }];
+  s.insumos = [{ nombre: 'Guantes, par', categoria: 'general' }];
+  const guardados: NuevoEvento[] = [];
+  let voz: EventosVoz;
+  let vocabulario: string[] = [];
+  let interpretada = '';
+  const salas = crearSalas({
+    cargarEstado: async () => s,
+    insertarEventos: async (_clinica, _cirugia, eventos) => { guardados.push(...eventos); },
+    interpretar: async frase => {
+      interpretada = frase;
+      return { accion: 'registrar', eventos: [{ tipo: 'novedad', texto: frase }], confianza: 0.95, resumen: frase };
+    },
+    abrirVoz: (eventos, frases) => { voz = eventos; vocabulario = frases; return { escribir() {}, cerrar() {} }; },
+  });
+  const tablet = cliente('Tablet');
+  await salas.mensaje(tablet, { tipo: 'unirse', cirugia_id: CIRUGIA_ID, dispositivo: 'Tablet' });
+  await salas.mensaje(tablet, { tipo: 'tomar_microfono' });
+  voz!.onFinal('se cayó la pinza queli');
+  await esperar(5);
+  assert.equal(interpretada, 'se cayó la Pinzas Kelly');
+  assert.equal(guardados[0].texto, 'se cayó la Pinzas Kelly');
+  assert.deepEqual(guardados[0].datos, { tipo: 'novedad', texto: 'se cayó la Pinzas Kelly' });
+  assert.ok(tablet.recibidos.filter(m => m.tipo === 'voz').every(m => m.texto === 'se cayó la Pinzas Kelly'));
+  assert.ok(vocabulario.includes('Pinzas Kelly'));
+  assert.ok(vocabulario.includes('Guantes, par'));
+  salas.salir(tablet);
+});

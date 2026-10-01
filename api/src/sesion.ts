@@ -2,6 +2,7 @@ import type { CanalVoz, DatosEvento, Decision, EstadoCirugia, EventosVoz, HoraId
 export type { CanalVoz, EventosVoz } from './tipos.ts';
 import { HORAS } from './tipos.ts';
 import { vocabulario } from './protocolos.ts';
+import { corregir } from './correccion.ts';
 
 export interface Deps {
   cargarEstado(clinicaId: string, cirugiaId: string): Promise<EstadoCirugia | null>;
@@ -108,9 +109,10 @@ export function crearSalas(deps: Deps) {
     if (ultimo) await registrar(s, [nuevo(s, c, { tipo: 'anulacion', evento_id: ultimo.id }, origen)]);
   }
 
-  async function alFinal(s: Sala, frase: string): Promise<void> {
+  async function alFinal(s: Sala, texto: string): Promise<void> {
     const c = s.microfono;
     if (!c) return;
+    const frase = corregir(texto, s.estado.instrumentos.map(i => i.nombre));
     difundir(s, { tipo: 'voz', fase: 'procesando', texto: frase });
     let d: Decision;
     try {
@@ -157,7 +159,8 @@ export function crearSalas(deps: Deps) {
       onParcial: texto => difundir(s, { tipo: 'parcial', texto }),
       onFinal: texto => { alFinal(s, texto).catch(() => difundir(s, { tipo: 'aviso', texto: 'No se pudo registrar por voz' })); },
       onError: () => difundir(s, { tipo: 'aviso', texto: 'Micrófono reconectando…' }),
-    }, [...vocabulario(s.estado.protocolo), ...s.estado.insumos.map(i => i.nombre)].slice(0, 1000));
+    }, [...vocabulario(s.estado.protocolo), ...s.estado.insumos.map(i => i.nombre),
+      ...s.estado.instrumentos.map(i => i.nombre)].slice(0, 1000));
     difundirEstado(s);
   }
 
