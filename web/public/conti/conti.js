@@ -71,7 +71,7 @@
   hb-conti[state="listening"] .e-open{opacity:1}
   hb-conti[state="processing"] .e-up{opacity:1}
   hb-conti[state="verified"] .e-happy{opacity:1}
-  hb-conti[state="error"] .e-x,hb-conti[state="alert"] .e-x{opacity:1}
+  hb-conti[state="error"] .e-serio,hb-conti[state="alert"] .e-serio{opacity:1}
   hb-conti[state="paused"] .e-closed{opacity:1}
 
   /* --- estados: boca --- */
@@ -80,8 +80,7 @@
   hb-conti[state="listening"] .m-wave{opacity:1}
   hb-conti[state="processing"] .m-dots{opacity:1}
   hb-conti[state="verified"] .m-open{opacity:1}
-  hb-conti[state="error"] .m-frown,hb-conti[state="alert"] .m-frown{opacity:1}
-  hb-conti[state="paused"] .m-flat{opacity:1}
+  hb-conti[state="paused"] .m-flat,hb-conti[state="error"] .m-flat,hb-conti[state="alert"] .m-flat{opacity:1}
 
   /* --- estados: cuerpo y byte --- */
   hb-conti[state="listening"] .byte-in{animation:hbc-glow 1.6s ease-in-out infinite;transform-origin:880px 180px}
@@ -167,6 +166,10 @@
               <rect x="530" y="635" width="38" height="87" rx="19"/>
               <rect x="687" y="648" width="34" height="66" rx="17"/>
             </g>
+            <g class="e e-serio">
+              <rect x="530" y="652" width="38" height="60" rx="10"/>
+              <rect x="685" y="652" width="38" height="60" rx="10"/>
+            </g>
             <g class="e e-flat">
               <rect x="526" y="668" width="46" height="16" rx="8"/>
               <rect x="681" y="668" width="46" height="16" rx="8"/>
@@ -180,14 +183,9 @@
             <path d="M531 672 Q549 700 567 672"/>
             <path d="M686 672 Q704 700 722 672"/>
           </g>
-          <g class="e e-x" fill="none" stroke="url(#inkv${id})" stroke-width="16">
-            <path d="M526 656 L572 706 M572 656 L526 706"/>
-            <path d="M681 656 L727 706 M727 656 L681 706"/>
-          </g>
 
           <path class="m m-smile" d="M604 723 Q626 733 648 723" fill="none" stroke="url(#inkv${id})" stroke-width="12"/>
           <path class="m m-open" d="M594 714 Q627 712 660 714 Q654 758 627 759 Q600 758 594 714 Z" fill="url(#inkv${id})"/>
-          <path class="m m-frown" d="M602 737 Q627 715 652 737" fill="none" stroke="url(#inkv${id})" stroke-width="12"/>
           <path class="m m-flat" d="M612 728 L640 728" fill="none" stroke="url(#inkv${id})" stroke-width="11"/>
           <circle class="m m-o" cx="627" cy="735" r="15" fill="url(#inkv${id})"/>
           <path class="m m-wavy" d="M596 734 q10 -12 20 0 t20 0 t20 0" fill="none" stroke="url(#inkv${id})" stroke-width="11"/>

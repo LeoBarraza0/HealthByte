@@ -47,7 +47,7 @@ cara para saber qué pasó, y un lector de pantalla lee el texto, no la mascota.
 | `asking` (E4) | Hay una confirmación pendiente | Curiosa, boca en «o», una mano arriba | Menta | Hasta el sí, el no o el vencimiento | «¿Registrar esto?» |
 | `verified` (E8) | El API avisa `voz: registrado` | Feliz, manos arriba | Menta | 2,5 s | «Registrado: …» |
 | `confused` (E7) | El API avisa `voz: no_entendido` | Ojos planos, boca ondulada, inclinado | Gris | 3 s | «No entendí. Repita o regístrelo a mano.» |
-| `alert` (E9) | Se abre una alerta crítica nueva | Seria, sacude | Roja | 4 s | El mensaje de la alerta |
+| `alert` (E9) | Se abre una alerta crítica nueva | Seria: ojos rectos y boca recta, nunca ojos en X (en un quirófano leen como «muerto»). Sacude | Roja | 4 s | El mensaje de la alerta |
 | `celebrate` (E11) | Se registra la salida a recuperación sin alertas abiertas | Feliz, manos arriba, *byte* más grande | Menta | 4 s, una vez | «Cierre seguro» |
 | `greeting` (E2) | Pantalla de inicio de sesión | Saluda con una mano | Menta | Mientras esté la pantalla | — |
 

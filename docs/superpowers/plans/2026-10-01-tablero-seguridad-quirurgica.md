@@ -5729,6 +5729,8 @@ Run: `mkdir -p web/public/conti && cp Visuales/conti/* web/public/conti/`
 
 - [ ] **Paso 2: Estados que faltan en `conti.js`**
 
+En `alert` (y su alias `error`), Conti usa ojos serios `e-serio` (dos rectángulos rectos) y la boca `m-flat`, no los ojos en X del prototipo: en un quirófano leen como «muerto». Así está en `web/public/conti/conti.js` y en el canvas de diseño.
+
 En el SVG, dentro de `<g class="eyes">`, agrega los ojos de pregunta y los planos:
 
 ```html
