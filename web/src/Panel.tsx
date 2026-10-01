@@ -112,7 +112,9 @@ export function Panel({ yo }: { yo: Usuario }) {
 
         destacadas.forEach((c, idx) => {
           const est = estados[idx];
-          const num = c.quirofano.match(/\d+/)?.[0] ?? c.quirofano;
+          // «QX 01» y el relleno «1» deben coincidir: se compara el número, sin ceros a la izquierda.
+          const digitos = c.quirofano.match(/\d+/)?.[0];
+          const num = digitos ? String(Number(digitos)) : c.quirofano;
           salasOcupadas.add(num);
 
           let momento = `Programada, ${hora(c.fecha_programada)}`;
