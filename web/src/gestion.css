@@ -1,0 +1,54 @@
+/* Pantallas fuera del quirófano: inicio, panel y trazabilidad. Diseño: Diseño/pantallas/Inicio-Cirugias.html y Panel.html. */
+.g-pagina { min-height: 100vh; background: var(--fondo); }
+
+.g-cabecera { background: var(--blanco); border-bottom: 1px solid var(--borde); }
+.g-cabecera-in { max-width: 1440px; margin: 0 auto; padding: 0 24px; min-height: 64px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.g-inicio { text-decoration: none; color: var(--tinta); }
+.g-logo { display: inline-flex; align-items: center; gap: 10px; }
+.g-logo .display { font-size: 20px; font-weight: 500; }
+.g-logo b { color: var(--azul); font-weight: 700; }
+.g-nav { display: flex; gap: 4px; }
+.g-nav a { min-height: 44px; display: inline-flex; align-items: center; padding: 0 14px; border-radius: 10px; font-size: 15px; font-weight: 600; color: var(--tinta-2); text-decoration: none; }
+.g-nav a:hover { background: var(--azul-tenue); }
+.g-nav a[aria-current='page'] { color: var(--azul); background: var(--azul-claro); }
+.g-usuario { margin-left: auto; font-size: 15px; }
+.g-usuario span { color: var(--tenue); }
+
+.g-inicio-main { max-width: 1180px; margin: 0 auto; padding: 24px; display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 24px; align-items: start; }
+@media (max-width: 900px) { .g-inicio-main { grid-template-columns: 1fr; } }
+.g-cirugias { display: flex; flex-direction: column; gap: 12px; }
+.g-titulo { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.g-titulo h1 { font-size: 30px; }
+.g-titulo span { color: var(--tenue); }
+.g-tenue { margin: 0; font-size: 14px; line-height: 20px; color: var(--tenue); }
+.g-error { margin: 0; padding: 12px 14px; border-radius: 10px; background: var(--critica-fondo); color: var(--critica-osc); }
+.g-vacio { margin: 0; padding: 20px; border: 1px dashed var(--borde-fuerte); border-radius: 14px; color: var(--tenue); }
+
+.g-tarjeta { display: grid; grid-template-columns: 76px minmax(0, 1fr) auto; gap: 18px; align-items: center; min-height: 96px; padding: 14px 18px; background: var(--blanco); border: 1px solid var(--borde); border-radius: 14px; color: var(--tinta); text-decoration: none; }
+.g-tarjeta:hover { border-color: var(--azul); color: var(--tinta); }
+.g-tarjeta.en-curso { border: 2px solid var(--azul); }
+.g-quirofano { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 13px; color: var(--tenue); }
+.g-quirofano b { font-size: 30px; line-height: 32px; color: var(--tinta); }
+.g-datos { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.g-datos b { font-size: 19px; }
+.g-datos > span { font-size: 15px; color: var(--tenue); }
+.g-estado { font-size: 14px; font-weight: 600; }
+.g-estado.vivo { color: var(--azul); display: inline-flex; align-items: center; gap: 6px; }
+.g-estado.vivo::before { content: ''; width: 8px; height: 8px; border-radius: 999px; background: var(--azul); }
+.g-abrir { font-weight: 600; color: var(--azul); }
+
+.g-dispositivo { background: var(--blanco); border: 1px solid var(--borde); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+.g-dispositivo h2 { font-size: 21px; }
+.g-campo { display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600; color: var(--tenue); }
+.g-campo input, .g-campo select { min-height: 44px; border: 1px solid var(--borde-fuerte); border-radius: 10px; padding: 0 12px; font: 400 16px var(--texto); color: var(--tinta); background: var(--blanco); }
+.g-uso { border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.g-uso legend { font-size: 14px; font-weight: 600; color: var(--tenue); padding: 0 0 6px; }
+.g-opcion { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 12px; padding: 14px 16px; border: 1px solid var(--borde); border-radius: 12px; cursor: pointer; }
+.g-opcion.activa { border: 2px solid var(--azul); background: var(--azul-tenue); }
+.g-opcion input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--azul); }
+.g-opcion > span { display: flex; flex-direction: column; gap: 2px; }
+.g-opcion b { font-size: 17px; }
+.g-opcion > span > span { font-size: 14px; line-height: 20px; color: var(--tenue); }
+.g-demo { border-top: 1px solid var(--linea); padding-top: 14px; }
+.g-confirmar { display: flex; flex-direction: column; gap: 10px; font-size: 14px; color: var(--tinta-2); }
+.g-botones { display: flex; gap: 8px; }
