@@ -8,10 +8,12 @@ export type Rol =
 export type HoraId = 'ingreso' | 'anestesia' | 'inicio_cirugia' | 'fin_cirugia' | 'salida_recuperacion';
 export const HORAS: readonly HoraId[] = ['ingreso', 'anestesia', 'inicio_cirugia', 'fin_cirugia', 'salida_recuperacion'];
 
-export interface CampoPreop { id: string; etiqueta: string; tipo: 'numero' | 'texto'; unidad?: string; obligatorio: boolean }
+/** Rango clínico aceptable; un valor fuera de él abre una alerta crítica. */
+export interface Rango { min: number; max: number }
+export interface CampoPreop { id: string; etiqueta: string; tipo: 'numero' | 'texto'; unidad?: string; obligatorio: boolean; rango?: Rango }
 export interface ItemChecklist { id: string; texto: string; rol: Rol; critico?: boolean }
 export interface Fase { id: string; nombre: string; abre_con: HoraId; cierra_antes_de: HoraId; items: ItemChecklist[] }
-export interface Medicion { id: string; etiqueta: string; unidad: string }
+export interface Medicion { id: string; etiqueta: string; unidad: string; rango?: Rango }
 export interface Duracion { nombre: string; desde: string; hasta: string }
 export interface Protocolo {
   especialidad: string;
@@ -48,7 +50,11 @@ export type DatosEvento =
   | { tipo: 'novedad_atendida'; novedad_id: string; responsable: string }
   | { tipo: 'novedad_solucionada'; novedad_id: string; acciones: string }
   | { tipo: 'alerta_cierre'; alerta: string; motivo: string }
+  | { tipo: 'accion_conteo'; accion: AccionConteo }
   | { tipo: 'anulacion'; evento_id: string };
+
+/** Pasos del protocolo cuando el conteo de material no cuadra. */
+export type AccionConteo = 'cirujano_avisado' | 'busqueda_en_campo' | 'rx_solicitada';
 
 export interface Evento {
   id: string;
@@ -94,11 +100,12 @@ export interface EstadoCirugia {
   novedades: Novedad[];
   duraciones: { nombre: string; minutos: number | null }[];
   alertas: Alerta[];
+  acciones_conteo: { accion: AccionConteo; ts: string }[];
   eventos: Evento[]; // solo los vigentes, en orden
 }
 
 export type Decision =
-  | { accion: 'ignorar' }
+  | { accion: 'ignorar'; no_entendido?: boolean } // no_entendido: iba dirigida al tablero, pero no se pudo interpretar
   | { accion: 'registrar' | 'confirmar'; eventos: DatosEvento[]; confianza: number; resumen: string }
   | { accion: 'responder'; si: boolean }
   | { accion: 'deshacer' };
@@ -116,9 +123,12 @@ export type MsgCliente =
   | { tipo: 'soltar_microfono' };
 
 export interface Pendiente { resumen: string; expira: number }
+/** Qué pasó con la última frase dictada; lo usa Conti, la mascota, para cambiar de estado. */
+export type FaseVoz = 'procesando' | 'registrado' | 'ignorado' | 'no_entendido';
 export type MsgServidor =
   | { tipo: 'estado'; estado: EstadoCirugia; microfono: string | null; pendiente: Pendiente | null }
   | { tipo: 'parcial'; texto: string }
+  | { tipo: 'voz'; fase: FaseVoz; texto: string }
   | { tipo: 'aviso'; texto: string };
 
 export interface Sesion { usuario_id: string; clinica_id: string; rol: Rol; nombre: string }
@@ -138,6 +148,8 @@ export interface Panel {
   checklists: { completas: number; incompletas: number };
   cumplimiento: number | null;
   alertas: { abiertas: number; resueltas: number; cerradas: number; frecuentes: { mensaje: string; veces: number }[] };
+  /** Riesgos resueltos a tiempo, sin contar los pendientes rutinarios del checklist. */
+  atrapados: { categoria: string; veces: number }[];
   tiempos: { etapa: string; minutos: number | null }[];
   novedades: { abiertas: number; solucionadas: number; minutos_solucion: number | null };
   duraciones: { nombre: string; minutos: number | null }[];

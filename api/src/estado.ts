@@ -10,7 +10,7 @@ function vacio(cirugia: Cirugia, protocolo: Protocolo): EstadoCirugia {
   return {
     cirugia, protocolo, horas: {}, presentes: [], checks: {}, fase_actual: null,
     conteo: Object.fromEntries(protocolo.materiales.map(m => [m, { entra: 0, sale: 0 }])),
-    datos: { ...cirugia.datos_preop }, novedades: [], duraciones: [], alertas: [], eventos: [],
+    datos: { ...cirugia.datos_preop }, novedades: [], duraciones: [], alertas: [], acciones_conteo: [], eventos: [],
   };
 }
 
@@ -37,6 +37,7 @@ function aplicar(s: EstadoCirugia, e: Evento): void {
     case 'novedad':
       s.novedades.push({ id: e.id, texto: d.texto, ts: e.ts, estado: 'detectada', responsable: null, acciones: null, solucionada_ts: null });
       break;
+    case 'accion_conteo': s.acciones_conteo.push({ accion: d.accion, ts: e.ts }); break;
     case 'novedad_atendida': {
       const n = s.novedades.find(x => x.id === d.novedad_id);
       if (n?.estado === 'detectada') { n.estado = 'atendida'; n.responsable = d.responsable; }

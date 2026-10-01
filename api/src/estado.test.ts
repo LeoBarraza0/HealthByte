@@ -52,3 +52,12 @@ test('una medición llena el campo preoperatorio vacío del mismo nombre', () =>
   ]);
   assert.equal(s.datos.glucometria, 102);
 });
+
+test('registra los pasos del protocolo de conteo con su hora', () => {
+  const s = derivar(cirugiaPrueba(), P, [
+    ev({ tipo: 'accion_conteo', accion: 'cirujano_avisado' }, 0),
+    ev({ tipo: 'accion_conteo', accion: 'rx_solicitada' }, 4),
+  ]);
+  assert.deepEqual(s.acciones_conteo.map(a => a.accion), ['cirujano_avisado', 'rx_solicitada']);
+  assert.equal(s.acciones_conteo[1].ts, '2026-10-01T12:04:00.000Z');
+});
