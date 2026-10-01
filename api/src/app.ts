@@ -6,6 +6,7 @@ import { cargarEstado, cargarEstados, cirugiasActivas, eventosDe, insertarEvento
 import { resumir } from './panel.ts';
 import { reiniciarDemo } from './siembra.ts';
 import { crearSalas } from './sesion.ts';
+import { rutasProgramacion } from './rutasProgramacion.ts';
 import type { Cliente, Deps } from './sesion.ts';
 import type { MsgCliente, Sesion } from './tipos.ts';
 
@@ -78,6 +79,8 @@ export async function crearApp(opciones: Partial<OpcionesApp> = {}) {
     const dias = Math.min(90, Math.max(1, Number(req.query.dias) || 30));
     return resumir(await cargarEstados(req.sesion.clinica_id, new Date(Date.now() - dias * 86_400_000).toISOString()));
   });
+
+  await app.register(rutasProgramacion);
 
   const salas = crearSalas({ cargarEstado, insertarEventos, interpretar: o.interpretar, abrirVoz: o.abrirVoz });
 
