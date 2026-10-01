@@ -1,0 +1,55 @@
+﻿codigo,nombre,categoria
+INS-001,Anoscopio,Exploración
+INS-002,Azul de metileno,Medicamentos y Soluciones
+INS-003,Bandeja de instrumental,Recipientes
+INS-004,Cocas metálicas,Recipientes
+INS-005,Compresas quirúrgicas,Insumos
+INS-006,Cánula de Yankauer con tubo,Aspiración
+INS-007,Dren de Penrose,Insumos
+INS-008,Electrocauterio,Electrocirugía
+INS-009,Estiletes quirúrgicos,Exploración
+INS-010,Gasas quirúrgicas,Insumos
+INS-011,Guantes quirúrgicos,Insumos
+INS-012,Jeringa Asepto,Insumos
+INS-013,Jeringa con marcaína (bupivacaína),Medicamentos y Soluciones
+INS-014,Jeringa hipodérmica,Insumos
+INS-015,Mango de bisturí,Corte
+INS-016,Mango de bisturí #3,Corte
+INS-017,Pinza de conducto cístico,Hemostasia
+INS-018,Pinzas Babcock,Tracción
+INS-019,Pinzas Baby Mosquito,Hemostasia
+INS-020,Pinzas de Allis,Tracción
+INS-021,Pinzas de campo Backhaus,Fijación
+INS-022,Pinzas de disección Adson con garra,Disección
+INS-023,Pinzas de disección Adson sin garra,Disección
+INS-024,Pinzas de disección con garra,Disección
+INS-025,Pinzas de disección largas,Disección
+INS-026,Pinzas de disección rusa,Disección
+INS-027,Pinzas de disección sin garra,Disección
+INS-028,Pinzas de Pennington,Tracción
+INS-029,Pinzas Foerster (porta-esponja),Tracción
+INS-030,Pinzas Kelly,Hemostasia
+INS-031,Pinzas Kelly Adson,Hemostasia
+INS-032,Pinzas Kelly Curvas,Hemostasia
+INS-033,Pinzas Kocher,Hemostasia
+INS-034,Pinzas Mosquito,Hemostasia
+INS-035,Pinzas Mosquito Curvas,Hemostasia
+INS-036,Pinzas Rochester-Pean,Hemostasia
+INS-037,Portaagujas,Síntesis
+INS-038,Portaagujas extralargo,Síntesis
+INS-039,Riñonera metálica,Recipientes
+INS-040,Ropa quirúrgica,Insumos
+INS-041,Separador abdominal Balfour,Separación
+INS-042,Separador anal,Separación
+INS-043,Separadores de Deaver,Separación
+INS-044,Separadores de Farabeuf,Separación
+INS-045,Separadores de Richardson,Separación
+INS-046,Separadores de Senn Miller,Separación
+INS-047,Sonda acanalada,Exploración
+INS-048,Suero fisiológico,Medicamentos y Soluciones
+INS-049,Suturas quirúrgicas,Síntesis
+INS-050,Tijeras de Mayo,Corte
+INS-051,Tijeras de Metzenbaum,Disección
+INS-052,Tijeras quirúrgicas largas,Corte
+INS-053,Valvas maleables,Separación
+INS-054,Xilocaína en jalea,Medicamentos y Soluciones

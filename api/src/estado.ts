@@ -10,7 +10,7 @@ function vacio(cirugia: Cirugia, protocolo: Protocolo): EstadoCirugia {
   return {
     cirugia, protocolo, horas: {}, presentes: [], checks: {}, fase_actual: null,
     conteo: Object.fromEntries(protocolo.materiales.map(m => [m, { entra: 0, sale: 0 }])),
-    datos: { ...cirugia.datos_preop }, novedades: [], duraciones: [], alertas: [], acciones_conteo: [], consumo: [], insumos: [], eventos: [],
+    datos: { ...cirugia.datos_preop }, novedades: [], duraciones: [], alertas: [], acciones_conteo: [], consumo: [], insumos: [], instrumentos: [], eventos: [],
   };
 }
 

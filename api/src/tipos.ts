@@ -57,6 +57,8 @@ export type DatosEvento =
 /** Insumo del catálogo de la clínica (tabla insumo). Sin precios: los costos los maneja cada institución en otro proceso. */
 export type CategoriaInsumo = 'general' | 'sutura' | 'otro' | 'equipo';
 export interface Insumo { nombre: string; categoria: CategoriaInsumo }
+/** Instrumental del catálogo de la clínica (tabla instrumento). Corrige los nombres que Chirp transcribe mal. */
+export interface Instrumento { codigo: string; nombre: string; categoria: string }
 /** Una línea de la hoja de consumo. del_conteo: sale del material que entró al campo, no se registra aparte. */
 export interface LineaConsumo { insumo: string; cantidad: number; del_conteo: boolean }
 
@@ -110,6 +112,7 @@ export interface EstadoCirugia {
   acciones_conteo: { accion: AccionConteo; ts: string }[];
   consumo: LineaConsumo[];
   insumos: Insumo[]; // catálogo de la clínica; lo agrega repo.cargarEstado, derivar() lo deja vacío
+  instrumentos: Instrumento[]; // igual que insumos
   eventos: Evento[]; // solo los vigentes, en orden
 }
 

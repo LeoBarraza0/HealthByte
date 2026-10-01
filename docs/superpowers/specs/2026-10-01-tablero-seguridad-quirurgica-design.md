@@ -212,6 +212,18 @@ Recorrido de una frase, por ejemplo «entran diez compresas»:
 El único texto libre que se guarda es la transcripción literal de las novedades y de
 los motivos de cierre de alertas.
 
+### 4.1 Corrección de nombres de instrumental
+
+Chirp puede transcribir mal un instrumento («pinza queli»). Cada clínica tiene su catálogo
+en la tabla `instrumento`, sembrado de
+[instrumentos_quirurgicos.csv](../../../research/instrumentos_quirurgicos.csv). Se usa de
+dos formas:
+- Sus nombres entran como frases de adaptación de Chirp.
+- Antes de Jev, `corregir()` (`api/src/correccion.ts`) cambia lo transcrito por el nombre
+  del catálogo que suena igual, por ejemplo «Pinzas Kelly».
+
+Lo corregido es lo que se guarda en `evento.texto`.
+
 ## 5. Modelo de datos
 
 Postgres 16. Todas las tablas llevan `clinica_id` y Row-Level Security.
