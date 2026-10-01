@@ -17,7 +17,7 @@ export function useSesion(cirugiaId: string) {
   const [pendiente, setPendiente] = useState<Pendiente | null>(null);
   const [parcial, setParcial] = useState('');
   const [ultimoParcial, setUltimoParcial] = useState<number | null>(null);
-  const [ultimaVoz, setUltimaVoz] = useState<{ fase: FaseVoz; en: number } | null>(null);
+  const [ultimaVoz, setUltimaVoz] = useState<{ fase: FaseVoz; en: number; texto: string } | null>(null);
   const [aviso, setAviso] = useState('');
   const [camara, setCamara] = useState<EstadoCamara | null>(null);
   const [codigoCamara, setCodigoCamara] = useState<{ codigo: string; expira: number } | null>(null);
@@ -58,7 +58,7 @@ export function useSesion(cirugiaId: string) {
           setParcial(m.texto);
           setUltimoParcial(Date.now());
         } else if (m.tipo === 'voz') {
-          setUltimaVoz({ fase: m.fase, en: Date.now() });
+          setUltimaVoz({ fase: m.fase, en: Date.now(), texto: m.texto });
         } else if (m.tipo === 'aviso') setAviso(m.texto);
       };
       s.onclose = () => {

@@ -14,12 +14,16 @@ export interface PropsBarraVoz {
   pendiente: Pendiente | null;
   parcial: string;
   ultimoParcial: number | null;
-  ultimaVoz: { fase: FaseVoz; en: number } | null;
+  ultimaVoz: { fase: FaseVoz; en: number; texto?: string } | null;
   aviso: string;
   dispositivo: string;
   enviar: (m: MsgCliente) => void;
   enviarAudio: (pcm: Int16Array) => void;
 }
+
+const FASE_TEXTO: Record<FaseVoz, string> = {
+  procesando: 'Procesando…', registrado: 'Registrado', ignorado: 'No era para el tablero', no_entendido: 'No entendí',
+};
 
 function textoEnPalabras(c: string, microfono: string | null): string {
   switch (c) {
@@ -213,7 +217,18 @@ export function BarraVoz({
           <p className="barra-voz-aviso error">{errorMic}</p>
         ) : aviso ? (
           <p className="barra-voz-aviso">{aviso}</p>
-        ) : null}
+        ) : ultimaVoz?.texto ? (
+          // La última frase dictada queda a la vista con lo que pasó con ella.
+          <p className="barra-voz-dictado barra-voz-ultimo display">
+            «{ultimaVoz.texto}» <span className="barra-voz-fase">{FASE_TEXTO[ultimaVoz.fase]}</span>
+          </p>
+        ) : (
+          <p className="barra-voz-aviso">
+            {microfono
+              ? 'Hable con naturalidad: lo que diga aparece aquí mientras habla.'
+              : 'Active el micrófono para dictar: lo que diga aparecerá aquí.'}
+          </p>
+        )}
       </div>
 
       <div className="barra-voz-derecha">

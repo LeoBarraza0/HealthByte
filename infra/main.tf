@@ -24,8 +24,7 @@ locals {
   etiquetas = { proyecto = "healthbyte" }
   apis = [
     "run.googleapis.com", "sqladmin.googleapis.com", "secretmanager.googleapis.com", "artifactregistry.googleapis.com",
-    "speech.googleapis.com", "cloudbuild.googleapis.com", "compute.googleapis.com", "billingbudgets.googleapis.com", "iam.googleapis.com",
-    "aiplatform.googleapis.com", # Gemini en Vertex AI: la cámara de la mesa
+    "speech.googleapis.com", "aiplatform.googleapis.com", "cloudbuild.googleapis.com", "compute.googleapis.com", "billingbudgets.googleapis.com", "iam.googleapis.com",
   ]
 }
 
