@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trazabilidad de una cirugía</title>
+<!-- Exportado del canvas «HealthByte · Diseño», página «Rediseño». Referencia visual: no se edita a mano. -->
+<script src="../../web/public/conti/conti.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;background:#F5F9FB}
+a{color:#0B5D8C}a:hover{color:#08405F}
+.hb *{box-sizing:border-box}
+.d{font-family:'Space Grotesk','Segoe UI',sans-serif}
+.pn{background:#FFFFFF;border:1px solid #D3DDE4;border-radius:16px;padding:22px 24px}
+.ev{display:grid;grid-template-columns:64px minmax(0,1fr) 210px 120px;gap:16px;align-items:start;padding:12px 0;border-bottom:1px solid #E9EFF3;font-size:15px}
+.ev .q{display:block;font-size:14px;color:#4D6170;margin-top:2px}
+.ev .w{display:flex;flex-direction:column;gap:1px;font-size:14px}
+.vz{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#0B5D8C;background:#E1EEF5;border-radius:999px;padding:3px 10px;justify-self:start}
+.mn{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#364856;background:#E9EFF3;border-radius:999px;padding:3px 10px;justify-self:start}
+.sy{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#7E211B;background:#FBE9E7;border-radius:999px;padding:3px 10px;justify-self:start}
+.gh{display:flex;justify-content:space-between;align-items:baseline;padding:18px 0 6px;border-bottom:2px solid #0B5D8C}
+.al{display:grid;grid-template-columns:20px minmax(0,1fr);gap:10px;padding:10px 0;border-bottom:1px solid #E9EFF3;font-size:15px}
+.lay{display:grid;grid-template-columns:minmax(0,2fr) minmax(300px,1fr);gap:24px;align-items:start}
+@media (max-width:900px){.lay{grid-template-columns:minmax(0,1fr)}}
+.bt{min-height:44px;border-radius:10px;font:600 15px 'IBM Plex Sans','Segoe UI',sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:8px;padding:0 16px;background:#FFFFFF;color:#0D2232;border:1px solid #B8C7D1}
+</style>
+</head>
+<body>
+<div class="hb" style="min-height: 100vh; background: #F5F9FB; font-family: 'IBM Plex Sans', 'Segoe UI', sans-serif; color: #0D2232; font-variant-numeric: tabular-nums">
+
+<header style="background: #FFFFFF; border-bottom: 1px solid #D3DDE4">
+<div style="max-width: 1440px; margin: 0 auto; padding: 0 40px; min-height: 64px; display: flex; align-items: center; gap: 24px; flex-wrap: wrap">
+<span style="display: inline-flex; align-items: center; gap: 10px"><svg width="28" height="28" viewBox="0 0 112 112" aria-hidden="true"><rect x="40" y="0" width="32" height="32" rx="7" fill="#0B5D8C"></rect><rect x="0" y="40" width="32" height="32" rx="7" fill="#0B5D8C"></rect><rect x="40" y="40" width="32" height="32" rx="7" fill="#0B5D8C"></rect><rect x="80" y="40" width="32" height="32" rx="7" fill="#0B5D8C"></rect><rect x="40" y="80" width="32" height="32" rx="7" fill="#0B5D8C"></rect><rect x="92" y="0" width="20" height="20" rx="5" fill="#2FB596"></rect></svg><span class="d" style="font-size: 20px; font-weight: 500">Health<b style="color: #0B5D8C; font-weight: 700">Byte</b></span></span>
+<nav aria-label="Principal" style="display: flex; gap: 4px">
+<a href="Inicio-Cirugias.html" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 14px; border-radius: 10px; font-size: 15px; font-weight: 600; color: #364856; text-decoration: none">Cirugías de hoy</a>
+<a href="Panel.html" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 14px; border-radius: 10px; font-size: 15px; font-weight: 600; color: #0B5D8C; background: #E1EEF5; text-decoration: none">Panel de gestión</a>
+</nav>
+<span style="margin-left: auto; font-size: 15px">Mateo Navarro <span style="color: #4D6170">coordinación, Clínica Demo Caribe</span></span>
+</div>
+</header>
+
+<main style="max-width: 1440px; margin: 0 auto; padding: 24px 40px 48px; display: flex; flex-direction: column; gap: 24px">
+<nav aria-label="Ruta" style="font-size: 14px; color: #4D6170"><a href="Panel.html">Panel de gestión</a> / Trazabilidad</nav>
+<div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; flex-wrap: wrap">
+<div style="display: flex; flex-direction: column; gap: 6px"><h1 class="d" style="margin: 0; font-size: 34px; line-height: 40px; font-weight: 600">Revascularización miocárdica</h1><span style="font-size: 16px; color: #364856">Carlos Mendoza Díaz, 64 años. Quirófano 1, martes 30 de septiembre, de 11:20 a 15:02.</span></div>
+<button class="bt"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>Descargar informe</button>
+</div>
+
+<section aria-label="Resumen" class="pn" style="padding: 0">
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr))">
+<div style="padding: 20px 24px; display: flex; flex-direction: column; gap: 4px; border-right: 1px solid #E9EFF3"><span style="font-size: 14px; font-weight: 600; color: #4D6170">¿Quién verificó?</span><span style="font-size: 18px; font-weight: 600">17 de 17 con nombre, rol y hora</span><span style="font-size: 14px; color: #4D6170">15 por voz, 2 a mano.</span></div>
+<div style="padding: 20px 24px; display: flex; flex-direction: column; gap: 4px; border-right: 1px solid #E9EFF3"><span style="font-size: 14px; font-weight: 600; color: #4D6170">¿Qué quedó pendiente?</span><span style="font-size: 18px; font-weight: 600; color: #0B6B5A">Nada al cierre</span><span style="font-size: 14px; color: #4D6170">Las 3 pausas, completas antes de su hora.</span></div>
+<div style="padding: 20px 24px; display: flex; flex-direction: column; gap: 4px; border-right: 1px solid #E9EFF3"><span style="font-size: 14px; font-weight: 600; color: #4D6170">¿Qué alertas hubo?</span><span style="font-size: 18px; font-weight: 600">4 resueltas a tiempo</span><span style="font-size: 14px; color: #4D6170">Ninguna cerrada con motivo.</span></div>
+<div style="padding: 20px 24px; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 14px; font-weight: 600; color: #4D6170">¿Cuándo se solucionó?</span><span style="font-size: 18px; font-weight: 600">1 novedad, en 6 min</span><span style="font-size: 14px; color: #4D6170">Falla del aspirador, 13:10 a 13:16.</span></div>
+</div>
+</section>
+
+<div class="lay">
+<section aria-labelledby="registro" class="pn" style="min-width: 0">
+<div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px"><h2 id="registro" class="d" style="margin: 0; font-size: 22px; font-weight: 600">Registro cronológico</h2><span style="font-size: 14px; color: #4D6170">Nada se borra: lo anulado queda tachado.</span></div>
+<div style="overflow-x: auto"><div style="min-width: 640px">
+<div class="ev" style="font-size: 13px; color: #4D6170; padding: 14px 0 8px"><span>Hora</span><span>Qué pasó</span><span>Quién</span><span>Origen</span></div>
+
+<div class="gh"><h3 style="margin: 0; font-size: 17px; font-weight: 700; color: #0B5D8C">Entrada, antes de la anestesia</h3><span style="font-size: 14px; color: #4D6170">11:20 a 11:35</span></div>
+<div class="ev"><span>11:20</span><span>Ingreso del paciente</span><span class="w"><span>Daniela Rojas</span><span style="color: #4D6170">circulante</span></span><span class="mn">A mano</span></div>
+<div class="ev"><span>11:20</span><span>Alerta: falta glucometría</span><span class="w"><span>Sistema</span></span><span class="sy">Alerta</span></div>
+<div class="ev"><span>11:24</span><span>Identidad, procedimiento y sitio verificados<span class="q">«Confirmo identidad, procedimiento y sitio.»</span></span><span class="w"><span>Daniela Rojas</span><span style="color: #4D6170">confirman anestesiólogo y cirujana</span></span><span class="vz">Voz 0,94</span></div>
+<div class="ev"><span>11:26</span><span>Glucometría: 112 mg/dl. Alerta resuelta.<span class="q">«Glucometría ciento doce.»</span></span><span class="w"><span>Daniela Rojas</span><span style="color: #4D6170">circulante</span></span><span class="vz">Voz 0,91</span></div>
+<div class="ev"><span>11:29</span><span>Alergias verificadas: penicilina<span class="q">«Alergia a penicilina confirmada.»</span></span><span class="w"><span>Daniela Rojas</span><span style="color: #4D6170">confirma el anestesiólogo</span></span><span class="vz">Voz 0,88</span></div>
+
+<div class="gh"><h3 style="margin: 0; font-size: 17px; font-weight: 700; color: #0B5D8C">Inicio, antes de la incisión</h3><span style="font-size: 14px; color: #4D6170">11:35 a 11:58</span></div>
+<div class="ev"><span>11:35</span><span>Inicio de anestesia<span class="q">«Inicia anestesia.»</span></span><span class="w"><span>Daniela Rojas</span><span style="color: #4D6170">circulante</span></span><span class="vz">Voz 0,97</span></div>
+<div class="ev"><span>11:47</span><span>Antibiótico profiláctico verificado, tras confirmar con «sí»<span class="q">«Cefazolina dos gramos, aplicada hace cinco minutos.»</span></span><span class="w"><span>Daniela Rojas</span><span style="color: #4D6170">confirma el anestesiólogo</span></span><span class="vz">Voz 0,78</span></div>
+<div class="ev"><span>11:58</span><span>Incisión<span class="q">«Incisión.»</span></span><span class="w"><span>Daniela Rojas</span><span style="color: #4D6170">circulante</span></span><span class="vz">Voz 0,96</span></div>
+
+<div class="gh"><h3 style="margin: 0; font-size: 17px; font-weight: 700; color: #0B5D8C">Durante la cirugía</h3><span style="font-size: 14px; color: #4D6170">11:58 a 14:40</span></div>
+<div class="ev"><span>12:01</span><span>Compresas: entran 10<span class="q">«Entran diez compresas.»</span></span><span class="w"><span>Daniela Rojas</span><span style="color: #4D6170">circulante</span></span><span class="vz">Voz 0,93</span></div>
+<div class="ev" style="color: #6B7E8C"><span style="text-decoration: line-through">12:01</span><span><span style="text-decoration: line-through">Compresas: entran 10</span><span class="q">Anulado a las 12:02 por Daniela Rojas. Se dictó dos veces.</span></span><span class="w"><span>Daniela Rojas</span></span><span class="mn">Anulado</span></div>
+<div class="ev"><span>12:24</span><span>Entrada a bomba<span class="q">«Entramos en bomba.»</span></span><span class="w"><span>Daniela Rojas</span><span style="color: #4D6170">circulante</span></span><span class="vz">Voz 0,95</span></div>
+<div class="ev"><span>13:10</span><span>Novedad: falla del aspirador<span class="q">«Se dañó el aspirador.»</span></span><span class="w"><span>Daniela Rojas</span><span style="color: #4D6170">circulante</span></span><span class="vz">Voz 0,90</span></div>
+<div class="ev"><span>14:40</span><span>Fin de la cirugía</span><span class="w"><span>Daniela Rojas</span><span style="color: #4D6170">circulante</span></span><span class="mn">A mano</span></div>
+
+<div class="gh"><h3 style="margin: 0; font-size: 17px; font-weight: 700; color: #0B5D8C">Salida, antes de salir del quirófano</h3><span style="font-size: 14px; color: #4D6170">14:40 a 15:02</span></div>
+<div class="ev"><span>14:56</span><span>Compresas: salen 9. Alerta: el conteo no cuadra.<span class="q">«Salen nueve compresas.»</span></span><span class="w"><span>Daniela Rojas</span><span style="color: #4D6170">circulante</span></span><span class="vz">Voz 0,92</span></div>
+<div class="ev"><span>14:59</span><span>Compresas: sale 1. Alerta resuelta.<span class="q">«Apareció, sale una compresa.»</span></span><span class="w"><span>Daniela Rojas</span><span style="color: #4D6170">circulante</span></span><span class="vz">Voz 0,89</span></div>
+<div class="ev" style="border-bottom: 0"><span>15:02</span><span>Salida a recuperación</span><span class="w"><span>Daniela Rojas</span><span style="color: #4D6170">circulante</span></span><span class="mn">A mano</span></div>
+</div></div>
+</section>
+
+<aside style="display: flex; flex-direction: column; gap: 24px; min-width: 0">
+<section aria-labelledby="alertas" class="pn">
+<h2 id="alertas" class="d" style="margin: 0 0 6px; font-size: 20px; font-weight: 600">Alertas</h2>
+<div class="al"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0B6B5A" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-label="Resuelta"><path d="M5 12l5 5L20 7"></path></svg><span style="display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 600">Falta glucometría</span><span style="font-size: 14px; color: #4D6170">Resuelta en 6 min, 11:20 a 11:26</span></span></div>
+<div class="al"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0B6B5A" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-label="Resuelta"><path d="M5 12l5 5L20 7"></path></svg><span style="display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 600">Alergia a penicilina sin validar</span><span style="font-size: 14px; color: #4D6170">Resuelta en 9 min, 11:20 a 11:29</span></span></div>
+<div class="al"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0B6B5A" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-label="Resuelta"><path d="M5 12l5 5L20 7"></path></svg><span style="display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 600">Antibiótico profiláctico pendiente</span><span style="font-size: 14px; color: #4D6170">Resuelta en 12 min, 11:35 a 11:47</span></span></div>
+<div class="al" style="border-bottom: 0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0B6B5A" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-label="Resuelta"><path d="M5 12l5 5L20 7"></path></svg><span style="display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 600">Compresas: entraron 10, salieron 9</span><span style="font-size: 14px; color: #4D6170">Resuelta en 3 min, 14:56 a 14:59</span></span></div>
+</section>
+<section aria-labelledby="novedades" class="pn">
+<h2 id="novedades" class="d" style="margin: 0 0 12px; font-size: 20px; font-weight: 600">Novedades</h2>
+<span style="font-size: 16px; font-weight: 600">Falla del aspirador</span>
+<ol style="list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 0">
+<li style="display: grid; grid-template-columns: 16px minmax(0, 1fr); gap: 12px; padding-bottom: 14px"><span style="width: 12px; height: 12px; border-radius: 999px; background: #0B5D8C; margin-top: 5px"></span><span style="display: flex; flex-direction: column; gap: 2px; font-size: 15px"><span style="font-weight: 600">Detectada, 13:10</span><span style="font-size: 14px; color: #4D6170">Dictada en sala</span></span></li>
+<li style="display: grid; grid-template-columns: 16px minmax(0, 1fr); gap: 12px; padding-bottom: 14px"><span style="width: 12px; height: 12px; border-radius: 999px; background: #0B5D8C; margin-top: 5px"></span><span style="display: flex; flex-direction: column; gap: 2px; font-size: 15px"><span style="font-weight: 600">Atendida, 13:12</span><span style="font-size: 14px; color: #4D6170">Daniela Rojas, circulante</span></span></li>
+<li style="display: grid; grid-template-columns: 16px minmax(0, 1fr); gap: 12px"><span style="width: 12px; height: 12px; border-radius: 999px; background: #0B6B5A; margin-top: 5px"></span><span style="display: flex; flex-direction: column; gap: 2px; font-size: 15px"><span style="font-weight: 600">Solucionada, 13:16</span><span style="font-size: 14px; color: #4D6170">Se cambió el aspirador.</span></span></li>
+</ol>
+</section>
+<section aria-labelledby="tiempos" class="pn">
+<h2 id="tiempos" class="d" style="margin: 0 0 6px; font-size: 20px; font-weight: 600">Tiempos</h2>
+<div style="display: flex; justify-content: space-between; min-height: 40px; align-items: center; border-bottom: 1px solid #E9EFF3; font-size: 15px"><span>Entrada</span><strong>15 min</strong></div>
+<div style="display: flex; justify-content: space-between; min-height: 40px; align-items: center; border-bottom: 1px solid #E9EFF3; font-size: 15px"><span>Inicio</span><strong>23 min</strong></div>
+<div style="display: flex; justify-content: space-between; min-height: 40px; align-items: center; border-bottom: 1px solid #E9EFF3; font-size: 15px"><span>Durante</span><strong>2 h 42 min</strong></div>
+<div style="display: flex; justify-content: space-between; min-height: 40px; align-items: center; border-bottom: 1px solid #E9EFF3; font-size: 15px"><span>Salida</span><strong>22 min</strong></div>
+<div style="display: flex; justify-content: space-between; min-height: 40px; align-items: center; border-bottom: 1px solid #E9EFF3; font-size: 15px"><span>Tiempo de bomba</span><strong>1 h 32 min</strong></div>
+<div style="display: flex; justify-content: space-between; min-height: 40px; align-items: center; font-size: 15px"><span>Tiempo de clamp</span><strong>58 min</strong></div>
+</section>
+</aside>
+</div>
+</main>
+</div>
+</body>
+</html>

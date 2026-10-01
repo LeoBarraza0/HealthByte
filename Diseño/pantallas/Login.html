@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Iniciar sesión</title>
+<!-- Exportado del canvas «HealthByte · Diseño», página «Rediseño». Referencia visual: no se edita a mano. -->
+<script src="../../web/public/conti/conti.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#0B5D8C}a:hover{color:#08405F}
+.hb *{box-sizing:border-box}
+.d{font-family:'Space Grotesk','Segoe UI',sans-serif}
+.fl{display:flex;flex-direction:column;gap:6px;font-size:15px;font-weight:600;color:#364856}
+.fl input{min-height:48px;border:1px solid #B8C7D1;border-radius:10px;padding:0 14px;font:400 17px 'IBM Plex Sans','Segoe UI',sans-serif;color:#0D2232;background:#FFFFFF;width:100%}
+.fl input:focus-visible{outline:3px solid #0B5D8C;outline-offset:1px;border-color:#0B5D8C}
+.ay{font-size:14px;font-weight:400;color:#4D6170}
+</style>
+</head>
+<body>
+<div class="hb" style="width: 1180px; height: 820px; background: #F5F9FB; font-family: 'IBM Plex Sans', 'Segoe UI', sans-serif; color: #0D2232; display: grid; grid-template-columns: 500px minmax(0, 1fr); overflow: hidden">
+
+<section aria-label="Bienvenida" style="background: #0A2C42; color: #FFFFFF; padding: 40px 44px; display: flex; flex-direction: column; justify-content: space-between">
+<span style="display: inline-flex; align-items: center; gap: 10px"><svg width="30" height="30" viewBox="0 0 112 112" aria-hidden="true"><rect x="40" y="0" width="32" height="32" rx="7" fill="#4F95C0"></rect><rect x="0" y="40" width="32" height="32" rx="7" fill="#4F95C0"></rect><rect x="40" y="40" width="32" height="32" rx="7" fill="#4F95C0"></rect><rect x="80" y="40" width="32" height="32" rx="7" fill="#4F95C0"></rect><rect x="40" y="80" width="32" height="32" rx="7" fill="#4F95C0"></rect><rect x="92" y="0" width="20" height="20" rx="5" fill="#2FB596"></rect></svg><span class="d" style="font-size: 21px; font-weight: 500">Health<b style="font-weight: 700">Byte</b></span></span>
+<div style="display: flex; flex-direction: column; align-items: flex-start; gap: 24px">
+<hb-conti state="greeting" style="display: block; width: 240px"></hb-conti>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<p class="d" style="margin: 0; font-size: 32px; line-height: 38px; font-weight: 600">Hola, soy Conti.</p>
+<p style="margin: 0; font-size: 18px; line-height: 27px; color: #C2DCEB; max-width: 380px">Escucho la pausa de verificación y la anoto en el tablero. Inicie sesión para ver las cirugías de hoy.</p>
+</div>
+</div>
+<p style="margin: 0; font-size: 14px; color: #8FBDD8">Datos ficticios de demostración.</p>
+</section>
+
+<main style="display: flex; align-items: center; justify-content: center; padding: 40px">
+<form aria-labelledby="titulo" style="width: 420px; display: flex; flex-direction: column; gap: 20px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<h1 id="titulo" class="d" style="margin: 0; font-size: 30px; line-height: 36px; font-weight: 600">Iniciar sesión</h1>
+<span style="font-size: 16px; color: #4D6170">Use el usuario que le asignó su clínica.</span>
+</div>
+<label class="fl">Clínica<input type="text" value="caribe" autocomplete="organization" aria-describedby="ay-clinica"><span id="ay-clinica" class="ay">El código corto de su clínica, por ejemplo «caribe».</span></label>
+<label class="fl">Usuario<input type="text" value="circulante" autocomplete="username" autocapitalize="none"></label>
+<div class="fl">
+<label for="clave">Contraseña</label>
+<div style="position: relative">
+<input id="clave" type="password" value="demo-demo" autocomplete="current-password" style="padding-right: 56px">
+<button type="button" aria-label="Mostrar la contraseña" style="position: absolute; right: 2px; top: 2px; width: 44px; height: 44px; border: 0; border-radius: 8px; background: transparent; color: #4D6170; cursor: pointer; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+</div>
+</div>
+<button type="submit" style="min-height: 52px; border: 0; border-radius: 12px; background: #0B5D8C; color: #FFFFFF; font: 600 17px 'IBM Plex Sans', 'Segoe UI', sans-serif; cursor: pointer">Iniciar sesión</button>
+<p style="margin: 0; font-size: 14px; line-height: 20px; color: #4D6170">¿Olvidó la contraseña? Pídale a la coordinación de su clínica que la restablezca desde Personal.</p>
+</form>
+</main>
+</div>
+</body>
+</html>

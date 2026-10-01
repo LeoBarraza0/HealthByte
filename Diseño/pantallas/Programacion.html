@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Programación</title>
+<!-- Exportado del canvas «HealthByte · Diseño», página «Rediseño». Referencia visual: no se edita a mano. -->
+<script src="../../web/public/conti/conti.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;background:#F5F9FB}
+a{color:#0B5D8C}a:hover{color:#08405F}
+.hb *{box-sizing:border-box}
+.d{font-family:'Space Grotesk','Segoe UI',sans-serif}
+.pn{background:#FFFFFF;border:1px solid #D3DDE4;border-radius:16px;padding:22px 24px}
+.bt{min-height:44px;border-radius:10px;font:600 15px 'IBM Plex Sans','Segoe UI',sans-serif;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0 16px;background:#FFFFFF;color:#0D2232;border:1px solid #B8C7D1}
+.bt:focus-visible{outline:3px solid #0B5D8C;outline-offset:2px}
+.pr{background:#0B5D8C;color:#FFFFFF;border-color:#0B5D8C}
+.fl{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600;color:#4D6170}
+.fl input,.fl select{min-height:44px;border:1px solid #B8C7D1;border-radius:10px;padding:0 12px;font:400 15px 'IBM Plex Sans','Segoe UI',sans-serif;color:#0D2232;background:#FFFFFF;width:100%}
+.fl input:focus-visible,.fl select:focus-visible{outline:3px solid #0B5D8C;outline-offset:1px}
+.ay{font-size:13px;font-weight:400;color:#4D6170;line-height:18px}
+.pg{min-width:44px;min-height:44px;border-radius:10px;border:1px solid #B8C7D1;background:#FFFFFF;font:600 15px 'IBM Plex Sans','Segoe UI',sans-serif;color:#0D2232;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 12px}
+.pg:focus-visible{outline:3px solid #0B5D8C;outline-offset:2px}
+.pg[aria-current]{background:#0B5D8C;border-color:#0B5D8C;color:#FFFFFF}
+.pg:disabled{opacity:.45;cursor:default}
+.bk{position:absolute;z-index:1;left:8px;right:8px;border-radius:10px;padding:8px 10px;display:flex;flex-direction:column;gap:2px;text-decoration:none;overflow:hidden}
+.bk:focus-visible{outline:3px solid #0B5D8C;outline-offset:2px}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+legend{font-size:16px;font-weight:700;color:#0D2232;padding:0 0 4px}
+</style>
+</head>
+<body>
+<div class="hb" style="min-height: 100vh; background: #F5F9FB; font-family: 'IBM Plex Sans', 'Segoe UI', sans-serif; color: #0D2232; font-variant-numeric: tabular-nums">
+<header style="background: #FFFFFF; border-bottom: 1px solid #D3DDE4">
+<div style="max-width: 1440px; margin: 0 auto; padding: 0 40px; min-height: 64px; display: flex; align-items: center; gap: 24px; flex-wrap: wrap">
+<span style="display: inline-flex; align-items: center; gap: 10px"><svg width="28" height="28" viewBox="0 0 112 112" aria-hidden="true"><rect x="40" y="0" width="32" height="32" rx="7" fill="#0B5D8C"></rect><rect x="0" y="40" width="32" height="32" rx="7" fill="#0B5D8C"></rect><rect x="40" y="40" width="32" height="32" rx="7" fill="#0B5D8C"></rect><rect x="80" y="40" width="32" height="32" rx="7" fill="#0B5D8C"></rect><rect x="40" y="80" width="32" height="32" rx="7" fill="#0B5D8C"></rect><rect x="92" y="0" width="20" height="20" rx="5" fill="#2FB596"></rect></svg><span class="d" style="font-size: 20px; font-weight: 500">Health<b style="color: #0B5D8C; font-weight: 700">Byte</b></span></span>
+<nav aria-label="Principal" style="display: flex; gap: 4px">
+<a href="Inicio-Cirugias.html" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 14px; border-radius: 10px; font-size: 15px; font-weight: 600; color: #364856; text-decoration: none">Cirugías de hoy</a>
+<a href="Panel.html" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 14px; border-radius: 10px; font-size: 15px; font-weight: 600; color: #364856; text-decoration: none">Panel de gestión</a>
+<a href="Programacion.html" aria-current="page" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 14px; border-radius: 10px; font-size: 15px; font-weight: 600; color: #0B5D8C; background: #E1EEF5; text-decoration: none">Programación</a>
+<a href="Usuarios.html" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 14px; border-radius: 10px; font-size: 15px; font-weight: 600; color: #364856; text-decoration: none">Personal</a>
+</nav>
+<span style="margin-left: auto; font-size: 15px">Mateo Navarro <span style="color: #4D6170">coordinación, Clínica Demo Caribe</span></span>
+</div>
+</header>
+
+<main style="max-width: 1440px; margin: 0 auto; padding: 32px 40px 48px; display: grid; grid-template-columns: minmax(0, 1fr) 460px; gap: 24px; align-items: start">
+<div style="display: flex; flex-direction: column; gap: 20px; min-width: 0">
+<div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; flex-wrap: wrap">
+<div style="display: flex; flex-direction: column; gap: 6px"><h1 class="d" style="margin: 0; font-size: 34px; line-height: 40px; font-weight: 600; letter-spacing: -0.01em">Programación</h1><span style="font-size: 15px; color: #4D6170">Las cirugías que se programan aquí aparecen en las tablets con su equipo y sus datos.</span></div>
+<div style="display: flex; gap: 8px; align-items: center">
+<button class="pg" aria-label="Día anterior"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg></button>
+<label class="fl" style="flex-direction: row; align-items: center; gap: 8px"><span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Día</span><input type="date" value="2026-10-01" style="width: auto"></label>
+<button class="pg" aria-label="Día siguiente"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg></button>
+<button class="bt">Hoy</button>
+</div>
+</div>
+<section aria-label="Agenda del miércoles 1 de octubre" class="pn" style="padding: 18px 20px 24px">
+<div style="display: grid; grid-template-columns: 64px repeat(4, minmax(0, 1fr)); padding-bottom: 12px">
+<span></span><span class="d" style="font-size: 17px; font-weight: 600; padding: 0 12px">Quirófano 1</span><span class="d" style="font-size: 17px; font-weight: 600; padding: 0 12px">Quirófano 2</span><span class="d" style="font-size: 17px; font-weight: 600; padding: 0 12px">Quirófano 3</span><span class="d" style="font-size: 17px; font-weight: 600; padding: 0 12px">Quirófano 4</span>
+</div>
+<div style="display: grid; grid-template-columns: 64px repeat(4, minmax(0, 1fr)); position: relative; margin-top: 10px">
+<div style="position: relative; height: 800px"><span style="position: absolute; top: -9px; right: 10px; font-size: 13px; color: #4D6170">07:00</span><span style="position: absolute; top: 71px; right: 10px; font-size: 13px; color: #4D6170">08:00</span><span style="position: absolute; top: 151px; right: 10px; font-size: 13px; color: #4D6170">09:00</span><span style="position: absolute; top: 231px; right: 10px; font-size: 13px; color: #4D6170">10:00</span><span style="position: absolute; top: 311px; right: 10px; font-size: 13px; color: #4D6170">11:00</span><span style="position: absolute; top: 391px; right: 10px; font-size: 13px; color: #4D6170">12:00</span><span style="position: absolute; top: 471px; right: 10px; font-size: 13px; color: #4D6170">13:00</span><span style="position: absolute; top: 551px; right: 10px; font-size: 13px; color: #4D6170">14:00</span><span style="position: absolute; top: 631px; right: 10px; font-size: 13px; color: #4D6170">15:00</span><span style="position: absolute; top: 711px; right: 10px; font-size: 13px; color: #4D6170">16:00</span><span style="position: absolute; top: 791px; right: 10px; font-size: 13px; color: #4D6170">17:00</span></div>
+<div style="position: relative; height: 800px; border-left: 1px solid #D3DDE4"><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 0px; border-top: 1px solid #E9EFF3"></span><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 80px; border-top: 1px solid #E9EFF3"></span><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 160px; border-top: 1px solid #E9EFF3"></span><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 240px; border-top: 1px solid #E9EFF3"></span><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 320px; border-top: 1px solid #E9EFF3"></span><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 400px; border-top: 1px solid #E9EFF3"></span><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 480px; border-top: 1px solid #E9EFF3"></span><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 560px; border-top: 1px solid #E9EFF3"></span><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 640px; border-top: 1px solid #E9EFF3"></span><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 720px; border-top: 1px solid #E9EFF3"></span><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 800px; border-top: 1px solid #E9EFF3"></span><a href="#" class="bk" style="top: 2px; height: 116px; background: #F0F3F5; border-left: 4px solid #8FA1AE; color: #364856"><span style="font-size: 13px; font-weight: 600">07:00 a 08:30</span><span style="font-size: 15px; font-weight: 600; line-height: 19px">Apendicectomía</span><span style="font-size: 13px; line-height: 17px">Cirugía general. Realizada.</span></a><a href="#" class="bk" style="top: 322px; height: 316px; background: #0B5D8C; border-left: 4px solid #08405F; color: #FFFFFF"><span style="font-size: 13px; font-weight: 600">11:00 a 15:00</span><span style="font-size: 15px; font-weight: 600; line-height: 19px">Revascularización miocárdica</span><span style="font-size: 13px; line-height: 17px">Rosa Elena Martínez. En curso.</span></a></div><div style="position: relative; height: 800px; border-left: 1px solid #D3DDE4"><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 0px; border-top: 1px solid #E9EFF3"></span><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 80px; border-top: 1px solid #E9EFF3"></span><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 160px; border-top: 1px solid #E9EFF3"></span><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 240px; border-top: 1px solid #E9EFF3"></span><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 320px; border-top: 1px solid #E9EFF3"></span><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 400px; border-top: 1px solid #E9EFF3"></span><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 480px; border-top: 1px solid #E9EFF3"></span><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 560px; border-top: 1px solid #E9EFF3"></span><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 640px; border-top: 1px solid #E9EFF3"></span><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 720px; border-top: 1px solid #E9EFF3"></span><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 800px; border-top: 1px solid #E9EFF3"></span><a href="#" class="bk" style="top: 202px; height: 156px; background: #E1EEF5; border-left: 4px solid #0B5D8C; color: #08405F"><span style="font-size: 13px; font-weight: 600">09:30 a 11:30</span><span style="font-size: 15px; font-weight: 600; line-height: 19px">Colecistectomía laparoscópica</span><span style="font-size: 13px; line-height: 17px">Andrés Gómez Ruiz</span><span style="display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 600; color: #8A4B00"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg>Falta peso</span></a><a href="#" class="bk" style="top: 562px; height: 196px; background: #FFFFFF; border: 2px dashed #0B5D8C; color: #0B5D8C"><span style="font-size: 13px; font-weight: 600">14:00 a 16:30</span><span style="font-size: 15px; font-weight: 600; line-height: 19px">Nueva cirugía</span><span style="font-size: 13px; line-height: 17px">Sin guardar</span></a></div><div style="position: relative; height: 800px; border-left: 1px solid #D3DDE4"><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 0px; border-top: 1px solid #E9EFF3"></span><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 80px; border-top: 1px solid #E9EFF3"></span><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 160px; border-top: 1px solid #E9EFF3"></span><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 240px; border-top: 1px solid #E9EFF3"></span><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 320px; border-top: 1px solid #E9EFF3"></span><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 400px; border-top: 1px solid #E9EFF3"></span><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 480px; border-top: 1px solid #E9EFF3"></span><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 560px; border-top: 1px solid #E9EFF3"></span><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 640px; border-top: 1px solid #E9EFF3"></span><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 720px; border-top: 1px solid #E9EFF3"></span><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 800px; border-top: 1px solid #E9EFF3"></span><a href="#" class="bk" style="top: 482px; height: 116px; background: #E1EEF5; border-left: 4px solid #0B5D8C; color: #08405F"><span style="font-size: 13px; font-weight: 600">13:00 a 14:30</span><span style="font-size: 15px; font-weight: 600; line-height: 19px">Herniorrafia inguinal, derecha</span><span style="font-size: 13px; line-height: 17px">Luisa Vargas Ortiz</span><span style="display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 600; color: #0B6B5A"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg>Datos completos</span></a></div><div style="position: relative; height: 800px; border-left: 1px solid #D3DDE4"><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 0px; border-top: 1px solid #E9EFF3"></span><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 80px; border-top: 1px solid #E9EFF3"></span><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 160px; border-top: 1px solid #E9EFF3"></span><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 240px; border-top: 1px solid #E9EFF3"></span><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 320px; border-top: 1px solid #E9EFF3"></span><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 400px; border-top: 1px solid #E9EFF3"></span><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 480px; border-top: 1px solid #E9EFF3"></span><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 560px; border-top: 1px solid #E9EFF3"></span><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 640px; border-top: 1px solid #E9EFF3"></span><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 720px; border-top: 1px solid #E9EFF3"></span><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 800px; border-top: 1px solid #E9EFF3"></span><span style="position: absolute; top: 160px; left: 12px; right: 12px; font-size: 14px; color: #4D6170">Libre todo el día.</span></div>
+<div aria-hidden="true" style="position: absolute; left: 56px; right: 0; top: 381px; border-top: 2px solid #C8372D"><span style="position: absolute; left: -2px; top: -6px; width: 10px; height: 10px; border-radius: 999px; background: #C8372D"></span></div>
+</div>
+<p style="margin: 18px 0 0; font-size: 14px; color: #4D6170">La línea roja es la hora actual. Toque una franja libre para programar a esa hora.</p>
+</section>
+</div>
+
+<aside aria-labelledby="titulo-nueva" class="pn" style="display: flex; flex-direction: column; gap: 18px; border: 2px solid #0B5D8C">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 12px"><h2 id="titulo-nueva" class="d" style="margin: 0; font-size: 22px; font-weight: 600">Nueva cirugía</h2><button class="bt" aria-label="Cerrar sin guardar" style="min-width: 44px; padding: 0; border: 0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button></div>
+<fieldset>
+<legend>Cuándo y dónde</legend>
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) 110px 110px; gap: 10px">
+<label class="fl" style="font-size: 14px; color: #364856">Quirófano<select><option>Quirófano 1</option><option selected>Quirófano 2</option><option>Quirófano 3</option><option>Quirófano 4</option></select></label>
+<label class="fl" style="font-size: 14px; color: #364856">Inicia<select><option>13:30</option><option selected>14:00</option><option>14:30</option></select></label>
+<label class="fl" style="font-size: 14px; color: #364856">Dura<select><option>1 h</option><option>2 h</option><option selected>2 h 30</option><option>3 h</option><option>4 h</option></select></label>
+</div>
+</fieldset>
+<fieldset>
+<legend>Paciente</legend>
+<label class="fl" style="font-size: 14px; color: #364856">Documento<input type="text" value="CC 1 045 667 210" inputmode="numeric"><span class="ay" style="color: #0B6B5A; font-weight: 600">Encontrada: Marta Lucía Pacheco, 67 años. Nueva EPS. HC 0017.</span></label>
+</fieldset>
+<fieldset>
+<legend>Procedimiento</legend>
+<label class="fl" style="font-size: 14px; color: #364856">Especialidad<select><option>Cardiovascular</option><option selected>Cirugía general</option></select><span class="ay">Define el checklist, los datos previos y el material a contar.</span></label>
+<label class="fl" style="font-size: 14px; color: #364856">Procedimiento<input type="text" value="Colecistectomía laparoscópica"></label>
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) 150px; gap: 10px">
+<label class="fl" style="font-size: 14px; color: #364856">Diagnóstico<input type="text" value="Colelitiasis sintomática"></label>
+<label class="fl" style="font-size: 14px; color: #364856">Lateralidad<select><option selected>No aplica</option><option>Derecha</option><option>Izquierda</option><option>Bilateral</option></select></label>
+</div>
+</fieldset>
+<fieldset>
+<legend>Equipo</legend>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<label class="fl" style="font-size: 14px; color: #364856">Cirujano<select><option selected>Andrés Polo</option></select></label>
+<label class="fl" style="font-size: 14px; color: #364856">Anestesiólogo<select><option selected>Valentina Orozco</option></select></label>
+<label class="fl" style="font-size: 14px; color: #364856">Instrumentador<select><option selected>Laura Castro</option></select></label>
+<label class="fl" style="font-size: 14px; color: #364856">Auxiliar de enfermería<select><option selected>Carmen Fontalvo</option></select></label>
+</div>
+<span class="ay">Solo aparecen quienes tienen ese rol y están libres a esa hora.</span>
+</fieldset>
+<fieldset>
+<legend>Datos antes de la cirugía</legend>
+<span class="ay" style="margin-top: -8px">Los pide el protocolo de la especialidad elegida.</span>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
+<label class="fl" style="font-size: 14px; color: #364856">Peso (kg)<input type="text" inputmode="decimal" value="72"></label>
+<label class="fl" style="font-size: 14px; color: #364856">Talla (cm)<input type="text" inputmode="decimal" value="158"></label>
+<label class="fl" style="font-size: 14px; color: #364856">Grupo y RH<select><option selected>O+</option><option>O−</option><option>A+</option><option>A−</option><option>B+</option><option>B−</option><option>AB+</option><option>AB−</option></select></label>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<label class="fl" style="font-size: 14px; color: #364856">Alergias<input type="text" value="Ninguna conocida"></label>
+<label class="fl" style="font-size: 14px; color: #364856">Tipo de anestesia<select><option selected>General</option><option>Regional</option><option>Sedación</option><option>Local</option></select></label>
+</div>
+<label class="fl" style="font-size: 14px; color: #364856">Comorbilidades (opcional)<input type="text" value="Hipertensión controlada"></label>
+<span class="ay">Lo que falte se puede completar después; la tablet lo mostrará como pendiente antes del ingreso.</span>
+</fieldset>
+<div style="display: flex; gap: 10px; padding-top: 4px"><button class="bt pr">Programar cirugía</button><button class="bt">Cancelar</button></div>
+</aside>
+</main>
+</div>
+</body>
+</html>

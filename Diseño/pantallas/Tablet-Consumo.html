@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tablet · Consumo de la cirugía</title>
+<!-- Exportado del canvas «HealthByte · Diseño», página «Rediseño». Referencia visual: no se edita a mano. -->
+<script src="../../web/public/conti/conti.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+.hb *{box-sizing:border-box}
+.d{font-family:'Space Grotesk','Segoe UI',sans-serif}
+.b{min-height:44px;border-radius:10px;font:600 15px 'IBM Plex Sans','Segoe UI',sans-serif;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 14px;background:#FFFFFF;color:#0D2232;border:1px solid #B8C7D1}
+.b:focus-visible{outline:3px solid #0B5D8C;outline-offset:2px}
+.sk{background:#D3DDE4;border-radius:8px}
+.ln{display:grid;grid-template-columns:minmax(0,1fr) 44px 48px 44px;gap:8px;align-items:center;min-height:52px;border-bottom:1px solid #E9EFF3;font-size:16px}
+.ln>strong{text-align:center;font-size:18px}
+.ch{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 12px;border-radius:999px;background:#F0F3F5;font-size:14px;color:#364856}
+.ch b{color:#0D2232}
+.ft{min-height:40px;padding:0 14px;border-radius:999px;border:1px solid #B8C7D1;background:#FFFFFF;font:600 14px 'IBM Plex Sans','Segoe UI',sans-serif;color:#364856;cursor:pointer}
+.ft[aria-pressed="true"]{background:#0B5D8C;border-color:#0B5D8C;color:#FFFFFF}
+.rs{display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:52px;border-bottom:1px solid #E9EFF3;font-size:16px}
+</style>
+</head>
+<body>
+<div class="hb" style="position: relative; width: 1180px; height: 820px; background: #F5F9FB; font-family: 'IBM Plex Sans', 'Segoe UI', sans-serif; color: #0D2232; font-variant-numeric: tabular-nums; overflow: hidden">
+
+<div aria-hidden="true" style="position: absolute; inset: 0; display: grid; grid-template-rows: 92px 86px minmax(0, 1fr) 116px">
+<div style="background: #0A2C42"></div>
+<div style="background: #FFFFFF; border-bottom: 1px solid #D3DDE4"></div>
+<div style="padding: 16px 20px; display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 20px">
+<div style="display: flex; flex-direction: column; gap: 12px"><div class="sk" style="height: 28px; width: 50%"></div><div class="sk" style="height: 250px; background: #FFFFFF"></div><div class="sk" style="height: 130px; background: #FFFFFF"></div></div>
+<div class="sk" style="background: #FFFFFF; border: 2px solid #E8B4AE"></div>
+</div>
+<div style="background: #0A2C42"></div>
+</div>
+<div aria-hidden="true" style="position: absolute; inset: 0; background: rgba(13, 34, 50, 0.55)"></div>
+
+<div role="dialog" aria-modal="true" aria-labelledby="titulo" style="position: absolute; top: 0; right: 0; bottom: 0; width: 600px; background: #FFFFFF; box-shadow: -16px 0 48px rgba(13, 34, 50, 0.3); display: grid; grid-template-rows: auto minmax(0, 1fr) auto">
+
+<div style="padding: 22px 24px 14px; display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; border-bottom: 1px solid #E9EFF3">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<h2 id="titulo" class="d" style="margin: 0; font-size: 26px; line-height: 32px; font-weight: 600">Consumo de la cirugía</h2>
+<span style="font-size: 15px; color: #4D6170">Nombre y cantidad de lo que se usó. Los costos los maneja la clínica aparte.</span>
+</div>
+<button class="b" aria-label="Cerrar" style="width: 44px; padding: 0; flex-shrink: 0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button>
+</div>
+
+<div style="padding: 14px 24px; display: flex; flex-direction: column; gap: 16px; overflow: hidden">
+<section aria-labelledby="registrado" style="display: flex; flex-direction: column">
+<div style="display: flex; justify-content: space-between; align-items: baseline"><h3 id="registrado" style="margin: 0 0 4px; font-size: 15px; font-weight: 600; color: #4D6170">Registrado</h3><span style="font-size: 14px; color: #4D6170">7 insumos</span></div>
+<div class="ln"><span>Guantes, par</span><button class="b" aria-label="Quitar un par de guantes" style="width: 44px; padding: 0">−</button><strong>8</strong><button class="b" aria-label="Agregar un par de guantes" style="width: 44px; padding: 0">+</button></div>
+<div class="ln"><span>Prolene</span><button class="b" aria-label="Quitar un Prolene" style="width: 44px; padding: 0">−</button><strong>4</strong><button class="b" aria-label="Agregar un Prolene" style="width: 44px; padding: 0">+</button></div>
+<div class="ln" style="background: #EAF7F2; margin: 0 -24px; padding: 0 24px"><span style="display: flex; flex-direction: column"><span>Tubo de tórax</span><span style="font-size: 13px; color: #0B6B5A; font-weight: 600">Dictado a las 14:52</span></span><button class="b" aria-label="Quitar un tubo de tórax" style="width: 44px; padding: 0">−</button><strong>2</strong><button class="b" aria-label="Agregar un tubo de tórax" style="width: 44px; padding: 0">+</button></div>
+<div class="ln"><span>Cera ósea</span><button class="b" aria-label="Quitar una cera ósea" style="width: 44px; padding: 0">−</button><strong>1</strong><button class="b" aria-label="Agregar una cera ósea" style="width: 44px; padding: 0">+</button></div>
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; min-height: 52px; font-size: 15px; color: #4D6170"><span>Y 3 más: placa de electro, sonda Foley y equipo de venoclisis.</span><button class="b" style="flex-shrink: 0">Ver todo</button></div>
+</section>
+
+<section aria-labelledby="conteo" style="display: flex; flex-direction: column; gap: 8px">
+<h3 id="conteo" style="margin: 0; font-size: 15px; font-weight: 600; color: #4D6170">Del conteo de material, se suma solo</h3>
+<div style="display: flex; flex-wrap: wrap; gap: 8px"><span class="ch">Compresas <b>10</b></span><span class="ch">Gasas <b>20</b></span><span class="ch">Agujas de sutura <b>6</b></span><span class="ch">Hojas de bisturí <b>3</b></span><span class="ch">Hiladillos <b>2</b></span></div>
+</section>
+
+<section aria-labelledby="agregar" style="display: flex; flex-direction: column; gap: 10px">
+<h3 id="agregar" style="margin: 0; font-size: 15px; font-weight: 600; color: #4D6170">Agregar</h3>
+<label style="position: relative; display: block"><span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Buscar insumo</span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4D6170" stroke-width="2.2" stroke-linecap="round" aria-hidden="true" style="position: absolute; left: 14px; top: 14px"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg><input type="search" value="son" style="width: 100%; min-height: 48px; border: 2px solid #0B5D8C; border-radius: 10px; padding: 0 14px 0 44px; font: 400 17px 'IBM Plex Sans', 'Segoe UI', sans-serif; color: #0D2232"></label>
+<div role="group" aria-label="Categoría" style="display: flex; gap: 8px; flex-wrap: wrap"><button class="ft" aria-pressed="true">Todos</button><button class="ft" aria-pressed="false">Generales</button><button class="ft" aria-pressed="false">Suturas</button><button class="ft" aria-pressed="false">Otros</button><button class="ft" aria-pressed="false">Equipos</button></div>
+<div>
+<div class="rs"><span>Sonda alimentación</span><button class="b" style="color: #0B5D8C; border-color: #0B5D8C">+1</button></div>
+<div class="rs"><span>Sonda Foley <span style="font-size: 13px; color: #4D6170">ya registrada: 1</span></span><button class="b" style="color: #0B5D8C; border-color: #0B5D8C">+1</button></div>
+<div class="rs"><span>Sonda nasogástrica</span><button class="b" style="color: #0B5D8C; border-color: #0B5D8C">+1</button></div>
+<div class="rs" style="border-bottom: 0"><span>Sonda Nelaton</span><button class="b" style="color: #0B5D8C; border-color: #0B5D8C">+1</button></div>
+</div>
+</section>
+</div>
+
+<div style="padding: 14px 24px; border-top: 1px solid #E9EFF3; display: flex; justify-content: space-between; align-items: center; gap: 16px; background: #F5F9FB">
+<span style="font-size: 14px; line-height: 20px; color: #364856">También se dicta: «consumo, dos pares de guantes».</span>
+<button class="b" style="background: #0B5D8C; color: #FFFFFF; border-color: #0B5D8C; flex-shrink: 0">Listo</button>
+</div>
+</div>
+</div>
+</body>
+</html>

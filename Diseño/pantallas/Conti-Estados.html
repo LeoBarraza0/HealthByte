@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Conti · Estados de la voz</title>
+<!-- Exportado del canvas «HealthByte · Diseño», página «Rediseño». Referencia visual: no se edita a mano. -->
+<script src="../../web/public/conti/conti.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+.hb *{box-sizing:border-box}
+.d{font-family:'Space Grotesk','Segoe UI',sans-serif}
+.ce{background:#FFFFFF;border:1px solid #D3DDE4;border-radius:16px;padding:20px 22px;display:flex;flex-direction:column;gap:10px}
+.ce .fg{height:200px;display:flex;align-items:center;justify-content:center;background:#F0F6FA;border-radius:12px}
+.ce h2{margin:0;font:600 24px 'Space Grotesk','Segoe UI',sans-serif}
+.ce p{margin:0;font-size:16px;line-height:23px;color:#364856}
+.ce .m{display:flex;gap:14px;font-size:14px;color:#4D6170}
+.lz{display:inline-flex;align-items:center;gap:6px}
+.lz i{width:12px;height:12px;border-radius:4px;display:inline-block}
+</style>
+</head>
+<body>
+<div class="hb" style="width: 1920px; height: 1080px; background: #F5F9FB; font-family: 'IBM Plex Sans', 'Segoe UI', sans-serif; color: #0D2232; padding: 56px 64px; display: flex; flex-direction: column; gap: 28px">
+<div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 40px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<h1 class="d" style="margin: 0; font-size: 44px; line-height: 48px; font-weight: 600; letter-spacing: -0.015em">Conti, la cara del registro por voz</h1>
+<p style="margin: 0; font-size: 20px; line-height: 28px; color: #364856; max-width: 980px">Acompaña al texto de la barra de voz; nunca lo reemplaza. Vive solo en la barra de voz (112 px en la pared, 64 px en la tablet) y en el inicio de sesión. La conversación que no va al tablero no lo cambia.</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px; font-size: 15px; color: #364856; text-align: right">
+<span>Prioridad cuando coinciden dos estados</span>
+<span style="font-weight: 600">Pausa, pregunta, alerta, procesando, escuchando, registrado, no entendí, cierre, atento</span>
+</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 24px">
+
+<section class="ce"><div class="fg"><hb-conti state="paused" style="display: block; width: 170px"></hb-conti></div><h2>En pausa</h2><p>El micrófono está apagado o lo tiene otro dispositivo.</p><div class="m"><span class="lz"><i style="background: #B8C7D1"></i>Luz gris</span><span>Mientras siga así</span></div></section>
+
+<section class="ce"><div class="fg"><hb-conti state="idle" style="display: block; width: 170px"></hb-conti></div><h2>Atento</h2><p>Micrófono activo y nadie le habla al tablero.</p><div class="m"><span class="lz"><i style="background: #2FB596"></i>Luz menta</span><span>Por defecto</span></div></section>
+
+<section class="ce"><div class="fg"><hb-conti state="listening" style="display: block; width: 170px"></hb-conti></div><h2>Escuchando</h2><p>Llega texto parcial: alguien está dictando.</p><div class="m"><span class="lz"><i style="background: #2FB596"></i>Luz menta</span><span>Mientras se habla</span></div></section>
+
+<section class="ce"><div class="fg"><hb-conti state="processing" style="display: block; width: 170px"></hb-conti></div><h2>Procesando</h2><p>Jev interpreta la frase que acaba de terminar.</p><div class="m"><span class="lz"><i style="background: #2FB596"></i>Luz menta</span><span>Hasta 5 s</span></div></section>
+
+<section class="ce"><div class="fg"><hb-conti state="asking" style="display: block; width: 170px"></hb-conti></div><h2>Pregunta</h2><p>Jev dudó: «¿Registrar esto?» espera un sí o un no.</p><div class="m"><span class="lz"><i style="background: #2FB596"></i>Luz menta</span><span>Hasta responder o 15 s</span></div></section>
+
+<section class="ce"><div class="fg"><hb-conti state="verified" style="display: block; width: 170px"></hb-conti></div><h2>Registrado</h2><p>Lo dictado quedó guardado con hora y rol.</p><div class="m"><span class="lz"><i style="background: #2FB596"></i>Luz menta</span><span>2,5 s</span></div></section>
+
+<section class="ce"><div class="fg"><hb-conti state="confused" style="display: block; width: 170px"></hb-conti></div><h2>No entendí</h2><p>La frase iba al tablero pero no se pudo interpretar.</p><div class="m"><span class="lz"><i style="background: #B8C7D1"></i>Luz gris</span><span>3 s</span></div></section>
+
+<section class="ce"><div class="fg"><hb-conti state="alert" style="display: block; width: 170px"></hb-conti></div><h2>Alerta</h2><p>Se abrió una alerta crítica. Serio, no asustado.</p><div class="m"><span class="lz"><i style="background: #C8372D"></i>Luz roja</span><span>4 s</span></div></section>
+
+<section class="ce"><div class="fg"><hb-conti state="celebrate" style="display: block; width: 170px"></hb-conti></div><h2>Cierre seguro</h2><p>Salida a recuperación sin alertas abiertas.</p><div class="m"><span class="lz"><i style="background: #2FB596"></i>Luz menta</span><span>4 s, una vez</span></div></section>
+
+<section class="ce"><div class="fg"><hb-conti state="greeting" style="display: block; width: 170px"></hb-conti></div><h2>Saludo</h2><p>Solo en el inicio de sesión.</p><div class="m"><span class="lz"><i style="background: #2FB596"></i>Luz menta</span><span>Mientras esté la pantalla</span></div></section>
+
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tablet · Cerrar alerta con motivo</title>
+<!-- Exportado del canvas «HealthByte · Diseño», página «Rediseño». Referencia visual: no se edita a mano. -->
+<script src="../../web/public/conti/conti.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#0B5D8C}a:hover{color:#08405F}
+.hb *{box-sizing:border-box}
+.d{font-family:'Space Grotesk','Segoe UI',sans-serif}
+.b{min-height:48px;border-radius:10px;font:600 17px 'IBM Plex Sans','Segoe UI',sans-serif;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0 20px;background:#FFFFFF;color:#0D2232;border:1px solid #B8C7D1}
+.b:focus-visible,.op:focus-within{outline:3px solid #0B5D8C;outline-offset:2px}
+.op{display:flex;align-items:center;gap:12px;min-height:52px;padding:0 16px;border:1px solid #D3DDE4;border-radius:10px;font-size:17px;cursor:pointer}
+.op input{width:20px;height:20px;accent-color:#0B5D8C;margin:0}
+.sk{background:#D3DDE4;border-radius:8px}
+</style>
+</head>
+<body>
+<div class="hb" style="position: relative; width: 1180px; height: 820px; background: #F5F9FB; font-family: 'IBM Plex Sans', 'Segoe UI', sans-serif; color: #0D2232; overflow: hidden">
+
+<div aria-hidden="true" style="position: absolute; inset: 0; display: grid; grid-template-rows: 92px 86px minmax(0, 1fr) 116px">
+<div style="background: #0A2C42"></div>
+<div style="background: #FFFFFF; border-bottom: 1px solid #D3DDE4"></div>
+<div style="padding: 16px 20px; display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 20px">
+<div style="display: flex; flex-direction: column; gap: 12px"><div class="sk" style="height: 28px; width: 50%"></div><div class="sk" style="height: 110px; background: #FFFFFF; border: 2px solid #E8B4AE"></div><div class="sk" style="height: 110px; background: #FFFFFF"></div><div class="sk" style="height: 160px; background: #FFFFFF"></div></div>
+<div style="display: flex; flex-direction: column; gap: 14px"><div class="sk" style="height: 240px; background: #FFFFFF"></div><div class="sk" style="flex-grow: 1; background: #FFFFFF"></div></div>
+</div>
+<div style="background: #0A2C42"></div>
+</div>
+<div aria-hidden="true" style="position: absolute; inset: 0; background: rgba(13, 34, 50, 0.55)"></div>
+
+<div role="dialog" aria-modal="true" aria-labelledby="titulo" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 640px; background: #FFFFFF; border-radius: 18px; box-shadow: 0 24px 64px rgba(13, 34, 50, 0.35); padding: 28px; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px">
+<h2 id="titulo" class="d" style="margin: 0; font-size: 26px; line-height: 32px; font-weight: 600">Cerrar alerta con motivo</h2>
+<button class="b" aria-label="Cancelar" style="min-height: 44px; width: 44px; padding: 0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button>
+</div>
+<div style="display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 12px; align-items: start; background: #FBE9E7; border-radius: 12px; padding: 14px 16px">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C8372D" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-label="Crítica"><path d="M7.86 2h8.28L22 7.86v8.28L16.14 22H7.86L2 16.14V7.86z"></path><path d="M12 8v4"></path><path d="M12 16h.01"></path></svg>
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 18px; font-weight: 700; color: #7E211B">Antibiótico profiláctico pendiente</span><span style="font-size: 15px; color: #7E211B">Abierta desde la anestesia, 11:35</span></div>
+</div>
+<p style="margin: 0; font-size: 16px; line-height: 24px; color: #364856">La alerta queda cerrada con su motivo en la trazabilidad. No se borra nada y la cirugía sigue normalmente.</p>
+<fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px">
+<legend style="font-size: 15px; font-weight: 600; color: #4D6170; padding: 0 0 8px">Motivo</legend>
+<label class="op"><input type="radio" name="motivo">Lo indicó la cirujana</label>
+<label class="op" style="border: 2px solid #0B5D8C; background: #F0F6FA"><input type="radio" name="motivo" checked>Se administró antes de ingresar a sala</label>
+<label class="op"><input type="radio" name="motivo">No aplica para este procedimiento</label>
+<label class="op"><input type="radio" name="motivo">Otro motivo</label>
+</fieldset>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 15px; font-weight: 600; color: #4D6170">Detalle, opcional
+<textarea rows="2" style="font: 400 17px 'IBM Plex Sans', 'Segoe UI', sans-serif; color: #0D2232; border: 1px solid #B8C7D1; border-radius: 10px; padding: 12px 14px; resize: none">Cefazolina 2 g en hospitalización a las 10:50.</textarea>
+<span style="font-weight: 400; font-size: 14px; color: #4D6170">También puede dictarlo: «se cierra porque se administró en piso».</span>
+</label>
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-top: 4px">
+<span style="font-size: 14px; color: #4D6170">Cierra: Daniela Rojas, circulante</span>
+<div style="display: flex; gap: 10px"><button class="b">Cancelar</button><button class="b" style="background: #0B5D8C; color: #FFFFFF; border-color: #0B5D8C">Cerrar alerta</button></div>
+</div>
+</div>
+</div>
+</body>
+</html>
