@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { interpretar } from './interprete.ts';
+import { construirPreguntas } from './preguntas.ts';
 import { derivar } from './estado.ts';
 import { PROTOCOLO_CARDIO } from './protocolos.ts';
 import { cirugiaPrueba, ev } from './prueba.ts';
@@ -66,4 +67,84 @@ test('no envía la identidad del paciente a Jev', async () => {
 test('una frase dirigida que no se entiende queda marcada', async () => {
   const d = await interpretar('eh, el coso ese', estado(), false, jev({ dirigida: noul(0.8), intencion: choice('hito', 0.4) }));
   assert.deepEqual(d, { accion: 'ignorar', no_entendido: true });
+});
+
+test('consumo: dos pares de guantes toma la cantidad de la frase', async () => {
+  const s = estado();
+  s.insumos = [{ nombre: 'Guantes, par', categoria: 'general' }];
+  const d = await interpretar('consumo, dos pares de guantes', s, false, jev({
+    dirigida: noul(0.95), intencion: choice('consumo', 0.96), insumo: choice('o0', 0.93),
+  }));
+  assert.deepEqual(d, { accion: 'registrar', eventos: [{ tipo: 'consumo', insumo: 'Guantes, par', cantidad: 2 }],
+    confianza: 0.93, resumen: 'Consumo: Guantes, par +2' });
+});
+
+test('consumo: una sonda Foley y un equipo sin número valen uno', async () => {
+  const s = estado();
+  s.insumos = [{ nombre: 'Sonda Foley', categoria: 'general' }, { nombre: 'Intensificador de imagen', categoria: 'equipo' }];
+  for (const [frase, opcion, insumo] of [
+    ['se usó una sonda Foley', 'o0', 'Sonda Foley'],
+    ['Se usó el intensificador de imagen', 'o1', 'Intensificador de imagen'],
+  ]) {
+    const d = await interpretar(frase, s, false, jev({ dirigida: noul(0.95), intencion: choice('consumo', 0.96), insumo: choice(opcion, 0.93) }));
+    assert.deepEqual(d.accion === 'registrar' && d.eventos, [{ tipo: 'consumo', insumo, cantidad: 1 }]);
+  }
+});
+
+test('consumo: catálogo vacío o ninguno quedan no entendidos', async () => {
+  for (const [insumos, opcion] of [[[], 'o0'], [[{ nombre: 'Guantes, par', categoria: 'general' as const }], 'ninguno']] as const) {
+    const s = estado();
+    s.insumos = [...insumos];
+    const d = await interpretar('consumo, dos pares de guantes', s, false, jev({
+      dirigida: noul(0.95), intencion: choice('consumo', 0.96), insumo: choice(opcion, 0.93),
+    }));
+    assert.deepEqual(d, { accion: 'ignorar', no_entendido: true });
+  }
+});
+
+test('consumo: aplica los umbrales de confianza del insumo', async () => {
+  const s = estado();
+  s.insumos = [{ nombre: 'Guantes, par', categoria: 'general' }];
+  const d = await interpretar('consumo, dos pares de guantes', s, false, jev({
+    dirigida: noul(0.95), intencion: choice('consumo', 0.96), insumo: choice('o0', 0.7),
+  }));
+  assert.equal(d.accion, 'confirmar');
+  assert.deepEqual(await interpretar('consumo, dos pares de guantes', s, false, jev({
+    dirigida: noul(0.95), intencion: choice('consumo', 0.96), insumo: choice('o0', 0.5),
+  })), { accion: 'ignorar', no_entendido: true });
+});
+
+test('consumo: ofrece como máximo 254 insumos y ninguno', async () => {
+  const s = estado();
+  s.insumos = Array.from({ length: 300 }, (_, i) => ({ nombre: `Insumo ${i}`, categoria: 'general' }));
+  const pregunta = construirPreguntas('consumo', s).insumo;
+  assert.equal(pregunta?.type, 'choice');
+  if (pregunta.type !== 'choice') return;
+  assert.equal(Object.keys(pregunta.criteria).length, 255);
+  assert.equal(pregunta.criteria.o253, 'Insumo 253');
+  assert.equal(pregunta.criteria.o254, undefined);
+  assert.ok(pregunta.criteria.ninguno);
+  assert.deepEqual(await interpretar('consumo', s, false, jev({
+    dirigida: noul(0.95), intencion: choice('consumo', 0.96), insumo: choice('o254', 0.93),
+  })), { accion: 'ignorar', no_entendido: true });
+});
+
+test('consumo: rechaza cantidades que no se pueden registrar', async () => {
+  const s = estado();
+  s.insumos = [{ nombre: 'Guantes, par', categoria: 'general' }];
+  for (const frase of ['consumo cero guantes', 'consumo 1.5 guantes', 'consumo 1000 guantes']) {
+    assert.deepEqual(await interpretar(frase, s, false, jev({
+      dirigida: noul(0.95), intencion: choice('consumo', 0.96), insumo: choice('o0', 0.93),
+    })), { accion: 'ignorar', no_entendido: true });
+  }
+});
+
+test('entran tres agujas de sutura sigue siendo conteo con catálogo de insumos', async () => {
+  const s = estado();
+  s.insumos = [{ nombre: 'Aguja desechable', categoria: 'general' }];
+  const d = await interpretar('Entran tres agujas de sutura', s, false, jev({
+    dirigida: noul(0.95), intencion: choice('conteo', 0.96), movimiento: choice('entra', 0.95),
+    material_0: choice(`o${s.protocolo.materiales.indexOf('Agujas Sutura')}`, 0.93),
+  }));
+  assert.deepEqual(d.accion === 'registrar' && d.eventos, [{ tipo: 'conteo', material: 'Agujas Sutura', cantidad: 3 }]);
 });

@@ -9,6 +9,7 @@ export const INTENCIONES = {
   hora: 'Anuncia un momento del procedimiento: paciente en sala, inicio de anestesia, inicio o fin de cirugía, salida a recuperación',
   check: 'Confirma o niega ítems de la lista de verificación de seguridad (identidad, procedimiento, sitio, alergias, antibiótico, recuentos)',
   conteo: 'Material que entra al campo o sale del campo: compresas, gasas, agujas, hojas de bisturí y similares',
+  consumo: 'Registra insumos usados en la cirugía, por ejemplo «consumo, dos pares de guantes» o «se usó una sonda Foley»; el material que entra o sale del campo es conteo',
   hito: 'Anuncia un hito de la cirugía, como heparina, entrada o salida de bomba, clamp o cardioplejía',
   medicion: 'Reporta una medición con su valor, como glucometría o diuresis',
   dato: 'Reporta un dato del paciente con su valor, como peso o talla',
@@ -39,7 +40,7 @@ export function construirPreguntas(frase: string, s: EstadoCirugia): Record<stri
   const q: Record<string, Pregunta> = {
     dirigida: {
       type: 'noul',
-      instructions: 'En un quirófano, ¿esta frase le dicta un registro al tablero quirúrgico (un momento, una verificación, un conteo, una medición, una novedad o una respuesta sí/no al tablero) en lugar de ser conversación del equipo?',
+      instructions: 'En un quirófano, ¿esta frase le dicta un registro al tablero quirúrgico (un momento, una verificación, un conteo, un consumo, una medición, una novedad o una respuesta sí/no al tablero) en lugar de ser conversación del equipo?',
     },
     intencion: { type: 'choice', instructions: '¿Qué pide registrar esta frase dictada en el quirófano?', criteria: INTENCIONES },
     hora: { type: 'choice', instructions: '¿Qué momento del procedimiento anuncia la frase?', criteria: { ...HORAS_TEXTO, ninguno: 'Ninguno' } },
@@ -52,6 +53,7 @@ export function construirPreguntas(frase: string, s: EstadoCirugia): Record<stri
       criteria: { si: 'Confirma, verificado, correcto', no: 'No coincide, está mal o falta', na: 'No aplica' },
     },
     hito: { type: 'choice', instructions: '¿Qué hito de la cirugía anuncia la frase?', criteria: opciones(p.hitos) },
+    insumo: { type: 'choice', instructions: '¿Qué insumo se usó en la cirugía?', criteria: opciones(s.insumos.slice(0, 254).map(i => i.nombre)) },
     medicion: { type: 'choice', instructions: '¿Qué medición reporta la frase?', criteria: opciones(p.mediciones.map(m => m.etiqueta)) },
     campo: {
       type: 'choice', instructions: '¿Qué dato del paciente reporta la frase?',

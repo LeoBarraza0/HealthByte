@@ -59,6 +59,14 @@ export async function interpretar(frase: string, s: EstadoCirugia, hayPendiente:
       });
       break;
     }
+    case 'consumo': {
+      const insumo = opcion('insumo', s.insumos.slice(0, 254).map(i => i.nombre));
+      const cantidad = primerNumero(segura) ?? 1;
+      if (insumo && Number.isInteger(cantidad) && cantidad !== 0 && Math.abs(cantidad) <= 999) {
+        eventos.push({ tipo: 'consumo', insumo, cantidad });
+      }
+      break;
+    }
     case 'hito': {
       const hito = opcion('hito', p.hitos);
       if (hito) eventos.push({ tipo: 'hito', hito });
