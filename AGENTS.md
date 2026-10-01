@@ -32,7 +32,7 @@ Tablero inteligente de seguridad quirúrgica para una hackathon: el equipo dicta
 7. **Español** en nombres, textos de interfaz y mensajes de commit.
 8. **Datos:** solo ficticios. Nunca datos reales de pacientes, ni claves o tokens en el repo (`.env` está ignorado).
 9. **GCP:** no ejecutes `terraform apply`, `terraform destroy` ni comandos de `gcloud` que creen, cambien o borren recursos. Solo `terraform fmt` y `terraform validate`. El despliegue lo hace el usuario.
-10. **Git:** se trabaja en `main`. Haz `git pull --rebase` antes de cada `git push`. Los commits siguen Conventional Commits en español (`feat(api): …`, `test(web): …`) y **no llevan atribución a IA**: nada de `Co-authored-by` de un asistente ni «Generated with».
+10. **Git:** se trabaja en `main`. Haz `git pull --rebase` antes de cada `git push`. En un worktree con rama propia: `git pull --rebase origin main` y luego `git push origin HEAD:main`. Los commits siguen Conventional Commits en español (`feat(api): …`, `test(web): …`) y **no llevan atribución a IA**: nada de `Co-authored-by` de un asistente ni «Generated with».
 
 ## Al terminar, reporta
 
