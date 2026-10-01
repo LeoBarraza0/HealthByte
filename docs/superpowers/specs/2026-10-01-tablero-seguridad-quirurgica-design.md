@@ -12,6 +12,12 @@ funcional). Sale de la sesión de definición del 1 de octubre de 2026. Insumos:
 - El reto oficial, «Tablero Inteligente de Seguridad Quirúrgica».
 - Los campos del tablero físico que hoy llena el equipo: [campos-tablero-fisico](../../../Notas/campos-tablero-fisico.md).
 - La investigación previa (cifras D1 a D15): `Notas/problematicas-y-soluciones.md`, retirada del repo; consultarla con `git show 9b5024d^:Notas/problematicas-y-soluciones.md`.
+- Las planillas que hoy llena el equipo de instrumentación en la clínica donde trabaja
+  la instrumentadora del equipo, transcritas en `research/`:
+  [Campos_tablero_quirurgico](../../../research/Campos_tablero_quirurgico.md), el tablero
+  de la foto del reto con sus campos ya escritos, y
+  [Control_consumos_cirugia](../../../research/Control_consumos_cirugia.md), la hoja con la
+  que se calculan los gastos de los recursos usados en la cirugía (sección 2.6).
 - El análisis crítico del equipo: [analisis_critico_requerimientos_vs_propuesta](../../../Notas/analisis_critico_requerimientos_vs_propuesta.md). Las decisiones que generó están al final del plan, en «Ola 2».
 
 ## 1. Decisiones tomadas
@@ -80,9 +86,9 @@ históricas por clínica.
 | Prioridad | Contenido |
 | --- | --- |
 | **P0** | La sesión en vivo de una cirugía, en uno o varios dispositivos. La cadena voz → Chirp 3 → Jev → evento. El checklist de 3 fases. El conteo con alerta de discrepancia. Las 5 horas tomadas del reloj del servidor. Las alertas con cierre justificado. El registro manual y deshacer. El modelo multi-clínica con Row-Level Security. El login básico. La siembra de datos. El despliegue en GCP. |
-| **P1** | El panel de gestión con indicadores y la línea de tiempo de cada cirugía. |
+| **P1** | El panel de gestión con indicadores y la línea de tiempo de cada cirugía. La hoja de consumo de la cirugía (2.6). |
 | **P2** | Dar de alta una clínica en vivo durante el pitch, exportar la cirugía a PDF y completar la segunda especialidad. |
-| Fuera de alcance | Integración con la historia clínica, modo sin conexión, formulario para programar cirugías (vienen sembradas), datos reales de pacientes y autenticación robusta (SSO o MFA). |
+| Fuera de alcance | Integración con la historia clínica, modo sin conexión, formulario para programar cirugías (vienen sembradas), precios y costos de los insumos (los maneja cada institución), datos reales de pacientes y autenticación robusta (SSO o MFA). |
 
 ### 2.5 Guion de la demo (clímax, unos 2 minutos)
 
@@ -91,11 +97,38 @@ históricas por clínica.
 2. *«Paciente en sala»* registra la hora de ingreso. *«Confirmo identidad,
    procedimiento y sitio»* pone los 3 ítems en verde.
 3. *«Inicio de anestesia»*. Antes de la incisión aparece la alerta roja de
-   antibiótico no registrado. *«Cefazolina aplicada»* la resuelve.
+   antibiótico no registrado. *«Cefazolina dos gramos»* la resuelve, pero la paciente es
+   alérgica a la penicilina: se abre la alerta crítica de betalactámico y Conti se pone
+   serio. *«Cambiamos a clindamicina»* la resuelve, porque la regla mira el último
+   antibiótico dictado.
 4. *«Entran diez compresas»* y los hitos de la especialidad elegida.
-5. Al cierre, *«salen nueve compresas»* dispara la alarma de discrepancia.
-   *«Apareció, salen diez»* la pone en verde.
-6. Se pasa al panel: la cirugía ya aparece con sus tiempos y sus alertas resueltas.
+5. Al cierre, *«salen nueve compresas»* dispara la alarma de discrepancia y el protocolo
+   de conteo. La circulante marca «Cirujana avisada» en la tablet, y *«Apareció, salen
+   diez»* la pone en verde.
+6. La hoja de consumo ya tiene lo que entró al campo. *«Consumo, dos pares de guantes»*
+   la completa sin que nadie la llene a mano.
+7. Se pasa al panel: la cirugía ya aparece con sus tiempos y sus alertas resueltas.
+
+### 2.6 Extra: hoja de consumo de la cirugía
+
+Al terminar cada cirugía, la instrumentadora llena a mano el «Control de consumos de
+cirugía» ([plantilla](../../../research/Control_consumos_cirugia.md)): qué insumos se
+usaron y cuántos. Con esa hoja la clínica calcula después los gastos. HealthByte la arma
+sola mientras transcurre la cirugía.
+
+- **Solo nombre y cantidad.** Por ejemplo, «Guantes, par: 8». Los precios, los códigos
+  de facturación y el cálculo del gasto los maneja cada institución en su propio
+  proceso; HealthByte no los guarda.
+- **Catálogo por clínica.** La tabla `insumo` (sección 5) guarda los nombres de la hoja de
+  cada clínica, agrupados en insumos generales, suturas, otros insumos y equipos
+  especiales. La siembra trae los de la plantilla.
+- **Lo que entró al campo cuenta solo.** Las entradas del conteo (compresas, gasas,
+  agujas…) se suman a la hoja sin registrarlas otra vez.
+- **Por voz o con un toque.** *«Consumo, dos pares de guantes»* registra un evento
+  `consumo`. En la tablet, el panel «Consumo de la cirugía» busca en el catálogo y suma o
+  resta de a uno. Se deshace como cualquier evento.
+- **Salida.** La trazabilidad de la cirugía muestra la hoja y la descarga en CSV para
+  pasarla al proceso de la clínica.
 
 ## 3. Arquitectura
 
@@ -191,6 +224,7 @@ Postgres 16. Todas las tablas llevan `clinica_id` y Row-Level Security.
 | `protocolo` | `id`, `clinica_id`, `especialidad`, `definicion` (JSONB, sección 6) |
 | `paciente` | `id`, `clinica_id`, `nombre`, `tipo_doc`, `num_doc`, `fecha_nacimiento`, `eps`, `hc` |
 | `cirugia` | `id`, `clinica_id`, `quirofano_id`, `paciente_id`, `protocolo_id`, `fecha_programada`, `procedimiento`, `diagnostico`, `lateralidad`, `equipo_programado` (JSONB: rol → usuario), `datos_preop` (JSONB: los campos del protocolo) |
+| `insumo` | `id`, `clinica_id`, `nombre`, `categoria` (general, sutura, otro o equipo). Sin precios (sección 2.6) |
 | `evento` | `id`, `clinica_id`, `cirugia_id`, `ts` (hora del servidor), `tipo`, `datos` (JSONB), `registrado_por` (usuario de la sesión), `rol_confirma`, `origen` (voz o manual), `texto`, `confianza`, `anula_evento_id` |
 
 En `evento` solo se agregan filas; nunca se modifican ni se borran. Deshacer es un
@@ -211,6 +245,8 @@ Tipos de evento:
 | `novedad_atendida` | la novedad y quién la atiende |
 | `novedad_solucionada` | la novedad y las acciones realizadas (texto dictado) |
 | `alerta_cierre` | alerta y motivo |
+| `accion_conteo` | un paso del protocolo de conteo: cirujano avisado, búsqueda en campo o Rx solicitada |
+| `consumo` | insumo del catálogo y cantidad (negativa si corrige un registro de más) |
 | `anulacion` | el evento que se anula |
 
 **Row-Level Security.** Cada tabla tiene una política
@@ -440,3 +476,4 @@ Caribe y en el país, para dimensionar el mercado.
 - [ ] El set de oro: las 40 frases tal como se dicen en el quirófano.
 - [ ] Qué hardware hay hoy en el quirófano: TV, PC y dónde se pondría un micrófono.
 - [ ] Qué ítems del checklist confirma cada rol en su institución.
+- [ ] Los nombres de la hoja de consumo de su clínica y cómo los dicen en voz alta.

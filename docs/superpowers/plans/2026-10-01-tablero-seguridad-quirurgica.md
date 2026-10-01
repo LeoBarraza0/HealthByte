@@ -5897,3 +5897,329 @@ git add web/public/conti web/src/estadoConti.ts web/src/estadoConti.test.ts web/
 git commit -m "feat(web): agregar a Conti con sus estados de voz"
 git pull --rebase && git push
 ```
+
+---
+
+## Ola 3: cierre del P0, front visual y hoja de consumo
+
+La ola 2 quedó validada el 1 de octubre: 72 pruebas de lógica y 10 contra Postgres en `api`, 10 en `web`, y `tsc` sin errores en los dos módulos. Nadie tocó archivos compartidos.
+
+### Base ya creada por el orquestador (ola 3)
+
+Ya está en `main`; no se vuelve a hacer:
+
+- **Contrato** (`api/src/tipos.ts`):
+  - `CategoriaInsumo`, `Insumo { nombre, categoria }` y `LineaConsumo { insumo, cantidad, del_conteo }`;
+  - el evento `{ tipo: 'consumo'; insumo; cantidad }`, con cantidad entera distinta de 0 (si es negativa, corrige un registro de más);
+  - `EstadoCirugia.consumo: LineaConsumo[]` y `EstadoCirugia.insumos: Insumo[]`;
+  - en `Panel.lista`, los campos `especialidad`, `alertas_resueltas`, `protocolo_cumplido` y `minutos` (del ingreso a la salida).
+- **`api/src/estado.ts`:** `derivar()` arma `consumo` (lo registrado, sumado por insumo, más las entradas del conteo con `del_conteo: true`) y deja `insumos: []`.
+- **`api/src/sesion.ts`:** valida el evento `consumo` (entero, distinto de 0, como máximo 999 en valor absoluto). También hay casos `consumo` en `describir` de `preguntas.ts` y de `web/src/etiquetas.ts`.
+- **`api/src/panel.ts`:** llena los campos nuevos de la lista.
+- **`api/src/alertas.ts`:** la alerta de betalactámico mira el **último** antibiótico dictado. Así, «Cambiamos a clindamicina» la resuelve, como pide el guion del spec (2.5).
+- **`api/src/insumos.ts`:** `INSUMOS`, el catálogo de la hoja de consumo (99 nombres en 4 categorías).
+- **`db/schema.sql`:** la tabla `insumo` con Row-Level Security.
+- **`web/`:**
+  - `index.html` (fuentes y `conti.js`), `public/favicon.svg`, `src/main.tsx`, `src/vite-env.d.ts`;
+  - `src/App.tsx`, con las rutas `/`, `/sesion/:id`, `/trazabilidad/:id` y `/panel`, y navegación con `<a href>`;
+  - `src/estilos.css`, con los tokens de marca, `.btn`, `.btn-primario` y `.sr-solo`;
+  - `src/props.ts`, con `Modo` y `PropsBloque`;
+  - los componentes vacíos `Login`, `Inicio`, `Sesion`, `Panel`, `Trazabilidad`, `Ahora`, `Atencion` y `Lateral`, con sus props ya fijadas.
+- **`Diseño/pantallas/`:** las pantallas del canvas en HTML estático. Su `README.md` dice qué componente y qué carril le toca a cada una.
+
+**Reglas del front en la ola 3.**
+
+- Las partes visuales de las Tareas 12, 13, 14 (paso 5) y 15 **se reemplazan** por las pantallas de `Diseño/pantallas/`.
+- Del plan se conserva la lógica: qué evento registra cada control, las rutas del API y el manejo del micrófono.
+- No se usa `prompt()`, `alert()` ni `confirm()`: los diálogos son los del diseño.
+- Cada carril tiene su propio CSS (`sesion.css`, `bloques.css` o `gestion.css`) y lo importa desde sus componentes. `estilos.css`, `App.tsx`, `props.ts`, `etiquetas.ts`, `useSesion.ts`, `api.ts`, `microfono.ts`, `pcm.ts` y `estadoConti.ts` **no se modifican**.
+- Las preferencias del dispositivo usan las claves que ya existen:
+  - `hb_dispositivo`: el nombre visible;
+  - `hb_pared`: `'1'` si se usa como pared;
+  - `hb_umbral`: la sensibilidad del micrófono.
+
+### Tarea 21: Hoja de consumo en el backend
+
+**Archivos:** `api/src/siembra.ts`, `api/src/siembra.dbtest.ts`, `api/src/repo.ts`, `api/src/app.ts`, `api/src/app.dbtest.ts`, `api/src/sesion.ts`
+
+**Interfaces:**
+- Consume: `INSUMOS` (`insumos.ts`), la tabla `insumo` y `EstadoCirugia.insumos`.
+- Produce:
+  - el catálogo sembrado en cada clínica;
+  - `cargarEstado()` con `insumos` lleno;
+  - `eventosDe(clinicaId, cirugiaId): Promise<Evento[]>`, que devuelve **todos** los eventos de la cirugía, anulados y anulaciones incluidos;
+  - la ruta `GET /api/cirugias/:id/eventos`;
+  - el vocabulario de Chirp con los nombres de los insumos.
+
+- [ ] **Paso 1: Pruebas que fallan**
+
+Al final de `api/src/siembra.dbtest.ts` (agrega `import { INSUMOS } from './insumos.ts';`):
+
+```ts
+test('cada clínica tiene el catálogo de la hoja de consumo', async () => {
+  const { rows } = await pool.query(`
+    SELECT c.slug, count(i.id)::int AS n FROM clinica c LEFT JOIN insumo i ON i.clinica_id = c.id
+    WHERE c.slug IN ('caribe', 'norte') GROUP BY c.slug ORDER BY c.slug`);
+  assert.deepEqual(rows, [{ slug: 'caribe', n: INSUMOS.length }, { slug: 'norte', n: INSUMOS.length }]);
+});
+```
+
+Al final de `api/src/app.dbtest.ts`:
+
+```ts
+test('el estado trae el catálogo de insumos y la ruta de eventos trae también los anulados', async () => {
+  const cookie = await entrar('caribe', 'circulante');
+  const c = await demo(cookie);
+  const e = (await app.inject({ url: `/api/cirugias/${c.id}`, cookies: { [COOKIE]: cookie } })).json() as EstadoCirugia;
+  assert.ok(e.insumos.some(i => i.nombre === 'Guantes, par' && i.categoria === 'general'));
+  const r = await app.inject({ url: `/api/cirugias/${c.id}/eventos`, cookies: { [COOKIE]: cookie } });
+  assert.equal(r.statusCode, 200);
+  assert.ok(Array.isArray(r.json()));
+  const ajena = await app.inject({ url: '/api/cirugias/00000000-0000-0000-0000-000000000000/eventos', cookies: { [COOKIE]: cookie } });
+  assert.deepEqual(ajena.json(), []);
+});
+```
+
+Run: `cd api && npm run test:db`
+Expected: las dos pruebas nuevas FALLAN.
+
+- [ ] **Paso 2: Sembrar el catálogo**
+
+En `api/src/siembra.ts`, agrega `import { INSUMOS } from './insumos.ts';` y esta función:
+
+```ts
+// Corre en cada arranque, también si la clínica ya estaba sembrada: las bases existentes reciben el catálogo.
+async function sembrarInsumos(): Promise<void> {
+  await pool.query(`
+    INSERT INTO insumo (clinica_id, nombre, categoria)
+    SELECT c.id, i.nombre, i.categoria FROM clinica c, jsonb_to_recordset($1::jsonb) AS i(nombre text, categoria text)
+    ON CONFLICT (clinica_id, nombre) DO NOTHING`, [JSON.stringify(INSUMOS)]);
+}
+```
+
+En `sembrar()`, cambia la salida temprana por `if (rowCount) return sembrarInsumos();` y agrega `await sembrarInsumos();` al final.
+
+- [ ] **Paso 3: Catálogo en el estado y eventos completos**
+
+En `api/src/repo.ts`, dentro de `cargarEstado`, reemplaza `return derivar(cirugia, protocolo, rows);` por:
+
+```ts
+    const estado = derivar(cirugia, protocolo, rows);
+    estado.insumos = (await c.query('SELECT nombre, categoria FROM insumo ORDER BY categoria, nombre')).rows;
+    return estado;
+```
+
+Y agrega al final de `repo.ts` (agrega `Evento` al `import type`):
+
+```ts
+/** Todos los eventos de la cirugía, también los anulados: la trazabilidad los muestra tachados. */
+export async function eventosDe(clinicaId: string, cirugiaId: string): Promise<Evento[]> {
+  return conClinica(clinicaId, async c => (await c.query(SQL_EVENTOS, [[cirugiaId]])).rows);
+}
+```
+
+En `api/src/app.ts`, junto a la ruta `/api/cirugias/:id`:
+
+```ts
+  app.get<{ Params: { id: string } }>('/api/cirugias/:id/eventos', async req =>
+    UUID.test(req.params.id) ? eventosDe(req.sesion.clinica_id, req.params.id) : []);
+```
+
+- [ ] **Paso 4: Vocabulario de Chirp con los insumos**
+
+En `api/src/sesion.ts`, en `tomarMicrofono`, cambia el segundo argumento de `deps.abrirVoz` por:
+
+```ts
+    }, [...vocabulario(s.estado.protocolo), ...s.estado.insumos.map(i => i.nombre)].slice(0, 1000));
+```
+
+- [ ] **Paso 5: Verificar**
+
+Run: `cd api && npm test && npm run test:db && npm run tipos`
+Expected: todas en PASS y `tsc` sin errores.
+
+- [ ] **Paso 6: Commit**
+
+```bash
+git add api/src/siembra.ts api/src/siembra.dbtest.ts api/src/repo.ts api/src/app.ts api/src/app.dbtest.ts api/src/sesion.ts
+git commit -m "feat(api): sembrar el catálogo de insumos y exponer los eventos completos"
+git pull --rebase && git push
+```
+
+### Tarea 22: Consumo por voz
+
+**Archivos:** `api/src/preguntas.ts`, `api/src/interprete.ts`, `api/src/interprete.test.ts`, `api/scripts/frases-oro.json`
+
+**Interfaces:**
+- Consume: `EstadoCirugia.insumos` y `numerosConContexto` o `primerNumero` (`numeros.ts`).
+- Produce: la intención `consumo`. «Consumo, dos pares de guantes» produce `{ tipo: 'consumo', insumo: 'Guantes, par', cantidad: 2 }`.
+
+Reglas:
+1. Agrega la intención `consumo` a `INTENCIONES` con una descripción clara: «registra insumos usados en la cirugía, por ejemplo "consumo, dos pares de guantes" o "se usó una sonda Foley"». No debe confundirse con el conteo de material, que dice «entran» y «salen».
+2. Agrega la pregunta Choice `insumo`, con opciones del catálogo `s.insumos` (máximo 254) más `ninguno`. Construye las opciones con el mismo patrón `opciones()` que ya usan hitos y mediciones. Si `preguntas()` hoy recibe solo el protocolo, pásale también los nombres de los insumos.
+3. **La cantidad la saca el código, no Jev:** el primer número de la frase, y 1 si no hay ninguno («una sonda Foley» da 1). Jev es débil con números.
+4. Se aplican las mismas reglas de confianza que en las demás intenciones (`UMBRALES`). Si el insumo es `ninguno`, o si el catálogo está vacío, devuelve `{ accion: 'ignorar', no_entendido: true }`.
+5. Agrega al menos estas pruebas en `interprete.test.ts`, con el Jev falso que ya existe:
+   - «consumo, dos pares de guantes» registra `consumo` con «Guantes, par» y cantidad 2;
+   - «se usó una sonda Foley» da cantidad 1;
+   - un catálogo vacío da `no_entendido`.
+6. En `api/scripts/frases-oro.json`, agrega las frases del guion que faltan:
+   - «Cambiamos a clindamicina»: check del antibiótico, sí;
+   - «Consumo, dos pares de guantes»;
+   - «Se usó el intensificador de imagen»;
+   - «Entran tres agujas de sutura»: es conteo, no consumo.
+
+Verificación: `cd api && npm test && npm run tipos`. Con `JEV_API_KEY`: `npm run oro`.
+
+Commit: `feat(api): interpretar el consumo de insumos dictado`.
+
+### Tarea 23: Marco de la sesión (front)
+
+**Archivos:** crea `web/src/Sesion.tsx` (reemplaza el vacío), `web/src/Cabecera.tsx`, `web/src/Pista.tsx`, `web/src/BarraVoz.tsx`, `web/src/marco.ts`, `web/src/marco.test.ts` y `web/src/sesion.css`.
+
+**Interfaces:**
+- Consume: `useSesion`, `iniciarMicrofono` (`microfono.ts`), `estadoConti` (`estadoConti.ts`), `etiquetas.ts`, `props.ts`, y los componentes `Ahora`, `Atencion` y `Lateral` con `PropsBloque`. Los de S2 pueden estar vacíos todavía.
+- Produce: `Sesion({ cirugiaId, yo })`.
+
+Qué hace:
+1. **Modo.** `hb_pared === '1'` es pared; si no, tablet. El nodo raíz lleva `className={`sesion ${modo}`}`: los bloques de S2 se estilizan con `.sesion.pared` y `.sesion.tablet`.
+2. **Estructura,** igual que `Diseño/pantallas/Tablet-Registro.html` y `Pared-*.html`:
+   - `<Cabecera>`;
+   - `<Pista>`;
+   - `<main>` con dos columnas: a la izquierda `<Ahora>`; a la derecha `<aside>` con `<Atencion>` y `<Lateral>`;
+   - `<BarraVoz>`.
+   El ancho de la columna derecha está en el diseño: unos 400 px en la tablet de 1180 px y unos 620 px en la pared de 1920 px.
+3. **Cabecera:**
+   - el nombre y la alergia, siempre visible en rojo si `datos.alergias` dice algo distinto de «ninguna»;
+   - edad, documento, HC, procedimiento, sitio y lateralidad;
+   - el reloj, que se actualiza cada 30 s.
+   En tablet agrega «Deshacer» (`{ tipo: 'deshacer' }`) y el botón de solo icono «Modo pared», que alterna `hb_pared`.
+4. **Pista:** las 5 horas y los 4 tramos, con el tramo actual en vivo. En tablet, la próxima hora sin registrar es un botón «Marcar» que envía `{ tipo: 'hora', hora }`.
+5. **Barra de voz:**
+   - Conti (`<hb-conti state=…>`, con el estado de `estadoConti()`);
+   - el micrófono (Tarea 14, paso 5: tomar y soltar, con aviso si otro dispositivo lo tiene: «Escucha: {nombre}»);
+   - la sensibilidad con `hb_umbral`;
+   - el texto parcial;
+   - la confirmación pendiente «¿Registrar esto?» con Sí y No (`{ tipo: 'confirmar', si }`);
+   - el último registro con «Deshacer».
+   En la pared no hay controles: solo Conti, el estado y el texto.
+6. **Señales para Conti,** como funciones puras en `marco.ts` y con su prueba en `marco.test.ts`:
+   - `nuevaCritica(antes, ahora)` da `true` si apareció una alerta crítica abierta que antes no estaba; su hora alimenta `ultimaAlertaCritica`;
+   - `cierreSeguro(estado)` da `true` si ya hay salida a recuperación y ninguna alerta abierta.
+7. **Cargando y errores:**
+   - mientras no hay estado, «Conectando…»;
+   - el `aviso` del hook aparece en la barra de voz;
+   - si el micrófono no abre, un mensaje en la barra: «No se pudo abrir el micrófono. Revise el permiso del navegador.».
+
+Verificación: `cd web && npm test && npm run tipos && npm run build`.
+
+Además, a ojo, con `cd api && npm run dev` y `cd web && npm run dev`:
+- la cirugía de la demo en tablet (1180×820) y en pared (1920×1080), comparadas con las pantallas del diseño;
+- dos pestañas abiertas en la misma cirugía: lo que se marca en una aparece en la otra.
+
+Commit: `feat(web): armar la sesión en vivo con cabecera, pista y barra de voz`.
+
+### Tarea 24: Bloques de la sesión (front)
+
+**Archivos:** reemplaza `web/src/Ahora.tsx`, `web/src/Atencion.tsx` y `web/src/Lateral.tsx`; crea `web/src/Consumo.tsx`, `web/src/bloques.ts`, `web/src/bloques.test.ts` y `web/src/bloques.css`.
+
+**Interfaces:**
+- Consume: `PropsBloque` (`props.ts`) y `describir` y `hora` (`etiquetas.ts`).
+- Produce: `Ahora`, `Atencion` y `Lateral` con `PropsBloque`, y `Consumo({ estado, registrar, onCerrar })`.
+
+Qué hace cada uno, igual que en `Diseño/pantallas/`:
+
+1. **`Ahora`**, el momento actual según `estado.fase_actual`:
+   - **Antes de la anestesia y antes de la incisión:**
+     - un título con «N de M verificados»;
+     - «Falta verificar» primero y en grande, con los críticos marcados; en tablet, cada ítem tiene «Verificado», «No coincide» y «No aplica», que envían `check`;
+     - «Verificado», compacto, con rol, hora y origen (micrófono o lápiz).
+   - **Durante:** los hitos de la especialidad (en tablet, botón por hito), las mediciones con su último valor y las novedades.
+   - **Antes de salir:**
+     - la tabla del material (entró, salió y resultado), con −1 y +1 en tablet, que envían `conteo`;
+     - los pendientes de la fase en una rejilla de 2 columnas.
+   - **Sin fase:**
+     - antes del ingreso, la primera fase;
+     - después de la salida, el resumen final.
+2. **`Atencion`:**
+   - Las alertas abiertas, críticas primero: octágono rojo para las críticas y triángulo ámbar para las advertencias, siempre con texto, nunca solo color.
+   - En tablet, «Cerrar con motivo» abre el diálogo de `Tablet-Cerrar-Alerta.html`: motivos con radio y detalle opcional, y envía `alerta_cierre` con el motivo y el detalle unidos.
+   - En una alerta `dato:…`, «Registrar dato» pide el valor en el mismo diálogo y envía `dato`.
+   - Si hay una alerta `conteo:…` abierta, muestra el **protocolo de conteo**:
+     - los 3 pasos, con su hora tomada de `estado.acciones_conteo`;
+     - en tablet, los botones «Cirujana avisada», «Búsqueda hecha» y «Rx solicitada», que envían `accion_conteo`.
+     Así está en `Tablet-Conteo.html` y en `Pared-Salida.html`.
+   - Sin alertas: «Sin alertas abiertas».
+3. **`Lateral`,** según el momento:
+   - en la Entrada, el **equipo en sala** (programado frente a presente; en tablet, marcar presente envía `presente`);
+   - en el Inicio y durante la cirugía, el **material en campo**, con la entrada de material en tablet;
+   - en la Salida, **hasta ahora** (el resumen).
+   En tablet, además, el botón «Consumo (N)» abre `<Consumo>`. Si el protocolo de conteo está visible en tablet, `Lateral` puede ocultarse, como en `Tablet-Conteo.html`.
+4. **`Consumo`**, el panel lateral de `Tablet-Consumo.html`:
+   - las líneas registradas, con −1 y +1, que envían `consumo` con cantidad −1 o 1;
+   - las líneas del conteo como fichas de solo lectura;
+   - la búsqueda en `estado.insumos` con filtro por categoría y botón «+1»;
+   - «Listo» cierra el panel. Escape también lo cierra, y el foco vuelve al botón que lo abrió.
+5. **`bloques.ts`,** funciones puras con su prueba:
+   - `pendientes(estado, fase)`;
+   - `pasosConteo(estado)`;
+   - `buscarInsumos(insumos, texto, categoria)`, que ignora tildes y mayúsculas («sonda» encuentra «Sonda Foley», «bisturi» encuentra «Hoja de bisturí»).
+
+Verificación: `cd web && npm test && npm run tipos && npm run build`.
+
+Además, a ojo, en la demo:
+- marcar ítems, cerrar una alerta con motivo y registrar consumo, y ver que la otra pestaña se actualiza;
+- comparar con las pantallas del diseño en los dos modos.
+
+Commit: `feat(web): agregar los bloques de la sesión, el protocolo de conteo y el consumo`.
+
+### Tarea 25: Entrada y gestión (front)
+
+**Archivos:** reemplaza `web/src/Login.tsx`, `web/src/Inicio.tsx`, `web/src/Panel.tsx` y `web/src/Trazabilidad.tsx`; crea `web/src/Logo.tsx`, `web/src/gestion.ts`, `web/src/gestion.test.ts` y `web/src/gestion.css`.
+
+**Interfaces:**
+- Consume:
+  - `POST /api/login` y `/api/logout`;
+  - `GET /api/cirugias`, `/api/cirugias/:id`, `/api/cirugias/:id/eventos` (Tarea 21) y `/api/panel?dias=` (Tarea 11, paso 5);
+  - `POST /api/demo/reiniciar`.
+- Produce: `Login`, `Inicio`, `Panel` y `Trazabilidad`, con las props del esqueleto.
+
+Qué hace:
+1. **`Login`**, igual que `Login.html`:
+   - Conti en `greeting`, y los campos clínica, usuario y contraseña con mostrar u ocultar;
+   - el error: «La clínica, el usuario o la contraseña no coinciden. Revise los tres y vuelva a intentar.»
+2. **`Inicio`**, igual que `Inicio-Cirugias.html`:
+   - las cirugías de hoy, cada una enlazada a `/sesion/:id`;
+   - «Este dispositivo»: el nombre (`hb_dispositivo`) y si se usa como registro o como pared (`hb_pared`);
+   - «Salir».
+   Coordinación y administración ven además «Panel de gestión» y «Reiniciar demo».
+3. **`Panel`**, igual que `Panel.html`:
+   - el periodo Hoy, Semana o Último mes, que pide `dias` 1, 7 o 30;
+   - «Ahora en los quirófanos», con las cirugías activas y su estado; se actualiza cada 30 s;
+   - las métricas, el cumplimiento por pausa, cuánto dura cada momento, lo que se atrapó y lo que quedó sin resolver.
+   La lista del periodo:
+   - busca por paciente o procedimiento, y filtra por quirófano, especialidad, protocolo y «con alertas sin resolver»;
+   - muestra los filtros activos como fichas que se quitan;
+   - ordena por fecha;
+   - pagina de a 10, 25 o 50;
+   - exporta a CSV lo filtrado;
+   - cada fila abre `/trazabilidad/:id`.
+   En el menú van solo «Cirugías de hoy» y «Panel de gestión»: Programación y Personal no entran en la ola 3.
+4. **`Trazabilidad`**, igual que `Trazabilidad.html`:
+   - el resumen;
+   - el registro cronológico por fase, con los anulados tachados (de `/eventos`);
+   - las alertas con su motivo, las novedades y los tiempos.
+   Agrega la sección **«Consumo de la cirugía»**, con la tabla de `estado.consumo` (insumo, cantidad y si viene del conteo) y el botón «Descargar consumo (CSV)».
+5. **`gestion.ts`,** funciones puras con su prueba:
+   - `filtrar(lista, filtros)` y `paginar(lista, pagina, porPagina)`;
+   - `csv(filas)`, con separador `;`, comillas cuando hace falta y BOM para Excel;
+   - `csvConsumo(estado)`, con encabezado de paciente, procedimiento, fecha y quirófano, y luego una fila por línea de consumo.
+
+Verificación: `cd web && npm test && npm run tipos && npm run build`.
+
+Además, a ojo:
+- entrar como `circulante` y como `coordinador`;
+- recorrer el inicio, el panel con filtros y paginación, y una trazabilidad;
+- abrir el CSV del consumo en Excel.
+
+Commit: `feat(web): agregar login, inicio, panel con filtros y trazabilidad con consumo`.
