@@ -1,4 +1,5 @@
-import type { Cirugia, EstadoCirugia, Evento, Protocolo } from './tipos.ts';
+import type { Alerta, Cirugia, EstadoCirugia, Evento, Protocolo } from './tipos.ts';
+import { alertasActivas } from './alertas.ts';
 
 export function vigentes(eventos: Evento[]): Evento[] {
   const anulados = new Set(eventos.flatMap(e => (e.datos.tipo === 'anulacion' ? [e.datos.evento_id] : [])));
@@ -59,9 +60,31 @@ function duraciones(s: EstadoCirugia): EstadoCirugia['duraciones'] {
   });
 }
 
+// ponytail: recalcula todas las reglas en cada evento, O(eventos × reglas); sobra para ~100 eventos por cirugía.
+function actualizarAlertas(s: EstadoCirugia, historial: Map<string, Alerta>, ts: string, e?: Evento): void {
+  if (e?.datos.tipo === 'alerta_cierre') {
+    const a = historial.get(e.datos.alerta);
+    if (a?.estado === 'abierta') { a.estado = 'cerrada'; a.motivo = e.datos.motivo; a.hasta = ts; }
+  }
+  const activas = alertasActivas(s);
+  for (const a of activas) {
+    const h = historial.get(a.id);
+    if (!h) historial.set(a.id, { ...a, estado: 'abierta', desde: ts, hasta: null, motivo: null });
+    else if (h.estado !== 'cerrada') Object.assign(h, { mensaje: a.mensaje, severidad: a.severidad, estado: 'abierta', hasta: null });
+  }
+  const ids = new Set(activas.map(a => a.id));
+  for (const h of historial.values()) if (h.estado === 'abierta' && !ids.has(h.id)) { h.estado = 'resuelta'; h.hasta = ts; }
+}
+
 export function derivar(cirugia: Cirugia, protocolo: Protocolo, eventos: Evento[]): EstadoCirugia {
   const s = vacio(cirugia, protocolo);
-  for (const e of vigentes(eventos)) aplicar(s, e);
+  const historial = new Map<string, Alerta>();
+  actualizarAlertas(s, historial, cirugia.fecha_programada);
+  for (const e of vigentes(eventos)) {
+    aplicar(s, e);
+    actualizarAlertas(s, historial, e.ts, e);
+  }
   s.duraciones = duraciones(s);
+  s.alertas = [...historial.values()];
   return s;
 }
