@@ -1,0 +1,535 @@
+/* Estilos del panel de gestión quirúrgica. Diseño: Diseño/pantallas/Panel.html */
+
+.p-pagina {
+  min-height: 100vh;
+  background: var(--fondo);
+  font-family: var(--texto);
+  color: var(--tinta);
+  font-variant-numeric: tabular-nums;
+}
+
+.p-main {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 32px 40px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+@media (max-width: 768px) {
+  .p-main {
+    padding: 20px 16px 36px;
+    gap: 20px;
+  }
+}
+
+.p-cabecera-seccion {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.p-titulos {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.p-titulos h1 {
+  margin: 0;
+  font-size: 34px;
+  line-height: 40px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.p-titulos span {
+  font-size: 15px;
+  color: var(--tenue);
+}
+
+.p-acciones-arriba {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.p-radiogroup {
+  display: inline-flex;
+  background: var(--linea);
+  border-radius: 12px;
+  padding: 4px;
+  gap: 4px;
+}
+
+.p-radio-btn {
+  border: 0;
+  background: transparent;
+  color: var(--tinta-2);
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.p-radio-btn[aria-checked='true'] {
+  background: var(--blanco);
+  color: var(--tinta);
+  box-shadow: 0 1px 2px rgba(13, 34, 50, 0.12);
+}
+
+/* Tarjeta contenedora base */
+.pn {
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  border-radius: 16px;
+  padding: 22px 24px;
+}
+
+.p-pn-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.p-pn-header h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.p-envivo {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--tenue);
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.dot-verde {
+  background: var(--ok);
+}
+
+.seg {
+  height: 4px;
+  flex: 1 1 0;
+  border-radius: 999px;
+}
+
+/* Tabla de quirófanos activos */
+.p-tabla-scroll {
+  overflow-x: auto;
+}
+
+.p-qx-contenedor {
+  min-width: 900px;
+}
+
+.qx {
+  display: grid;
+  grid-template-columns: 72px minmax(220px, 1.4fr) minmax(200px, 1fr) 110px 120px 110px;
+  gap: 16px;
+  align-items: center;
+  min-height: 68px;
+  border-bottom: 1px solid var(--linea);
+  font-size: 15px;
+}
+
+.qx-header {
+  min-height: 40px;
+  font-size: 13px;
+  color: var(--tenue);
+  font-weight: 600;
+}
+
+.qx-num {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+/* Métricas del periodo */
+.p-metricas-panel {
+  padding: 0;
+}
+
+.p-metricas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
+}
+
+.p-metrica {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-right: 1px solid var(--linea);
+}
+
+.p-metrica:last-child {
+  border-right: 0;
+}
+
+@media (max-width: 1040px) {
+  .p-metrica {
+    border-bottom: 1px solid var(--linea);
+  }
+}
+
+.p-metrica-titulo {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--tinta-2);
+}
+
+.p-metrica-valor {
+  font-size: 46px;
+  line-height: 50px;
+  font-weight: 600;
+}
+
+.p-valor-verde {
+  color: var(--ok);
+}
+
+.p-valor-ambar {
+  color: var(--aviso-txt);
+}
+
+.p-metrica-desc {
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--tenue);
+}
+
+/* Grids secundarios de 2 columnas */
+.p-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(520px, 100%), 1fr));
+  gap: 24px;
+}
+
+/* Barras de cumplimiento */
+.bar {
+  height: 14px;
+  border-radius: 999px;
+  background: var(--linea);
+  overflow: hidden;
+}
+
+.bar span {
+  display: block;
+  height: 100%;
+  background: var(--azul);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+/* Filas de riesgos atrapados y no resueltos */
+.p-fila-entre {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 48px;
+  border-bottom: 1px solid var(--linea);
+  font-size: 16px;
+}
+
+.p-fila-entre:last-child {
+  border-bottom: 0;
+}
+
+.p-fila-alerta {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--linea);
+}
+
+.p-fila-alerta:last-child {
+  border-bottom: 0;
+}
+
+/* Filtros y formulario de búsqueda */
+.p-filtros-form {
+  display: grid;
+  grid-template-columns: minmax(240px, 1.6fr) repeat(3, minmax(150px, 1fr)) auto;
+  gap: 12px;
+  align-items: end;
+}
+
+@media (max-width: 900px) {
+  .p-filtros-form {
+    grid-template-columns: 1fr;
+  }
+}
+
+.fl {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tenue);
+}
+
+.fl input,
+.fl select {
+  min-height: 44px;
+  border: 1px solid var(--borde-fuerte);
+  border-radius: 10px;
+  padding: 0 12px;
+  font: 400 15px var(--texto);
+  color: var(--tinta);
+  background: var(--blanco);
+}
+
+.fl input:focus-visible,
+.fl select:focus-visible {
+  outline: 3px solid var(--azul);
+  outline-offset: 1px;
+}
+
+.fl-activo {
+  color: var(--azul);
+}
+
+.fl-activo select {
+  border: 2px solid var(--azul);
+  background: var(--azul-tenue);
+}
+
+.p-check-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  font-size: 15px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.p-check-label input {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: var(--azul);
+}
+
+/* Fichas de filtros activos */
+.p-fichas-barra {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 15px;
+}
+
+.p-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--azul-claro);
+  color: var(--azul-osc);
+  border-radius: 999px;
+  padding: 4px 6px 4px 12px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.p-chip button {
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.p-chip button:focus-visible {
+  outline: 2px solid var(--azul);
+}
+
+.p-quitar-filtros {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--azul);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+}
+
+.p-quitar-filtros:hover {
+  text-decoration: underline;
+}
+
+/* Tabla de cirugías del periodo */
+.p-tb-contenedor {
+  min-width: 960px;
+}
+
+.tb {
+  display: grid;
+  grid-template-columns: 110px 70px minmax(220px, 1.6fr) 120px 130px 150px 100px;
+  gap: 14px;
+  align-items: center;
+  min-height: 56px;
+  border-bottom: 1px solid var(--linea);
+  font-size: 15px;
+  color: var(--tinta);
+  text-decoration: none;
+}
+
+a.tb:hover {
+  background: var(--azul-tenue);
+}
+
+.tb-header {
+  min-height: 40px;
+  font-size: 13px;
+  color: var(--tenue);
+  font-weight: 600;
+}
+
+.p-sort-btn {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  min-height: 32px;
+  font: 600 13px var(--texto);
+  color: var(--azul);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.p-sort-btn:focus-visible {
+  outline: 2px solid var(--azul);
+}
+
+.p-cumplido {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  color: var(--ok);
+  font-weight: 600;
+}
+
+.p-incompleto {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  color: var(--aviso-txt);
+  font-weight: 600;
+}
+
+/* Paginación */
+.p-paginacion {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--linea);
+  padding-top: 16px;
+  font-size: 14px;
+  color: var(--tenue);
+}
+
+.p-paginacion-botones {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.pg {
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 10px;
+  border: 1px solid var(--borde-fuerte);
+  background: var(--blanco);
+  font: 600 15px var(--texto);
+  color: var(--tinta);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 12px;
+}
+
+.pg:focus-visible {
+  outline: 3px solid var(--azul);
+  outline-offset: 2px;
+}
+
+.pg[aria-current='page'] {
+  background: var(--azul);
+  border-color: var(--azul);
+  color: var(--blanco);
+}
+
+.pg:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* Botón reutilizable */
+.bt {
+  min-height: 44px;
+  border-radius: 10px;
+  font: 600 15px var(--texto);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  background: var(--blanco);
+  color: var(--tinta);
+  border: 1px solid var(--borde-fuerte);
+}
+
+.bt:hover {
+  background: var(--azul-tenue);
+}
+
+.bt:focus-visible {
+  outline: 3px solid var(--azul);
+  outline-offset: 2px;
+}
+
+/* Estados de carga y error */
+.p-alerta-info {
+  padding: 16px 20px;
+  border-radius: 12px;
+  background: var(--azul-claro);
+  color: var(--azul-osc);
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.p-alerta-error {
+  padding: 16px 20px;
+  border-radius: 12px;
+  background: var(--critica-fondo);
+  color: var(--critica-osc);
+  font-size: 15px;
+  font-weight: 500;
+}
