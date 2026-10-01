@@ -3,11 +3,13 @@
 > Hackathon Universidad Libre · Barranquilla · 2026
 > Lema: **Precisión que se puede contar.**
 
-HealthByte une Instrumentación Quirúrgica e Ingeniería de Sistemas para que el trabajo del quirófano sea trazable, contable y seguro. Este documento reúne el sistema de marca y las especificaciones de cada pieza diseñada en el canvas *HealthByte · Diseño*.
+HealthByte une Instrumentación Quirúrgica e Ingeniería de Sistemas para responder al reto del hackathon: el **Tablero Inteligente de Seguridad Quirúrgica**. Este documento reúne el sistema de marca y las especificaciones de cada pieza del canvas *HealthByte · Diseño*.
 
-**Plataforma:** HealthByte se desarrolla solo como aplicación web (escritorio). No hay versión móvil.
+**El reto:** los quirófanos usan tableros físicos que se llenan a mano. Eso trae errores de escritura, información omitida, pérdida de trazabilidad, ningún histórico y ninguna alerta. La solución debe digitalizar la verificación de seguridad quirúrgica para que no solo **registre**, sino que también **valide, alerte, deje trazabilidad, produzca indicadores y apoye decisiones**, respetando el flujo real del quirófano. No basta con cambiar el tablero por un formulario.
 
-**Enfoque del pitch:** no presentamos requerimientos. Presentamos una **propuesta para resolver el problema**: cajas quirúrgicas que llegan incompletas y conteos que no dejan rastro.
+**Plataforma:** aplicación web de escritorio. No hay versión móvil.
+
+**Enfoque del pitch:** no presentamos requerimientos, sino una **propuesta para resolver el problema**.
 
 ---
 
@@ -128,49 +130,71 @@ Como un instrumentador experimentado que también sabe de software: frases corta
 
 ## 8. Piezas diseñadas
 
-### 8.1 Landing page (1280 px, fluida)
+Los datos que aparecen en las pantallas son de demostración. Ningún dato de pacientes reales se usa en el diseño. Las cifras del panel son ilustrativas.
+
+### 8.1 Presentación comercial (landing, 1280 px, fluida)
+
+Página pública de venta. Presenta el problema y la propuesta y lleva a **Agendar demo**. No forma parte de la plataforma.
 
 | Sección | Contenido |
 |---|---|
-| Navegación | Logo · Problema · Flujo · **Agendar demo** |
-| Hero (HB.01 — Trazabilidad quirúrgica) | Título: "Ningún instrumento fuera de la **cuenta.**" Texto: HealthByte conecta la central de esterilización con el quirófano para que cada caja, pinza y gasa tenga registro, del lavado al cierre. Botones: *Agendar demo* / *Ver cómo funciona*. Tarjeta de caja LAP-07 · QX 03 con piezas verificadas /30 y "1 pieza sin registrar". |
-| Cifras | Tres métricas en `[DATO]`: % de cajas incompletas, minutos perdidos buscando instrumental, % de registros de esterilización en papel. Fuente pendiente. |
-| HB.02 — El problema | El conteo se hace en voz alta y se anota a mano. Cuando algo no cuadra, **nadie sabe en qué momento se perdió.** |
-| HB.03 — Flujo | "Un solo registro, de la central al cierre." Tres pasos: **T − 6 H** Central de esterilización (escaneo, ciclo y lote) · **T − 30 MIN** Montaje de la mesa (verificación contra lista y preferencias del cirujano) · **T + 0** Cierre del conteo (compara inicial vs. final y alerta). |
-| Cierre | "Precisión que se puede contar." + *Agendar demo*. Pie: Hackathon Universidad Libre · Barranquilla · 2026. |
+| Navegación | Logo · Problema · Flujo · Solución · **Agendar demo** |
+| Hero (HB.01) | "Ningún paso del quirófano sin **verificar.**" HealthByte convierte el tablero que hoy se llena a mano en un tablero inteligente: registra, valida y alerta, y deja trazabilidad antes, durante y después de la cirugía. A la derecha, una vista previa del tablero en vivo: 01 anestesia 6/6, 02 incisión 4/6, 03 salida 0/5, 10/17 verificaciones y la alerta «No iniciar incisión». |
+| Cifras | Tres `[DATO]`: tableros con campos sin diligenciar, verificaciones sin registro de quién ni cuándo, registros que no se pueden consultar después. Fuente pendiente. |
+| HB.02 — El problema | El tablero se llena a mano y se borra al final del día. Si falta un dato, nadie lo advierte a tiempo. Y al revisar una cirugía, **no queda rastro de quién verificó qué.** |
+| HB.03 — Flujo | "Tres pausas de verificación, un solo registro": **Antes de la anestesia** (identificación del paciente), **Antes de la incisión** (pausa quirúrgica), **Antes de salir del quirófano** (cierre seguro). |
+| HB.04 — Qué hace el tablero | "No reemplaza el tablero por un formulario. Lo vuelve un sistema de control." Cuatro tarjetas: **Registra · Valida · Alerta · Mide**. |
+| Cierre | "Precisión que se puede contar." + *Agendar demo*. |
 
-### 8.2 Web · Conteo quirúrgico (escritorio 1440 × 900)
+### 8.2 Tablero en vivo (web, 1440 × 2120) — pieza central
 
-- Menú lateral oscuro (`blue-900`, 248 px): logo invertido; Panel, Conteo quirúrgico, Central de esterilización, Cajas e instrumental, Reportes; usuario [NOMBRE] · Instrumentador.
-- Encabezado: QUIRÓFANO 03 · CAJA LAP-07, título "Conteo final", Laparotomía exploratoria. Botones *Escanear pieza* y **Localizar faltante**.
-- Tres tarjetas de cifra: Piezas contadas **41/42** (anillo de progreso), Faltantes **1** en `signal`, Tiempo en quirófano [HH:MM].
-- Tabla Instrumental y textiles (Grupo · Código · Inicial · Final · Estado): Gasas 20 → 19 con "! Falta 1" en fila resaltada; Pinzas Kelly, Tijeras Metzenbaum, Compresas y Separadores Farabeuf con "✓ Completo".
-- Panel derecho "Registro del conteo": conteo inicial ✓ → antes del cierre de cavidad ✓ → conteo final en curso. Botón *Confirmar cierre* deshabilitado hasta que el final coincida con el inicial.
+La pantalla que reemplaza la pizarra del quirófano. Ejemplo: QX 03, revascularización miocárdica, detenida en la pausa antes de la incisión.
 
-### 8.3 Web · Central de esterilización (escritorio 1440 × 900)
+- **Menú lateral** (`blue-900`): Panel de gestión · **Tablero en vivo** · Trazabilidad · Alertas · Históricos.
+- **Tiempos del procedimiento:** Ingreso del paciente → Inicio de anestesia → Inicio de cirugía → Fin de cirugía → Salida a recuperación, con la hora de cada evento. El inicio de cirugía aparece **bloqueado** mientras haya alertas.
+- **Alertas** (bloque rojo): "2 alertas bloquean el inicio de la cirugía". Antibiótico profiláctico no registrado y alergia a penicilina por validar, cada una con su responsable y su botón de acción (*Registrar*, *Validar*).
+- **Paciente:** indicador de completitud (11/12 datos), documento, edad, peso y talla, glucometría, grupo y RH, reserva de sangre y alergias.
+- **Procedimiento:** procedimiento, anestesia, diagnóstico y comorbilidades; validación "Coincide con lo programado"; sitio quirúrgico con confirmación (quién y a qué hora); información clínica (obstrucción coronaria).
+- **Equipo quirúrgico:** cirujano, anestesiólogo, instrumentador quirúrgico, auxiliar de enfermería y perfusionista, cada uno con su hora de ingreso. Sus verificaciones quedan firmadas con rol y hora.
+- **Lista de verificación de seguridad**, en tres momentos:
+  - 01 Antes de la anestesia (completa 6/6): identificación, procedimiento, sitio, alergias, riesgos y equipamiento.
+  - 02 Antes de la incisión (en curso 4/6): paciente, procedimiento, sitio y equipo ✓; antibiótico profiláctico ! pendiente; riesgos previstos.
+  - 03 Antes de salir del quirófano (bloqueada 0/5): recuento de instrumental, recuento de gasas y material, identificación de muestras, novedades y procedimiento realizado.
+  - Cada ítem muestra quién lo verificó (rol abreviado) y la hora.
+- **Recuento de material** (los elementos de la pizarra física): compresas, gasas, agujas de sutura e hipodérmicas, hojas de bisturí, hiladillos, drenes, rollos abdominales, cotonoides y mechas. Conteo inicial y final; el final se llena al cierre.
+- **Registro del procedimiento:** las casillas Sí/No de la pizarra (rayos X intraoperatorio, injertos, bloqueos pre/intra/postoperatorio, muestra para patología, contenedor instrumental) y el destino postoperatorio (Hospitalización / UCI / Ambulatorio).
+- **Módulo cardiovascular** (solo en cirugía cardiovascular): heparina, entrada a bomba, clamp aórtico, dosis de cardioplejia y salida de bomba. Calcula los tiempos de bomba y de clamp.
 
-- Mismo menú lateral, activo "Central de esterilización".
-- Encabezado: CENTRAL DE ESTERILIZACIÓN · TURNO A, "Cajas del turno". Botones *Exportar registro* y **Escanear caja**.
-- Caja seleccionada LAP-07 · Laparotomía (30 piezas, lote 2210, ciclo [N.º]) con línea de etapas horizontal: Lavado y secado ✓ → Empaque y etiqueta ✓ → **Autoclave 134 °C en curso** → Almacén estéril → Quirófano 03.
-- Tabla Todas las cajas (Caja · Procedimiento · Piezas · Lote · Etapa · Destino): LAP-07, CES-02 Cesárea, ORT-04 Ortopedia básica.
+### 8.3 Panel de gestión (web, 1440 × 1340)
 
-### 8.4 Pitch · Portada (1280 × 720)
+Para los responsables del proceso quirúrgico. Los valores son ilustrativos y vienen del documento del reto.
 
-- Fondo `blue-900`, logo invertido arriba y numeración 01 / 10.
-- Etiqueta: INSTRUMENTACIÓN QUIRÚRGICA × INGENIERÍA DE SISTEMAS.
-- Título 96 px: "Precisión que se puede **contar.**" ("contar." en `accent`).
-- Subtítulo: "Cada caja, contada. Cada ciclo, registrado. Del lavado al quirófano en un solo registro."
+- Filtro de periodo: Hoy / Semana / Mes, y botón *Exportar*.
+- Indicadores: Cirugías hoy **24** · Checklists completas **21** · Pendientes **2** · Procedimientos con alertas **1** · Cumplimiento de protocolo **91,6 %** (anillo) · Tiempo promedio **87 min** · Incidencias **3**.
+- **Quirófanos ahora:** tabla de QX 01 a 06 con procedimiento, etapa (5 pasos), avance de la lista de verificación, alertas y tiempo transcurrido.
+- Gráficos: cumplimiento por momento de verificación, tiempo promedio por fase y alertas más frecuentes de la semana.
+
+### 8.4 Trazabilidad del procedimiento (web, 1440 × 1120)
+
+Reconstruye lo ocurrido en una cirugía.
+
+- Cuatro preguntas clave: ¿Quién verificó? · ¿A qué hora? · ¿Qué quedó pendiente? · ¿Cuándo se solucionó?
+- **Registro cronológico inalterable:** hora, evento, quién (nombre y rol) y detalle. Las alertas del sistema se resaltan.
+- **Novedades** con su ciclo de vida: Detectada → Asignada / Atendida → Solucionada, con responsable, hora y acciones realizadas. Ejemplo abierto: antibiótico profiláctico. Ejemplo cerrado: glucometría pendiente, resuelta en 7 minutos.
+
+### 8.5 Pitch · Portada (1280 × 720)
+
+- Fondo `blue-900`, logo invertido y numeración 01 / 10.
+- Título: "Precisión que se puede **contar.**"
+- Subtítulo: "Tablero inteligente de seguridad quirúrgica: registra, valida, alerta y mide cada verificación del quirófano."
 - Pie: [NOMBRE DEL HACKATHON] · Universidad Libre · Barranquilla · [FECHA].
-- Derecha: isotipo grande sobre textura pixel cross.
 
-### 8.5 Pitch · Diapositiva de métrica (1280 × 720)
+### 8.6 Pitch · Diapositiva de métrica (1280 × 720)
 
-- Izquierda en `surface`: HB.02 — El problema, cifra gigante `[DATO]` en `brand` y "de las cajas quirúrgicas llegan incompletas al quirófano." Fuente pendiente.
-- Derecha en `blue-900`: cuadrícula de 30 piezas con una vacía (borde rojo punteado). "Una pieza faltante basta para detener una cirugía."
+- Cifra `[DATO]`: "de los tableros quirúrgicos físicos tienen al menos un campo sin diligenciar."
+- A la derecha, «Un tablero · 30 campos · 1 sin diligenciar»: una cuadrícula de 30 casillas con una vacía. "Un dato faltante basta para poner en riesgo a un paciente."
 
-### 8.6 Credenciales · Roles en escena (54 × 86 mm)
-
-Carné con cabecera oscura (ranura para cordón, isotipo y logotipo), rol en `brand`, descripción, nombre y programa, y franja inferior `brand` + `accent`.
+### 8.7 Credenciales · Roles en escena (54 × 86 mm)
 
 | Código | Rol | Descripción |
 |---|---|---|
@@ -178,13 +202,27 @@ Carné con cabecera oscura (ranura para cordón, isotipo y logotipo), rol en `br
 | HB-02 | Arquitectura | Cómo se conecta cada registro |
 | HB-03 | UX/UI | Lo que se ve con guantes puestos |
 | HB-04 | Marketing | Cómo lo contamos |
-| HB-05 | Instrumentación | La caja, pieza por pieza |
+| HB-05 | Instrumentación | El quirófano real, paso a paso |
 
 ---
 
-## 9. Pendientes
+## 9. Cobertura del reto
 
-- Reemplazar los `[DATO]` con cifras reales de la investigación de campo y citar la fuente.
+| Punto del reto | Dónde se resuelve |
+|---|---|
+| 3. Identificación y preparación del paciente | Tablero en vivo › Paciente (completitud de datos, glucometría, reserva, alergias) |
+| 4. Identificación del equipo quirúrgico | Tablero en vivo › Equipo (ingreso con hora; verificaciones firmadas) |
+| 5. Lista de verificación de seguridad | Tablero en vivo › 3 momentos de verificación |
+| 6. Registro y trazabilidad de tiempos | Tablero en vivo › Tiempos; Panel › tiempo por fase |
+| 7. Gestión de alertas y riesgos | Tablero en vivo › Alertas (bloquean el avance); Panel › alertas frecuentes |
+| 8. Trazabilidad del procedimiento | Pantalla Trazabilidad (registro cronológico + novedades) |
+| 9. Panel de gestión | Pantalla Panel de gestión |
+| 10. IA y analítica | Pendiente de definir (opcional en el reto) |
+
+## 10. Pendientes
+
+- Reemplazar los `[DATO]` con cifras reales y citar la fuente.
 - Completar [NOMBRE DEL HACKATHON], [FECHA], y [NOMBRE] / [PROGRAMA] en cada credencial.
-- Diapositiva de la propuesta (qué hace HealthByte y cómo resuelve el problema).
-- Resto de diapositivas del pitch, mascota o avatar, y archivos de fuentes locales.
+- Decidir si se incluye analítica o IA (punto 10 del reto) y cómo.
+- Pantallas de Alertas e Históricos (están en el menú, pero aún no tienen diseño).
+- Resto de diapositivas del pitch.
