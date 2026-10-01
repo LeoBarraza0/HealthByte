@@ -1,0 +1,12 @@
+steps:
+  - id: api
+    name: gcr.io/cloud-builders/docker
+    args: ['build', '-f', 'api/Dockerfile', '-t', '${_REGISTRO}/api:${_TAG}', '.']
+    waitFor: ['-']
+  - id: web
+    name: gcr.io/cloud-builders/docker
+    args: ['build', '-f', 'web/Dockerfile', '-t', '${_REGISTRO}/web:${_TAG}', '.']
+    waitFor: ['-']
+images:
+  - '${_REGISTRO}/api:${_TAG}'
+  - '${_REGISTRO}/web:${_TAG}'

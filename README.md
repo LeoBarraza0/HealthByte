@@ -34,3 +34,30 @@ cd web && npm ci && npm run dev
 ```
 
 Abre http://localhost:5173. La clínica es `caribe` o `norte`, el usuario `circulante` o `coordinador`, y la clave de prueba está en `CLAVE_DEMO` dentro de `api/src/siembra.ts`. Todos los datos son ficticios.
+
+## Desplegar en GCP
+
+Solo en la cuenta **personal**, con la configuración de gcloud `healthbyte` (ver la Tarea 9 del plan). Terraform se niega a correr con otra cuenta.
+
+```bash
+export GOOGLE_OAUTH_ACCESS_TOKEN=$(gcloud auth print-access-token --configuration=healthbyte)
+terraform -chdir=infra init && terraform -chdir=infra apply   # infraestructura base (la primera vez)
+TAG=$(git rev-parse --short HEAD)                              # imágenes, desde la raíz del repo
+gcloud builds submit --config=cloudbuild.yaml --project=<proyecto> --configuration=healthbyte \
+  --substitutions=_REGISTRO=us-east1-docker.pkg.dev/<proyecto>/healthbyte,_TAG=$TAG
+terraform -chdir=infra apply -var tag=$TAG                     # servicios
+```
+
+En PowerShell, el token se exporta con `$env:GOOGLE_OAUTH_ACCESS_TOKEN = gcloud auth print-access-token --configuration=healthbyte`.
+
+Día de la demo (sin arranque en frío): `terraform -chdir=infra apply -var tag=$TAG -var api_min_instancias=1`
+
+## Apagar todo
+
+```bash
+terraform -chdir=infra destroy
+gcloud projects list --configuration=healthbyte
+```
+
+`terraform destroy` borra el proyecto completo, con todo lo que tenga adentro. Después, el proyecto no debe aparecer en la lista (o aparece en estado `DELETE_REQUESTED`).
+
