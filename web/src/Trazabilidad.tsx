@@ -51,6 +51,13 @@ export function Trazabilidad({ cirugiaId, yo }: { cirugiaId: string; yo: Usuario
   const [eventos, setEventos] = useState<Evento[]>([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // registrado_por es un id de usuario: se muestra el nombre de la persona.
+  const [nombres, setNombres] = useState<Record<string, string>>({});
+  useEffect(() => {
+    api<{ id: string; nombre: string }[]>('/api/personal')
+      .then(p => setNombres(Object.fromEntries(p.map(x => [x.id, x.nombre]))))
+      .catch(() => { /* sin nombres se muestra «Usuario» */ });
+  }, []);
 
   useEffect(() => {
     let activo = true;
@@ -379,7 +386,7 @@ export function Trazabilidad({ cirugiaId, yo }: { cirugiaId: string; yo: Usuario
                                 </span>
                                 {estaAnulado ? (
                                   <span className="traza-q">
-                                    Anulado a las {hora(anulacion!.ts)} por {anulacion!.registrado_por ?? 'usuario'}.
+                                    Anulado a las {hora(anulacion!.ts)} por {nombres[anulacion!.registrado_por ?? ''] ?? 'un usuario'}.
                                     {anulacion!.texto ? ` ${anulacion!.texto}` : ''}
                                   </span>
                                 ) : (
@@ -388,7 +395,7 @@ export function Trazabilidad({ cirugiaId, yo }: { cirugiaId: string; yo: Usuario
                               </span>
 
                               <span className="traza-w">
-                                <span>{e.registrado_por ?? 'Sistema'}</span>
+                                <span>{e.registrado_por ? nombres[e.registrado_por] ?? 'Usuario' : 'Sistema'}</span>
                                 {e.rol_confirma && (
                                   <span style={{ color: '#4D6170' }}>
                                     {ROLES[e.rol_confirma]
