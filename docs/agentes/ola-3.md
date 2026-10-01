@@ -1,5 +1,7 @@
 # Ola 3 de agentes
 
+> **Reemplazado por [ola-3-rapida.md](ola-3-rapida.md)** para la entrega: otro reparto y prompts más completos. Las Tareas 21 a 25 del plan siguen valiendo.
+
 La ola 2 quedó validada el 1 de octubre. Así quedaron las pruebas y el chequeo de tipos:
 
 | Módulo | Pruebas en verde | `tsc` |
