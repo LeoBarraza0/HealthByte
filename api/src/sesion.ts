@@ -37,6 +37,7 @@ const FORMAS: Record<DatosEvento['tipo'], Record<string, 'string' | 'number' | '
   novedad_solucionada: { novedad_id: 'string', acciones: 'string' },
   alerta_cierre: { alerta: 'string', motivo: 'string' },
   accion_conteo: { accion: 'string' },
+  consumo: { insumo: 'string', cantidad: 'number' },
   anulacion: { evento_id: 'string' },
 };
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -60,6 +61,7 @@ export function validarDatos(d: unknown): DatosEvento | null {
   if (o.tipo === 'hora' && !HORAS.includes(o.hora as HoraId)) return null;
   if (o.tipo === 'check' && !['si', 'no', 'na'].includes(o.valor as string)) return null;
   if (o.tipo === 'accion_conteo' && !['cirujano_avisado', 'busqueda_en_campo', 'rx_solicitada'].includes(o.accion as string)) return null;
+  if (o.tipo === 'consumo' && !(Number.isInteger(o.cantidad) && o.cantidad !== 0 && Math.abs(o.cantidad as number) <= 999)) return null;
   return limpio as DatosEvento;
 }
 

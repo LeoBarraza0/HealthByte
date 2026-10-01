@@ -162,3 +162,14 @@ test('la lista ordena por fecha descendente y conserva estado y alertas por ciru
     { id: 'antigua', estado: 'realizada', abiertas: 0, cerradas: 0 },
   ]);
 });
+
+test('cada fila de la lista trae lo que el panel filtra: especialidad, protocolo y duración', () => {
+  const p = resumir([derivar(cirugiaPrueba(), P, flujoCompleto()), derivar(cirugiaPrueba(), P, [])]);
+  const [hecha, programada] = p.lista;
+  assert.equal(hecha.especialidad, P.especialidad);
+  assert.equal(hecha.protocolo_cumplido, true);
+  assert.equal(typeof hecha.minutos, 'number');
+  assert.equal(Number.isInteger(hecha.minutos), true);
+  assert.equal(programada.protocolo_cumplido, false);
+  assert.equal(programada.minutos, null);
+});

@@ -105,6 +105,7 @@ export function describir(d: DatosEvento, p: Protocolo): string {
     case 'novedad_solucionada': return 'Novedad solucionada';
     case 'alerta_cierre': return `Alerta cerrada: ${d.motivo}`;
     case 'accion_conteo': return ACCIONES_CONTEO[d.accion];
+    case 'consumo': return `Consumo: ${d.insumo} ${d.cantidad > 0 ? '+' : ''}${d.cantidad}`;
     case 'anulacion': return 'Anulación';
   }
 }

@@ -51,7 +51,14 @@ export type DatosEvento =
   | { tipo: 'novedad_solucionada'; novedad_id: string; acciones: string }
   | { tipo: 'alerta_cierre'; alerta: string; motivo: string }
   | { tipo: 'accion_conteo'; accion: AccionConteo }
+  | { tipo: 'consumo'; insumo: string; cantidad: number } // entero distinto de 0; negativo corrige un registro de más
   | { tipo: 'anulacion'; evento_id: string };
+
+/** Insumo del catálogo de la clínica (tabla insumo). Sin precios: los costos los maneja cada institución en otro proceso. */
+export type CategoriaInsumo = 'general' | 'sutura' | 'otro' | 'equipo';
+export interface Insumo { nombre: string; categoria: CategoriaInsumo }
+/** Una línea de la hoja de consumo. del_conteo: sale del material que entró al campo, no se registra aparte. */
+export interface LineaConsumo { insumo: string; cantidad: number; del_conteo: boolean }
 
 /** Pasos del protocolo cuando el conteo de material no cuadra. */
 export type AccionConteo = 'cirujano_avisado' | 'busqueda_en_campo' | 'rx_solicitada';
@@ -101,6 +108,8 @@ export interface EstadoCirugia {
   duraciones: { nombre: string; minutos: number | null }[];
   alertas: Alerta[];
   acciones_conteo: { accion: AccionConteo; ts: string }[];
+  consumo: LineaConsumo[];
+  insumos: Insumo[]; // catálogo de la clínica; lo agrega repo.cargarEstado, derivar() lo deja vacío
   eventos: Evento[]; // solo los vigentes, en orden
 }
 
@@ -154,7 +163,10 @@ export interface Panel {
   novedades: { abiertas: number; solucionadas: number; minutos_solucion: number | null };
   duraciones: { nombre: string; minutos: number | null }[];
   lista: {
-    id: string; fecha: string; quirofano: string; paciente: string; procedimiento: string;
+    id: string; fecha: string; quirofano: string; paciente: string; procedimiento: string; especialidad: string;
     estado: 'programada' | 'en_curso' | 'realizada'; alertas_abiertas: number; alertas_cerradas: number;
+    alertas_resueltas: number;
+    protocolo_cumplido: boolean;
+    minutos: number | null; // del ingreso a la salida a recuperación
   }[];
 }

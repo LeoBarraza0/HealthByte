@@ -1,4 +1,4 @@
-import type { Alerta, Cirugia, EstadoCirugia, Evento, Protocolo } from './tipos.ts';
+import type { Alerta, Cirugia, EstadoCirugia, Evento, LineaConsumo, Protocolo } from './tipos.ts';
 import { alertasActivas } from './alertas.ts';
 
 export function vigentes(eventos: Evento[]): Evento[] {
@@ -10,7 +10,7 @@ function vacio(cirugia: Cirugia, protocolo: Protocolo): EstadoCirugia {
   return {
     cirugia, protocolo, horas: {}, presentes: [], checks: {}, fase_actual: null,
     conteo: Object.fromEntries(protocolo.materiales.map(m => [m, { entra: 0, sale: 0 }])),
-    datos: { ...cirugia.datos_preop }, novedades: [], duraciones: [], alertas: [], acciones_conteo: [], eventos: [],
+    datos: { ...cirugia.datos_preop }, novedades: [], duraciones: [], alertas: [], acciones_conteo: [], consumo: [], insumos: [], eventos: [],
   };
 }
 
@@ -52,6 +52,18 @@ function aplicar(s: EstadoCirugia, e: Evento): void {
   s.fase_actual = faseActual(s);
 }
 
+/** Lo registrado como consumo, sumado por insumo, más lo que entró al campo en el conteo. */
+function consumo(s: EstadoCirugia): LineaConsumo[] {
+  const registrado = new Map<string, number>();
+  for (const e of s.eventos) {
+    if (e.datos.tipo === 'consumo') registrado.set(e.datos.insumo, (registrado.get(e.datos.insumo) ?? 0) + e.datos.cantidad);
+  }
+  return [
+    ...[...registrado].filter(([, n]) => n > 0).map(([insumo, cantidad]) => ({ insumo, cantidad, del_conteo: false })),
+    ...Object.entries(s.conteo).filter(([, c]) => c.entra > 0).map(([insumo, c]) => ({ insumo, cantidad: c.entra, del_conteo: true })),
+  ];
+}
+
 function duraciones(s: EstadoCirugia): EstadoCirugia['duraciones'] {
   const cuando = (hito: string) => s.eventos.find(e => e.datos.tipo === 'hito' && e.datos.hito === hito)?.ts;
   return s.protocolo.duraciones.map(d => {
@@ -86,6 +98,7 @@ export function derivar(cirugia: Cirugia, protocolo: Protocolo, eventos: Evento[
     actualizarAlertas(s, historial, e.ts, e);
   }
   s.duraciones = duraciones(s);
+  s.consumo = consumo(s);
   s.alertas = [...historial.values()];
   return s;
 }

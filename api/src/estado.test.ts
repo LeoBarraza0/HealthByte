@@ -61,3 +61,23 @@ test('registra los pasos del protocolo de conteo con su hora', () => {
   assert.deepEqual(s.acciones_conteo.map(a => a.accion), ['cirujano_avisado', 'rx_solicitada']);
   assert.equal(s.acciones_conteo[1].ts, '2026-10-01T12:04:00.000Z');
 });
+
+test('la hoja de consumo suma lo registrado y lo que entró al campo en el conteo', () => {
+  const guantes = ev({ tipo: 'consumo', insumo: 'Guantes, par', cantidad: 2 }, 0);
+  const s = derivar(cirugiaPrueba(), P, [
+    guantes,
+    ev({ tipo: 'consumo', insumo: 'Prolene', cantidad: 1 }, 1),
+    ev({ tipo: 'consumo', insumo: 'Guantes, par', cantidad: 3 }, 2),
+    ev({ tipo: 'consumo', insumo: 'Prolene', cantidad: -1 }, 3),
+    ev({ tipo: 'consumo', insumo: 'Seda', cantidad: 1 }, 4),
+    ev({ tipo: 'anulacion', evento_id: guantes.id }, 5),
+    ev({ tipo: 'conteo', material: 'Compresas', cantidad: 10 }, 6),
+    ev({ tipo: 'conteo', material: 'Compresas', cantidad: -10 }, 7),
+  ]);
+  assert.deepEqual(s.consumo, [
+    { insumo: 'Guantes, par', cantidad: 3, del_conteo: false },
+    { insumo: 'Seda', cantidad: 1, del_conteo: false },
+    { insumo: 'Compresas', cantidad: 10, del_conteo: true },
+  ]);
+  assert.deepEqual(s.insumos, []);
+});

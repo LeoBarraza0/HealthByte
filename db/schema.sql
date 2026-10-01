@@ -72,11 +72,19 @@ CREATE TABLE IF NOT EXISTS evento (
   anula_evento_id uuid REFERENCES evento
 );
 CREATE INDEX IF NOT EXISTS evento_por_cirugia ON evento (cirugia_id, ts);
+-- Catálogo de la hoja de consumo de cada clínica. Sin precios: los costos los maneja la clínica en otro proceso.
+CREATE TABLE IF NOT EXISTS insumo (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  clinica_id uuid NOT NULL REFERENCES clinica,
+  nombre text NOT NULL,
+  categoria text NOT NULL CHECK (categoria IN ('general', 'sutura', 'otro', 'equipo')),
+  UNIQUE (clinica_id, nombre)
+);
 
 -- Cada tabla con datos de una clínica solo muestra las filas de la clínica fijada en la transacción.
 -- El API ejecuta SET LOCAL ROLE healthbyte_app (que no es dueño de las tablas), así que la política siempre aplica.
 DO $$ DECLARE t text; BEGIN
-  FOREACH t IN ARRAY ARRAY['quirofano', 'usuario', 'protocolo', 'paciente', 'cirugia', 'evento'] LOOP
+  FOREACH t IN ARRAY ARRAY['quirofano', 'usuario', 'protocolo', 'paciente', 'cirugia', 'evento', 'insumo'] LOOP
     EXECUTE format('ALTER TABLE %I ENABLE ROW LEVEL SECURITY', t);
     EXECUTE format('DROP POLICY IF EXISTS por_clinica ON %I', t);
     EXECUTE format($p$CREATE POLICY por_clinica ON %I
@@ -86,5 +94,5 @@ DO $$ DECLARE t text; BEGIN
 END $$;
 
 GRANT USAGE ON SCHEMA public TO healthbyte_app;
-GRANT SELECT ON clinica, quirofano, usuario, protocolo, paciente, cirugia, evento TO healthbyte_app;
+GRANT SELECT ON clinica, quirofano, usuario, protocolo, paciente, cirugia, evento, insumo TO healthbyte_app;
 GRANT INSERT ON evento TO healthbyte_app; -- sin UPDATE ni DELETE: los eventos son inmutables

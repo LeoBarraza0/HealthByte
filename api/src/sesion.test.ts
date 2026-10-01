@@ -68,6 +68,13 @@ test('solo admite las tres acciones del protocolo de conteo', async () => {
   assert.equal(validarDatos({ tipo: 'toString' }), null);
 });
 
+test('el consumo admite cantidades enteras distintas de cero', () => {
+  assert.deepEqual(validarDatos({ tipo: 'consumo', insumo: 'Guantes, par', cantidad: 2 }), { tipo: 'consumo', insumo: 'Guantes, par', cantidad: 2 });
+  assert.deepEqual(validarDatos({ tipo: 'consumo', insumo: 'Prolene', cantidad: -1 }), { tipo: 'consumo', insumo: 'Prolene', cantidad: -1 });
+  for (const cantidad of [0, 1.5, 1000]) assert.equal(validarDatos({ tipo: 'consumo', insumo: 'Seda', cantidad }), null);
+  assert.equal(validarDatos({ tipo: 'consumo', insumo: ' ', cantidad: 1 }), null);
+});
+
 test('una clínica no entra en la sala ya abierta por otra', async () => {
   const { salas, guardados } = montar();
   const tablet = cliente('Tablet');

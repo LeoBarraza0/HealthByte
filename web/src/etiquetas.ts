@@ -43,6 +43,7 @@ export function describir(d: DatosEvento, p: Protocolo): string {
       busqueda_en_campo: 'Búsqueda en campo y cubetas',
       rx_solicitada: 'Rx intraoperatoria solicitada',
     }[d.accion];
+    case 'consumo': return `Consumo: ${d.insumo} ${d.cantidad > 0 ? '+' : ''}${d.cantidad}`;
     case 'anulacion': return 'Anulación';
   }
 }

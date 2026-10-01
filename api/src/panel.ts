@@ -18,6 +18,7 @@ const CATEGORIAS: [RegExp, string][] = [
 ];
 
 const minutos = (a?: string | null, b?: string | null) => (a && b ? (Date.parse(b) - Date.parse(a)) / 60_000 : null);
+const redondo = (x: number | null) => (x === null ? null : Math.round(x));
 const promedio = (xs: (number | null)[]) => {
   const v = xs.filter((x): x is number => x !== null);
   return v.length ? Math.round(v.reduce((a, b) => a + b, 0) / v.length) : null;
@@ -82,9 +83,13 @@ export function resumir(estados: EstadoCirugia[]): Panel {
     lista: estados
       .map(s => ({
         id: s.cirugia.id, fecha: s.cirugia.fecha_programada, quirofano: s.cirugia.quirofano,
-        paciente: s.cirugia.paciente.nombre, procedimiento: s.cirugia.procedimiento, estado: estadoDe(s),
+        paciente: s.cirugia.paciente.nombre, procedimiento: s.cirugia.procedimiento,
+        especialidad: s.protocolo.especialidad, estado: estadoDe(s),
         alertas_abiertas: s.alertas.filter(a => a.estado === 'abierta').length,
         alertas_cerradas: s.alertas.filter(a => a.estado === 'cerrada').length,
+        alertas_resueltas: s.alertas.filter(a => a.estado === 'resuelta').length,
+        protocolo_cumplido: cumplioProtocolo(s),
+        minutos: redondo(minutos(s.horas.ingreso, s.horas.salida_recuperacion)),
       }))
       .sort((a, b) => b.fecha.localeCompare(a.fecha)),
   };
