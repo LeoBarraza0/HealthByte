@@ -152,7 +152,7 @@ Recorrido de una frase, por ejemplo «entran diez compresas»:
    | Pregunta | Tipo | Opciones |
    | --- | --- | --- |
    | `dirigida` | Noul | ¿La frase es un registro para el tablero quirúrgico y no conversación del equipo? |
-   | `intencion` | Choice | hora · ítem del checklist · conteo · hito · medición · dato · novedad · sí · no · deshacer · nada |
+   | `intencion` | Choice | hora · ítem del checklist · conteo · hito · medición · dato · novedad · novedad atendida · novedad solucionada · sí · no · deshacer · nada |
    | `hora` | Choice | ingreso · anestesia · inicio de cirugía · fin de cirugía · salida a recuperación · ninguna |
    | `item_<id>` | Noul, una por ítem de la fase actual | ¿La frase confirma este ítem? Permite confirmar varios con una sola frase. |
    | `material_<n>` | Choice, una por cada par número + palabra | los materiales del protocolo · ninguno |
@@ -186,7 +186,7 @@ Postgres 16. Todas las tablas llevan `clinica_id` y Row-Level Security.
 | --- | --- |
 | `clinica` | `id`, `nombre`, `plan` |
 | `quirofano` | `id`, `clinica_id`, `nombre` |
-| `usuario` | `id`, `clinica_id`, `nombre`, `rol` (cirujano, anestesiólogo, instrumentador, auxiliar de enfermería, coordinador, admin), `login`, `hash_clave` |
+| `usuario` | `id`, `clinica_id`, `nombre`, `rol` (cirujano, anestesiólogo, instrumentador, auxiliar de enfermería, perfusionista, coordinador, admin), `login`, `hash_clave` |
 | `protocolo` | `id`, `clinica_id`, `especialidad`, `definicion` (JSONB, sección 6) |
 | `paciente` | `id`, `clinica_id`, `nombre`, `tipo_doc`, `num_doc`, `fecha_nacimiento`, `eps`, `hc` |
 | `cirugia` | `id`, `clinica_id`, `quirofano_id`, `paciente_id`, `protocolo_id`, `fecha_programada`, `procedimiento`, `diagnostico`, `lateralidad`, `equipo_programado` (JSONB: rol → usuario), `datos_preop` (JSONB: los campos del protocolo) |
@@ -206,7 +206,9 @@ Tipos de evento:
 | `hito` | heparina, inicio de bomba, clamp… |
 | `medicion` | glucometría 102 mg/dl, diuresis 29 cc |
 | `dato` | campo preoperatorio y valor, por ejemplo peso 71,3 |
-| `novedad` | texto libre |
+| `novedad` | texto libre; abre una novedad (detectada) |
+| `novedad_atendida` | la novedad y quién la atiende |
+| `novedad_solucionada` | la novedad y las acciones realizadas (texto dictado) |
 | `alerta_cierre` | alerta y motivo |
 | `anulacion` | el evento que se anula |
 
@@ -241,14 +243,22 @@ Cada clínica tiene un protocolo por especialidad. Así se ve, recortado:
       "items": [{ "id": "conteo_final", "texto": "Recuento de gasas y material", "rol": "instrumentador", "critico": true }] }
   ],
   "materiales": ["Compresas", "Gasas", "Cotonoides", "Rollos Abdominales", "Mechas", "Hiladillos", "Agujas Hipodérmicas", "Agujas Sutura", "Hojas de Bisturí", "Drenes"],
-  "hitos": ["Heparina", "Inicio de bomba", "Fin de bomba", "Clamp", "Cardioplejía"],
+  "hitos": ["Heparina", "Entrada a bomba", "Salida de bomba", "Clamp aórtico", "Retiro de clamp", "Cardioplejía"],
+  "duraciones": [
+    { "nombre": "Tiempo de bomba", "desde": "Entrada a bomba", "hasta": "Salida de bomba" },
+    { "nombre": "Tiempo de clamp", "desde": "Clamp aórtico", "hasta": "Retiro de clamp" }
+  ],
   "mediciones": [{ "id": "glucometria", "unidad": "mg/dl" }, { "id": "diuresis", "unidad": "cc" }]
 }
 ```
 
 Los nombres de los campos y de los materiales son los del tablero físico. De este
 JSON salen la pantalla, las opciones de las preguntas a Jev y el vocabulario de
-Chirp 3. Una clínica nueva no requiere código.
+Chirp 3. Las `duraciones` las calcula el código a partir de las horas de los hitos.
+Una clínica nueva no requiere código.
+
+La marca, los colores, las tipografías y las pantallas están en el
+[documento de diseño](../../../Diseño/HealthByte_especificaciones_diseno.md).
 
 ## 7. Alertas
 
@@ -281,7 +291,8 @@ primer día.
 - Alertas abiertas, resueltas y cerradas con justificación, por tipo.
 - Tiempos promedio por etapa: de ingreso a anestesia, de anestesia a incisión, de
   incisión a fin, y de fin a salida.
-- Novedades.
+- Novedades abiertas, atendidas y solucionadas, con el tiempo hasta la solución.
+- Los tiempos de bomba y de clamp en cirugía cardiovascular.
 - La lista de cirugías, con el detalle de cada una: la línea de tiempo de eventos con
   quién, qué, cuándo y su origen, más las alertas y cómo se cerraron.
 

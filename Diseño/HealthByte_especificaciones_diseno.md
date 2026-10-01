@@ -7,7 +7,20 @@ HealthByte une Instrumentación Quirúrgica e Ingeniería de Sistemas para respo
 
 **El reto:** los quirófanos usan tableros físicos que se llenan a mano. Eso trae errores de escritura, información omitida, pérdida de trazabilidad, ningún histórico y ninguna alerta. La solución debe digitalizar la verificación de seguridad quirúrgica para que no solo **registre**, sino que también **valide, alerte, deje trazabilidad, produzca indicadores y apoye decisiones**, respetando el flujo real del quirófano. No basta con cambiar el tablero por un formulario.
 
-**Plataforma:** aplicación web de escritorio. No hay versión móvil.
+> **Fuente de verdad:** el producto y la técnica se definen en el
+> [spec de diseño](../docs/superpowers/specs/2026-10-01-tablero-seguridad-quirurgica-design.md).
+> Este documento cubre la marca y las pantallas. Si algo de aquí contradice el spec,
+> manda el spec.
+
+**Plataforma:** aplicación web que se adapta a TV, tablet o portátil. Una sola
+sesión funciona completa en un solo dispositivo, y otros dispositivos pueden abrirla
+como espejo en vivo. Es multi-clínica: cada clínica tiene sus quirófanos, su personal
+y su protocolo.
+
+**Entrada por voz:** el instrumentador no toca ningún aparato. Lo que dice lo
+transcribe Speech-to-Text (Chirp 3) y lo interpreta Jev. El sistema registra solo
+cuando está seguro y pide confirmación cuando duda. La circulante puede registrar y
+corregir con toques.
 
 **Enfoque del pitch:** no presentamos requerimientos, sino una **propuesta para resolver el problema**.
 
@@ -139,7 +152,7 @@ Página pública de venta. Presenta el problema y la propuesta y lleva a **Agend
 | Sección | Contenido |
 |---|---|
 | Navegación | Logo · Problema · Flujo · Solución · **Agendar demo** |
-| Hero (HB.01) | "Ningún paso del quirófano sin **verificar.**" HealthByte convierte el tablero que hoy se llena a mano en un tablero inteligente: registra, valida y alerta, y deja trazabilidad antes, durante y después de la cirugía. A la derecha, una vista previa del tablero en vivo: 01 anestesia 6/6, 02 incisión 4/6, 03 salida 0/5, 10/17 verificaciones y la alerta «No iniciar incisión». |
+| Hero (HB.01) | "Ningún paso del quirófano sin **verificar.**" HealthByte convierte el tablero que hoy se llena a mano en un tablero inteligente: registra, valida y alerta, y deja trazabilidad antes, durante y después de la cirugía. A la derecha, una vista previa del tablero en vivo: 01 anestesia 6/6, 02 incisión 4/6, 03 salida 0/5, 10/17 verificaciones y la alerta «Antibiótico pendiente antes de la incisión». |
 | Cifras | Tres `[DATO]`: tableros con campos sin diligenciar, verificaciones sin registro de quién ni cuándo, registros que no se pueden consultar después. Fuente pendiente. |
 | HB.02 — El problema | El tablero se llena a mano y se borra al final del día. Si falta un dato, nadie lo advierte a tiempo. Y al revisar una cirugía, **no queda rastro de quién verificó qué.** |
 | HB.03 — Flujo | "Tres pausas de verificación, un solo registro": **Antes de la anestesia** (identificación del paciente), **Antes de la incisión** (pausa quirúrgica), **Antes de salir del quirófano** (cierre seguro). |
@@ -148,20 +161,21 @@ Página pública de venta. Presenta el problema y la propuesta y lleva a **Agend
 
 ### 8.2 Tablero en vivo (web, 1440 × 2120) — pieza central
 
-La pantalla que reemplaza la pizarra del quirófano. Ejemplo: QX 03, revascularización miocárdica, detenida en la pausa antes de la incisión.
+La pantalla que reemplaza la pizarra del quirófano. Ejemplo: QX 03, revascularización miocárdica, en la pausa antes de la incisión. El diseño de 1440 px es la referencia de escritorio y TV; falta adaptarlo a tablet.
 
 - **Menú lateral** (`blue-900`): Panel de gestión · **Tablero en vivo** · Trazabilidad · Alertas · Históricos.
-- **Tiempos del procedimiento:** Ingreso del paciente → Inicio de anestesia → Inicio de cirugía → Fin de cirugía → Salida a recuperación, con la hora de cada evento. El inicio de cirugía aparece **bloqueado** mientras haya alertas.
-- **Alertas** (bloque rojo): "2 alertas bloquean el inicio de la cirugía". Antibiótico profiláctico no registrado y alergia a penicilina por validar, cada una con su responsable y su botón de acción (*Registrar*, *Validar*).
+- **Voz:** el estado del micrófono (activo y en qué dispositivo), la transcripción en vivo mientras alguien habla, el último registro («Compresas +10 · 12:24:07»), la confirmación pendiente cuando el sistema duda («¿Registrar Compresas +10?», con *Sí* / *No*), y los botones *Deshacer* y *Registrar a mano*.
+- **Tiempos del procedimiento:** Ingreso del paciente → Inicio de anestesia → Inicio de cirugía → Fin de cirugía → Salida a recuperación. La hora se toma del reloj del servidor en el instante en que se dicta; nadie la escribe.
+- **Alertas** (bloque rojo): "2 alertas requieren atención antes de la incisión". Antibiótico profiláctico no registrado y alergia a penicilina por validar, cada una con su responsable y sus acciones (*Registrar*, *Validar*, *Cerrar con motivo*). **Las alertas nunca bloquean el acto clínico:** una alerta crítica solo se cierra resolviéndola o con un motivo dictado, y eso queda en la trazabilidad.
 - **Paciente:** indicador de completitud (11/12 datos), documento, edad, peso y talla, glucometría, grupo y RH, reserva de sangre y alergias.
 - **Procedimiento:** procedimiento, anestesia, diagnóstico y comorbilidades; validación "Coincide con lo programado"; sitio quirúrgico con confirmación (quién y a qué hora); información clínica (obstrucción coronaria).
 - **Equipo quirúrgico:** cirujano, anestesiólogo, instrumentador quirúrgico, auxiliar de enfermería y perfusionista, cada uno con su hora de ingreso. Sus verificaciones quedan firmadas con rol y hora.
 - **Lista de verificación de seguridad**, en tres momentos:
   - 01 Antes de la anestesia (completa 6/6): identificación, procedimiento, sitio, alergias, riesgos y equipamiento.
   - 02 Antes de la incisión (en curso 4/6): paciente, procedimiento, sitio y equipo ✓; antibiótico profiláctico ! pendiente; riesgos previstos.
-  - 03 Antes de salir del quirófano (bloqueada 0/5): recuento de instrumental, recuento de gasas y material, identificación de muestras, novedades y procedimiento realizado.
+  - 03 Antes de salir del quirófano (pendiente 0/5): recuento de instrumental, recuento de gasas y material, identificación de muestras, novedades y procedimiento realizado.
   - Cada ítem muestra quién lo verificó (rol abreviado) y la hora.
-- **Recuento de material** (los elementos de la pizarra física): compresas, gasas, agujas de sutura e hipodérmicas, hojas de bisturí, hiladillos, drenes, rollos abdominales, cotonoides y mechas. Conteo inicial y final; el final se llena al cierre.
+- **Recuento de material** (los elementos de la pizarra física): compresas, gasas, agujas de sutura e hipodérmicas, hojas de bisturí, hiladillos, drenes, rollos abdominales, cotonoides y mechas. Para cada material, el balance entre lo que entra (inicial y adicionales) y lo que sale; al cierre debe dar cero, y si no da, se dispara la alerta de conteo.
 - **Registro del procedimiento:** las casillas Sí/No de la pizarra (rayos X intraoperatorio, injertos, bloqueos pre/intra/postoperatorio, muestra para patología, contenedor instrumental) y el destino postoperatorio (Hospitalización / UCI / Ambulatorio).
 - **Módulo cardiovascular** (solo en cirugía cardiovascular): heparina, entrada a bomba, clamp aórtico, dosis de cardioplejia y salida de bomba. Calcula los tiempos de bomba y de clamp.
 
@@ -214,15 +228,15 @@ Reconstruye lo ocurrido en una cirugía.
 | 4. Identificación del equipo quirúrgico | Tablero en vivo › Equipo (ingreso con hora; verificaciones firmadas) |
 | 5. Lista de verificación de seguridad | Tablero en vivo › 3 momentos de verificación |
 | 6. Registro y trazabilidad de tiempos | Tablero en vivo › Tiempos; Panel › tiempo por fase |
-| 7. Gestión de alertas y riesgos | Tablero en vivo › Alertas (bloquean el avance); Panel › alertas frecuentes |
+| 7. Gestión de alertas y riesgos | Tablero en vivo › Alertas (no bloquean; se resuelven o se cierran con motivo); Panel › alertas frecuentes |
 | 8. Trazabilidad del procedimiento | Pantalla Trazabilidad (registro cronológico + novedades) |
 | 9. Panel de gestión | Pantalla Panel de gestión |
-| 10. IA y analítica | Pendiente de definir (opcional en el reto) |
+| 10. IA y analítica | Registro por voz: Chirp 3 transcribe y Jev interpreta cada frase dentro de un esquema cerrado, con confianza calibrada (registra solo si está seguro, pide confirmación si duda) |
 
 ## 10. Pendientes
 
 - Reemplazar los `[DATO]` con cifras reales y citar la fuente.
 - Completar [NOMBRE DEL HACKATHON], [FECHA], y [NOMBRE] / [PROGRAMA] en cada credencial.
-- Decidir si se incluye analítica o IA (punto 10 del reto) y cómo.
+- Adaptar el tablero en vivo a tablet y a TV vista a distancia.
 - Pantallas de Alertas e Históricos (están en el menú, pero aún no tienen diseño).
 - Resto de diapositivas del pitch.
