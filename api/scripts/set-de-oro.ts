@@ -4,6 +4,9 @@ import { interpretar } from '../src/interprete.ts';
 import { derivar } from '../src/estado.ts';
 import { PROTOCOLO_CARDIO } from '../src/protocolos.ts';
 import { cirugiaPrueba, ev } from '../src/prueba.ts';
+import { INSUMOS } from '../src/insumos.ts';
+import { INSTRUMENTOS } from '../src/instrumentos.ts';
+import { corregir } from '../src/correccion.ts';
 import type { HoraId } from '../src/tipos.ts';
 
 interface Caso { frase: string; despues_de: HoraId[]; espera: string }
@@ -17,8 +20,11 @@ const cuenta = { bien: 0, confirma: 0, mal: 0 };
 
 for (const c of casos) {
   const s = derivar(cirugiaPrueba(), PROTOCOLO_CARDIO, c.despues_de.map((hora, i) => ev({ tipo: 'hora', hora }, i)));
+  // Igual que la sesión real: catálogos de la clínica y corrección del instrumental antes de Jev.
+  s.insumos = INSUMOS;
+  s.instrumentos = INSTRUMENTOS;
   const t0 = performance.now();
-  const d = await interpretar(c.frase, s, false, capturar);
+  const d = await interpretar(corregir(c.frase, INSTRUMENTOS.map(i => i.nombre)), s, false, capturar);
   const ms = Math.round(performance.now() - t0);
   const obtenido = d.accion === 'registrar' || d.accion === 'confirmar' ? d.eventos[0].tipo : d.accion;
   const resultado = obtenido !== c.espera ? 'mal' : d.accion === 'confirmar' ? 'confirma' : 'bien';
