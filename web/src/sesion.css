@@ -802,3 +802,7 @@
 .sesion.pared .bitacora h2 { font-size: 26px; }
 .sesion.pared .bitacora li { font-size: 22px; grid-template-columns: 72px minmax(0, 1fr) auto; }
 .sesion.pared .bitacora-origen { font-size: 18px; }
+
+/* Último dictado: queda a la vista, más tenue que el texto en vivo. */
+.barra-voz-ultimo { opacity: 0.75; }
+.barra-voz-fase { font-family: var(--texto); font-size: 0.6em; font-weight: 600; color: var(--sobre-navy-2); margin-left: 8px; }
