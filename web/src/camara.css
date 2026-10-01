@@ -1,0 +1,407 @@
+/* Cámara de la mesa: el módulo de la sesión en tablet, el panel para vincular el celular, la pregunta de Conti
+   y la página del celular que transmite. Colores y medidas de estilos.css y de Diseño (canvas «Visión por cámara»). */
+
+/* ==================== Módulo en la sesión (tablet) ==================== */
+
+.camara-cuerpo {
+  padding: 16px 20px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 400px;
+  gap: 20px;
+  min-height: 0;
+}
+
+.camara-principal {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+}
+
+.camara-titulo-fila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.camara-titulo { font-size: 26px; }
+
+.camara-modos { display: flex; gap: 8px; }
+
+.camara-modo {
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--borde-fuerte);
+  background: var(--blanco);
+  color: var(--tinta-2);
+  font: 600 14px var(--texto);
+  cursor: pointer;
+}
+
+.camara-modo[aria-pressed="true"] { background: var(--azul); border-color: var(--azul); color: var(--blanco); }
+
+.camara-visor {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--navy);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.camara-video, .camara-foto { width: 100%; height: 100%; display: block; }
+.camara-video { object-fit: contain; }
+
+.camara-caja {
+  fill: none;
+  stroke: var(--menta);
+  stroke-width: 2.5px;
+  vector-effect: non-scaling-stroke;
+}
+
+.camara-caja.critica { stroke: var(--critica); stroke-dasharray: 8 5; }
+.camara-insignia { fill: var(--menta); }
+.camara-insignia-texto { fill: var(--navy); font-family: var(--texto); font-weight: 700; }
+
+.camara-vacio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 24px;
+  text-align: center;
+  color: var(--sobre-navy);
+  max-width: 440px;
+}
+
+.camara-vacio h3 { color: var(--blanco); font-size: 22px; }
+.camara-vacio p { margin: 0; font-size: 15px; line-height: 22px; }
+
+.camara-chip {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  max-width: calc(100% - 24px);
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(10, 44, 66, 0.88);
+  color: var(--blanco);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.camara-chip-sub { font-weight: 400; color: var(--sobre-navy); }
+
+.camara-punto { width: 10px; height: 10px; border-radius: 999px; background: #FF6B5E; flex-shrink: 0; }
+
+.camara-visor .btn-cabecera {
+  position: absolute;
+  right: 10px;
+  bottom: 8px;
+  background: rgba(10, 44, 66, 0.88);
+}
+
+.camara-analizando {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 44, 66, 0.55);
+  color: var(--blanco);
+  font: 600 22px var(--display);
+}
+
+.camara-pie {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--tenue);
+}
+
+.camara-lateral {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+
+.camara-tarjeta {
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+}
+
+.camara-tarjeta-cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.camara-tarjeta h2 { font-size: 19px; }
+.camara-tarjeta h3 { margin: 0; font: 600 14px var(--texto); color: var(--tenue); }
+.camara-sub { font-size: 14px; line-height: 20px; color: var(--tenue); }
+
+.camara-fila {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 72px 62px 104px;
+  gap: 8px;
+  align-items: center;
+  min-height: 38px;
+  border-bottom: 1px solid var(--linea);
+  font-size: 15px;
+}
+
+.camara-fila:last-child { border-bottom: 0; }
+.camara-fila > span:nth-child(2), .camara-fila > span:nth-child(3) { text-align: right; }
+.camara-fila.cabecera { min-height: 30px; font-size: 13px; color: var(--tenue); }
+.camara-fila.falta { background: var(--critica-fondo); margin: 0 -16px; padding: 0 16px; color: var(--critica-osc); font-weight: 700; }
+.camara-resultado.ok { color: var(--ok); font-weight: 600; }
+.camara-resultado.aviso { color: var(--aviso-txt); font-weight: 600; }
+
+.camara-fotos { overflow-y: auto; }
+
+.camara-foto-fila {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  min-height: 52px;
+  border-bottom: 1px solid var(--linea);
+}
+
+.camara-foto-fila:last-child { border-bottom: 0; }
+.camara-foto-fila.activa { background: var(--azul-tenue); margin: 0 -16px; padding: 0 16px; }
+.camara-foto-titulo { font-size: 15px; font-weight: 600; }
+.camara-foto-detalle { font-size: 13px; color: var(--tenue); overflow-wrap: anywhere; }
+
+.camara-indicador { display: flex; flex-direction: column; gap: 6px; font-size: 15px; }
+.camara-indicador-estado { display: inline-flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 700; }
+.camara-indicador-estado.ok { color: var(--ok); }
+.camara-indicador-estado.critica { color: var(--critica-txt); }
+.camara-indicador-estado.neutro { color: var(--tenue); }
+
+/* ==================== Panel para vincular el celular ==================== */
+
+.camara-panel-fondo {
+  position: fixed;
+  inset: 0;
+  background: rgba(13, 34, 50, 0.55);
+  z-index: 1000;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.camara-panel {
+  width: 100%;
+  max-width: 600px;
+  height: 100%;
+  background: var(--blanco);
+  box-shadow: -16px 0 48px rgba(13, 34, 50, 0.3);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+.camara-panel-cabecera {
+  padding: 22px 24px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  border-bottom: 1px solid var(--linea);
+}
+
+.camara-panel-cabecera h2 { font-size: 26px; line-height: 32px; }
+.camara-panel-cuerpo { padding: 20px 24px; display: flex; flex-direction: column; gap: 18px; overflow-y: auto; }
+
+.camara-panel-pie {
+  padding: 14px 24px;
+  border-top: 1px solid var(--linea);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  background: var(--fondo);
+  font-size: 14px;
+  color: var(--tinta-2);
+}
+
+.camara-qr-fila { display: grid; grid-template-columns: 216px minmax(0, 1fr); gap: 22px; align-items: start; }
+.camara-qr { display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 13px; color: var(--tenue); }
+
+.camara-qr-marco {
+  width: 216px;
+  height: 216px;
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  background: var(--blanco);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.camara-pasos { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+.camara-paso { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 10px; }
+
+.camara-paso-numero {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: var(--azul);
+  color: var(--blanco);
+  font-weight: 700;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.camara-paso strong { display: block; font-size: 16px; }
+.camara-paso span { font-size: 14px; line-height: 20px; color: var(--tenue); }
+
+.camara-esperando {
+  background: var(--azul-tenue);
+  border: 1px solid #C2DCEB;
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.camara-esperando strong { display: block; font-size: 16px; }
+.camara-esperando span { font-size: 14px; color: var(--tenue); }
+.camara-puntos { display: flex; gap: 5px; }
+.camara-puntos i { width: 10px; height: 10px; border-radius: 999px; background: var(--azul); animation: camara-latido 1.2s infinite ease-in-out; }
+.camara-puntos i:nth-child(2) { background: var(--azul-medio); animation-delay: 0.2s; }
+.camara-puntos i:nth-child(3) { background: #8FBDD8; animation-delay: 0.4s; }
+
+@keyframes camara-latido { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
+
+.camara-codigo { font: 600 34px var(--display); letter-spacing: 0.12em; color: var(--azul); }
+
+.camara-privacidad {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--linea);
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--tinta-2);
+}
+
+/* ==================== Conti pregunta (barra de voz) ==================== */
+
+.conti-pregunta {
+  position: relative;
+  justify-self: start;
+  display: flex;
+  align-items: center;
+  background: var(--blanco);
+  color: var(--tinta);
+}
+
+.conti-pregunta::before {
+  content: '';
+  position: absolute;
+  left: -9px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-style: solid;
+  border-width: 9px 9px 9px 0;
+  border-color: transparent var(--blanco) transparent transparent;
+}
+
+.sesion.tablet .conti-pregunta { border-radius: 12px; padding: 10px 10px 10px 16px; gap: 10px; }
+.sesion.pared .conti-pregunta { border-radius: 16px; padding: 16px 18px 16px 24px; gap: 18px; }
+
+/* ==================== Celular que transmite ==================== */
+
+.celular {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--navy);
+  color: var(--blanco);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 180px;
+}
+
+.celular-visor { position: relative; background: #000; min-height: 0; overflow: hidden; }
+.celular-visor video { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.celular-esquina { position: absolute; width: 36px; height: 36px; border: 0 solid var(--blanco); pointer-events: none; }
+.celular-esquina.a { left: 18px; top: 18px; border-left-width: 4px; border-top-width: 4px; border-top-left-radius: 8px; }
+.celular-esquina.b { right: 18px; top: 18px; border-right-width: 4px; border-top-width: 4px; border-top-right-radius: 8px; }
+.celular-esquina.c { left: 18px; bottom: 18px; border-left-width: 4px; border-bottom-width: 4px; border-bottom-left-radius: 8px; }
+.celular-esquina.d { right: 18px; bottom: 18px; border-right-width: 4px; border-bottom-width: 4px; border-bottom-right-radius: 8px; }
+
+.celular-visor .camara-chip { left: 50%; transform: translateX(-50%); white-space: nowrap; }
+.celular-visor .camara-chip.arriba { top: 26px; }
+.celular-visor .camara-chip.abajo { bottom: 26px; }
+
+.celular-lado { padding: 16px 14px; display: flex; flex-direction: column; gap: 10px; }
+.celular-estado { display: inline-flex; align-items: center; gap: 6px; font-size: 16px; font-weight: 700; }
+.celular-punto { width: 10px; height: 10px; border-radius: 999px; background: var(--menta); }
+.celular-punto.apagado { background: var(--gris); }
+.celular-sub { font-size: 13px; line-height: 18px; color: var(--sobre-navy); margin: 0; }
+.celular-acciones { margin-top: auto; display: flex; flex-direction: column; gap: 8px; }
+.celular-acciones .btn-cabecera { width: 100%; }
+.celular-acciones .peligro { border-color: #E8B4AE; }
+
+.celular-centro {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--navy);
+  color: var(--blanco);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+}
+
+.celular-tarjeta { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 16px; }
+.celular-tarjeta h1 { font-size: 28px; line-height: 34px; }
+.celular-tarjeta p { margin: 0; color: var(--sobre-navy); line-height: 22px; }
+.celular-tarjeta label { display: flex; flex-direction: column; gap: 6px; font-weight: 600; }
+
+.celular-tarjeta input {
+  min-height: 52px;
+  border: 2px solid var(--azul-medio);
+  border-radius: 10px;
+  padding: 0 14px;
+  font: 600 24px var(--display);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--tinta);
+}
+
+.celular-tarjeta .btn-primario { min-height: 52px; font-size: 17px; }
+.celular-error { color: #FFA49E; }
+
+@media (orientation: portrait) {
+  .celular { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) auto; }
+  .celular-acciones { flex-direction: row; }
+}
+
+@media (max-width: 1100px) {
+  .camara-cuerpo { grid-template-columns: minmax(0, 1fr) 340px; }
+}
