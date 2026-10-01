@@ -2,18 +2,18 @@ import Fastify from 'fastify';
 import cookie from '@fastify/cookie';
 import websocket from '@fastify/websocket';
 import { COOKIE, leerSesion, login } from './auth.ts';
-import { cargarEstado, cargarEstados, cirugiasActivas, eventosDe, insertarEventos, personal } from './repo.ts';
+import { capturasDe, cargarEstado, cargarEstados, cirugiasActivas, eventosDe, guardarCaptura, imagenDeCaptura, insertarEventos, personal } from './repo.ts';
 import { resumir } from './panel.ts';
 import { reiniciarDemo } from './siembra.ts';
 import { crearSalas } from './sesion.ts';
-import type { Cliente, Deps } from './sesion.ts';
-import type { MsgCliente, Sesion } from './tipos.ts';
+import type { Cliente, ClienteCamara, Deps } from './sesion.ts';
+import type { MsgCamara, MsgCliente, Sesion } from './tipos.ts';
 
 declare module 'fastify' {
   interface FastifyRequest { sesion: Sesion }
 }
 
-export interface OpcionesApp { interpretar: Deps['interpretar']; abrirVoz: Deps['abrirVoz'] }
+export interface OpcionesApp { interpretar: Deps['interpretar']; abrirVoz: Deps['abrirVoz']; analizar?: Deps['analizar'] }
 
 // Sin voz: lo que usan las pruebas y el arranque antes de conectar Jev y Chirp 3.
 const SIN_VOZ: OpcionesApp = {
@@ -22,14 +22,15 @@ const SIN_VOZ: OpcionesApp = {
 };
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const PUBLICAS = new Set(['/api/login', '/api/salud']);
+// /api/camara/ws no lleva sesión: el celular entra con el código de un solo uso que muestra la tablet.
+const PUBLICAS = new Set(['/api/login', '/api/salud', '/api/camara/ws']);
 
 export async function crearApp(opciones: Partial<OpcionesApp> = {}) {
   if (!process.env.SESION_SECRETO) throw new Error('Falta SESION_SECRETO');
   const o = { ...SIN_VOZ, ...opciones };
   const app = Fastify({ logger: process.env.NODE_ENV === 'production' });
   await app.register(cookie, { secret: process.env.SESION_SECRETO });
-  await app.register(websocket);
+  await app.register(websocket, { options: { maxPayload: 4 * 1024 * 1024 } }); // una foto de la cámara pesa menos de 1 MB
   app.decorateRequest('sesion', null as unknown as Sesion);
 
   app.addHook('onRequest', async (req, rep) => {
@@ -68,6 +69,15 @@ export async function crearApp(opciones: Partial<OpcionesApp> = {}) {
   app.get<{ Params: { id: string } }>('/api/cirugias/:id/eventos', async req =>
     UUID.test(req.params.id) ? eventosDe(req.sesion.clinica_id, req.params.id) : []);
 
+  app.get<{ Params: { id: string } }>('/api/cirugias/:id/capturas', async req =>
+    UUID.test(req.params.id) ? capturasDe(req.sesion.clinica_id, req.params.id) : []);
+
+  app.get<{ Params: { id: string } }>('/api/capturas/:id/imagen', async (req, rep) => {
+    const imagen = UUID.test(req.params.id) ? await imagenDeCaptura(req.sesion.clinica_id, req.params.id) : null;
+    if (!imagen) return rep.code(404).send({ error: 'Foto no encontrada' });
+    return rep.type('image/jpeg').header('cache-control', 'private, max-age=86400').send(imagen); // inmutable
+  });
+
   app.post('/api/demo/reiniciar', async (req, rep) => {
     if (req.sesion.rol !== 'coordinador' && req.sesion.rol !== 'admin') return rep.code(403).send({ error: 'Solo coordinación' });
     await reiniciarDemo();
@@ -79,13 +89,17 @@ export async function crearApp(opciones: Partial<OpcionesApp> = {}) {
     return resumir(await cargarEstados(req.sesion.clinica_id, new Date(Date.now() - dias * 86_400_000).toISOString()));
   });
 
-  const salas = crearSalas({ cargarEstado, insertarEventos, interpretar: o.interpretar, abrirVoz: o.abrirVoz });
+  const salas = crearSalas({
+    cargarEstado, insertarEventos, interpretar: o.interpretar, abrirVoz: o.abrirVoz, analizar: o.analizar, guardarCaptura,
+  });
 
   app.get('/api/ws', { websocket: true }, (socket, req) => {
     const cliente: Cliente = {
       sesion: req.sesion,
       dispositivo: 'Dispositivo',
       enviar: m => { if (socket.readyState === socket.OPEN) socket.send(JSON.stringify(m)); },
+      // Si la red de este dispositivo va lenta, se saltan cuadros del video en lugar de acumularlos en memoria.
+      enviarCuadro: jpeg => { if (socket.readyState === socket.OPEN && socket.bufferedAmount < 512 * 1024) socket.send(jpeg); },
     };
     socket.on('message', (datos: unknown, binario: boolean) => {
       if (binario) return salas.audio(cliente, datos as Buffer);
@@ -97,6 +111,43 @@ export async function crearApp(opciones: Partial<OpcionesApp> = {}) {
       });
     });
     socket.on('close', () => salas.salir(cliente));
+  });
+
+  app.get('/api/camara/ws', { websocket: true }, (socket, req) => {
+    let camara: ClienteCamara | null = null;
+    let vinculando = false;
+    let cerrado = false;
+    const plazo = setTimeout(() => socket.close(4002, 'Sin vincular'), 10_000); // la ruta es pública
+    socket.on('message', (datos: unknown, binario: boolean) => {
+      if (binario) {
+        if (camara) salas.cuadro(camara, datos as Buffer);
+        return;
+      }
+      if (camara || vinculando) return; // ya vinculada: el latido solo mantiene viva la conexión
+      let m: MsgCamara;
+      try { m = JSON.parse(String(datos)); } catch { return socket.close(4002, 'Mensaje inválido'); }
+      if (m?.tipo === 'latido') return;
+      const nueva: ClienteCamara = {
+        enviar: x => { if (socket.readyState === socket.OPEN) socket.send(JSON.stringify(x)); },
+        cerrar: (codigo, motivo) => socket.close(codigo, motivo),
+      };
+      vinculando = true;
+      salas.camara(nueva, m).then(ok => {
+        vinculando = false;
+        if (!ok) return socket.close(4002, 'Código vencido o inválido');
+        if (cerrado) return salas.salirCamara(nueva);
+        camara = nueva;
+        clearTimeout(plazo);
+      }, e => {
+        req.log.error(e);
+        socket.close(1011, 'No se pudo vincular');
+      });
+    });
+    socket.on('close', () => {
+      cerrado = true;
+      clearTimeout(plazo);
+      if (camara) salas.salirCamara(camara);
+    });
   });
 
   return app;

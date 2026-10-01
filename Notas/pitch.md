@@ -37,7 +37,7 @@ claros. Las guías de pitch para hackathon coinciden en tres reglas más:
 | 4:25–5:00 | **Moraleja** | Las cifras de lo que acaban de ver y el lema | Instrumentación, Requisitos |
 
 **Ritmo.** En español se hablan unas 130 palabras por minuto. El texto hablado de este
-guion suma unas 520 palabras; el resto del tiempo es la pantalla haciendo su trabajo.
+guion suma unas 520 palabras con las frases dictadas (unos 4 minutos); el minuto restante es la pantalla registrando, los silencios y los cambios de sala.
 No hay que agregar texto: los silencios de la demo son parte del pitch.
 
 **En escena.** Los cinco con las credenciales de «Roles en escena» del

@@ -1,6 +1,7 @@
 import { conClinica } from './db.ts';
 import { derivar } from './estado.ts';
-import type { Cirugia, CirugiaActiva, EstadoCirugia, Evento, NuevoEvento, Protocolo, Rol } from './tipos.ts';
+import type { NuevaCaptura } from './sesion.ts';
+import type { Captura, Cirugia, CirugiaActiva, EstadoCirugia, Evento, NuevoEvento, Protocolo, Rol } from './tipos.ts';
 
 const SQL_CIRUGIA = `
   SELECT c.id, q.nombre AS quirofano, c.fecha_programada, c.procedimiento, c.diagnostico, c.lateralidad,
@@ -78,4 +79,21 @@ export async function cargarEstados(clinicaId: string, desde: string): Promise<E
 /** Incluye los eventos anulados y sus anulaciones para la trazabilidad. */
 export async function eventosDe(clinicaId: string, cirugiaId: string): Promise<Evento[]> {
   return conClinica(clinicaId, async c => (await c.query<Evento>(SQL_EVENTOS, [[cirugiaId]])).rows);
+}
+
+export async function guardarCaptura(clinicaId: string, cirugiaId: string, n: NuevaCaptura): Promise<Captura> {
+  return conClinica(clinicaId, async c => (await c.query<Captura>(`
+    INSERT INTO captura (clinica_id, cirugia_id, modo, imagen, resultado, pedida_por, dispositivo)
+    VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, ts, modo, resultado, dispositivo`,
+  [clinicaId, cirugiaId, n.modo, Buffer.from(n.imagen), n.resultado, n.pedida_por, n.dispositivo])).rows[0]);
+}
+
+/** Las fotos de una cirugía, sin la imagen. */
+export async function capturasDe(clinicaId: string, cirugiaId: string): Promise<Captura[]> {
+  return conClinica(clinicaId, async c => (await c.query<Captura>(
+    'SELECT id, ts, modo, resultado, dispositivo FROM captura WHERE cirugia_id = $1 ORDER BY ts', [cirugiaId])).rows);
+}
+
+export async function imagenDeCaptura(clinicaId: string, id: string): Promise<Buffer | null> {
+  return conClinica(clinicaId, async c => (await c.query<{ imagen: Buffer }>('SELECT imagen FROM captura WHERE id = $1', [id])).rows[0]?.imagen ?? null);
 }

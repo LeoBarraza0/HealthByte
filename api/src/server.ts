@@ -4,6 +4,7 @@ import { sembrar } from './siembra.ts';
 import { crearJev } from './jev.ts';
 import { interpretar } from './interprete.ts';
 import { crearCanalVoz } from './voz.ts';
+import { crearVision } from './vision.ts';
 
 await migrar();
 await sembrar();
@@ -12,5 +13,6 @@ const proyecto = process.env.GOOGLE_CLOUD_PROJECT ?? '';
 const app = await crearApp({
   interpretar: (frase, estado, hayPendiente) => interpretar(frase, estado, hayPendiente, jev),
   abrirVoz: (eventos, frases) => crearCanalVoz({ ...eventos, frases, proyecto }),
+  analizar: crearVision({ proyecto, modelo: process.env.VISION_MODELO }),
 });
 await app.listen({ host: '0.0.0.0', port: Number(process.env.PORT ?? 8080) });

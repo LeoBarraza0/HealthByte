@@ -66,12 +66,19 @@ CREATE TABLE IF NOT EXISTS evento (
   datos jsonb NOT NULL,
   registrado_por uuid REFERENCES usuario,
   rol_confirma text,
-  origen text NOT NULL CHECK (origen IN ('voz', 'manual')),
+  origen text NOT NULL CHECK (origen IN ('voz', 'manual', 'camara')), -- camara: lo propuso la cámara y alguien lo confirmó
   texto text,
   confianza real,
   anula_evento_id uuid REFERENCES evento
 );
 CREATE INDEX IF NOT EXISTS evento_por_cirugia ON evento (cirugia_id, ts);
+-- Las bases creadas antes de la cámara de la mesa solo admitían 'voz' y 'manual'.
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT FROM pg_constraint WHERE conname = 'evento_origen_check' AND pg_get_constraintdef(oid) LIKE '%camara%') THEN
+    ALTER TABLE evento DROP CONSTRAINT IF EXISTS evento_origen_check;
+    ALTER TABLE evento ADD CONSTRAINT evento_origen_check CHECK (origen IN ('voz', 'manual', 'camara'));
+  END IF;
+END $$;
 -- Catálogo de la hoja de consumo de cada clínica. Sin precios: los costos los maneja la clínica en otro proceso.
 CREATE TABLE IF NOT EXISTS insumo (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -89,11 +96,26 @@ CREATE TABLE IF NOT EXISTS instrumento (
   categoria text NOT NULL,
   UNIQUE (clinica_id, codigo)
 );
+-- Cada foto que analizó la cámara de la mesa, con lo que vio. Inmutable como evento: es evidencia para la trazabilidad
+-- y la base para analizar después cuánto coincide la cámara con el conteo dictado.
+-- ponytail: la imagen va en bytea (unos cientos de KB por foto); pasarla a Cloud Storage si el volumen crece.
+CREATE TABLE IF NOT EXISTS captura (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  clinica_id uuid NOT NULL REFERENCES clinica,
+  cirugia_id uuid NOT NULL REFERENCES cirugia,
+  ts timestamptz NOT NULL DEFAULT clock_timestamp(),
+  modo text NOT NULL CHECK (modo IN ('conteo', 'esterilizacion')),
+  imagen bytea NOT NULL,
+  resultado jsonb NOT NULL,
+  pedida_por uuid REFERENCES usuario,
+  dispositivo text NOT NULL
+);
+CREATE INDEX IF NOT EXISTS captura_por_cirugia ON captura (cirugia_id, ts);
 
 -- Cada tabla con datos de una clínica solo muestra las filas de la clínica fijada en la transacción.
 -- El API ejecuta SET LOCAL ROLE healthbyte_app (que no es dueño de las tablas), así que la política siempre aplica.
 DO $$ DECLARE t text; BEGIN
-  FOREACH t IN ARRAY ARRAY['quirofano', 'usuario', 'protocolo', 'paciente', 'cirugia', 'evento', 'insumo', 'instrumento'] LOOP
+  FOREACH t IN ARRAY ARRAY['quirofano', 'usuario', 'protocolo', 'paciente', 'cirugia', 'evento', 'insumo', 'instrumento', 'captura'] LOOP
     EXECUTE format('ALTER TABLE %I ENABLE ROW LEVEL SECURITY', t);
     EXECUTE format('DROP POLICY IF EXISTS por_clinica ON %I', t);
     EXECUTE format($p$CREATE POLICY por_clinica ON %I
@@ -103,5 +125,5 @@ DO $$ DECLARE t text; BEGIN
 END $$;
 
 GRANT USAGE ON SCHEMA public TO healthbyte_app;
-GRANT SELECT ON clinica, quirofano, usuario, protocolo, paciente, cirugia, evento, insumo, instrumento TO healthbyte_app;
-GRANT INSERT ON evento TO healthbyte_app; -- sin UPDATE ni DELETE: los eventos son inmutables
+GRANT SELECT ON clinica, quirofano, usuario, protocolo, paciente, cirugia, evento, insumo, instrumento, captura TO healthbyte_app;
+GRANT INSERT ON evento, captura TO healthbyte_app; -- sin UPDATE ni DELETE: los eventos y las fotos son inmutables
