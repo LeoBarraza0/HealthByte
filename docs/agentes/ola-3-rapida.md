@@ -74,6 +74,17 @@ Despliegue:
 Antes de cada push: `cd web && npm run tipos && npm test && npm run build`. main se despliega: no lo rompas.
 ```
 
+### Segundo mensaje para el Codex que ya corre (rebase)
+
+```text
+Tu worktree salió de un commit anterior al esqueleto del front. Antes de tu próximo push:
+1. `git pull --rebase origin main`. main ya tiene web/index.html, src/main.tsx, src/App.tsx, src/estilos.css, src/props.ts y public/favicon.svg.
+2. Si choca web/index.html, quédate con el tuyo: ya tiene #raiz, /src/main.tsx y conti.js.
+3. En App.tsx agrega solo la Landing y `/entrar` sobre lo que ya hay.
+4. No subas terraform.tfstate. Revisa si los web/public/conti/*.webp.json hacen falta; si no, no los subas.
+5. Tu Cloud Run de solo web (infra/web-publica) sirve para mostrar la landing ya. Para que el login y el quirófano funcionen, levanta también infra/ (API y Cloud SQL) como dice el mensaje de coordinación, y después apunta el dominio que compartas a ese web.
+```
+
 ---
 
 ## Prompt BACKEND
@@ -131,6 +142,20 @@ Trabajo, EN ESTE ORDEN DE PRIORIDAD. Cada punto se sube apenas funciona.
    Commit: «feat(api): sembrar consumo en el historial». Push.
 
 6. Si sobra tiempo: crea api/scripts/probar-voz.ts (Tarea 10, paso 7). Córrelo solo si `api/.env` tiene `GOOGLE_CLOUD_PROJECT` y hay credenciales de la cuenta personal. No ejecutes comandos de gcloud.
+
+3b. INSTRUMENTAL EN LA VOZ (va justo después del punto 3, con el mismo patrón). El orquestador ya dejó en main:
+   - api/src/instrumentos.ts (`INSTRUMENTOS`);
+   - la tabla `instrumento` (clinica_id, codigo, nombre, categoria);
+   - `EstadoCirugia.instrumentos`;
+   - api/src/correccion.ts, con `corregir(frase, nombres)` y sus pruebas.
+   No modifiques correccion.ts ni instrumentos.ts. Si encuentras un falso positivo, repórtalo con la frase exacta.
+   - siembra.ts: `sembrarInstrumentos()`, igual que `sembrarInsumos()`, con `ON CONFLICT (clinica_id, codigo) DO NOTHING`, llamada en las dos salidas de `sembrar()`. Prueba en siembra.dbtest.ts: cada clínica tiene `INSTRUMENTOS.length` instrumentos.
+   - repo.ts, en `cargarEstado`: `estado.instrumentos = (await c.query('SELECT codigo, nombre, categoria FROM instrumento ORDER BY nombre')).rows`.
+   - sesion.ts:
+     - el vocabulario de Chirp suma también `s.estado.instrumentos.map(i => i.nombre)`, antes de cortar a 1000;
+     - en `alFinal`, antes de interpretar: `const frase = corregir(texto, s.estado.instrumentos.map(i => i.nombre))`. Usa `frase` para interpretar, para el `texto` del evento guardado y para el mensaje `{ tipo: 'voz', texto }`.
+   - Prueba en sesion.test.ts: con instrumentos en el estado falso, la frase final «se cayó la pinza queli» llega a interpretar como «se cayó la Pinzas Kelly».
+   Commit: «feat(api): usar el catálogo de instrumental en la voz». Push.
 
 Solo puedes crear o modificar estos archivos:
 api/src/server.ts, api/src/repo.ts, api/src/app.ts, api/src/app.dbtest.ts, api/src/siembra.ts, api/src/siembra.dbtest.ts, api/src/sesion.ts, api/src/preguntas.ts, api/src/interprete.ts, api/src/interprete.test.ts, api/scripts/frases-oro.json, api/scripts/probar-voz.ts
