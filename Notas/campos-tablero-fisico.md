@@ -73,15 +73,17 @@ fotografiadas, el equipo usa este bloque para anotar otra cosa (ver sección 9).
 | Campo impreso |
 | --- |
 | Rayos X Intraoperatorio |
-| «…rtos» (?) |
-| Chequeo Preoperatorio |
-| Chequeo Intraoperatorio |
-| Chequeo Postoperatorio |
+| Injertos (?) — así lo lee el documento de diseño del equipo |
+| Bloqueo Preoperatorio (?) |
+| Bloqueo Intraoperatorio (?) |
+| Bloqueo Postoperatorio (?) |
 | Muestra para Patología (?) |
 | «…s Contenedor Instrumental» (?) — ¿Sellos? ¿Indicadores? |
 
-Las tres fases del checklist se reducen a una casilla SI/NO cada una: no queda ni
-qué ítems se verificaron, ni quién lo hizo, ni a qué hora.
+Las tres filas «…ueo» se leen como **Bloqueo** (anestésico), según el
+[documento de diseño](../Diseño/HealthByte_especificaciones_diseno.md). No son las
+fases del checklist. El tablero no tiene ningún campo para los ítems de la lista de
+verificación de la OMS: hay que preguntar si se diligencia en otro formato.
 
 ## 6. Conteo de material
 
@@ -130,6 +132,8 @@ pierden valor para el análisis de tiempos.
 - [ ] ¿Qué dicen completas las etiquetas cortadas marcadas con (?)?
 - [ ] ¿Para qué es el bloque ID / FN / EDAD / A/B / PESO? ¿Qué significa A/B?
 - [ ] ¿Qué se verifica en «…s Contenedor Instrumental»?
+- [ ] ¿Las filas «…ueo» son Bloqueo pre-, intra- y postoperatorio? ¿La lista de
+      verificación de la OMS se llena en otro formato?
 - [ ] ¿En qué momento se llenan las horas: en el instante o al final?
 - [ ] ¿Quién llena cada parte del tablero (circulante, instrumentadora, anestesia)?
 - [ ] ¿El conteo se hace al inicio, en los cierres de cavidad y al final? ¿Dónde se
