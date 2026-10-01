@@ -54,7 +54,19 @@ export function Sesion({ cirugiaId }: { cirugiaId: string; yo: Usuario }) {
           <Lateral estado={s.estado} modo={modo} registrar={registrar} />
         </aside>
       </main>
-      <BarraVoz modo={modo} />
+      <BarraVoz
+        estado={s.estado}
+        modo={modo}
+        microfono={s.microfono}
+        pendiente={s.pendiente}
+        parcial={s.parcial}
+        ultimoParcial={s.ultimoParcial}
+        ultimaVoz={s.ultimaVoz}
+        aviso={s.aviso}
+        dispositivo={s.dispositivo}
+        enviar={s.enviar}
+        enviarAudio={s.enviarAudio}
+      />
     </div>
   );
 }
