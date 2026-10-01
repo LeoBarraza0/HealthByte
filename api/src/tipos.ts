@@ -192,6 +192,35 @@ export interface CirugiaActiva {
   en_curso: boolean;
 }
 
+// Programación y personal: los usa la coordinación (rol coordinador o admin).
+export interface Quirofano { id: string; nombre: string }
+export interface ProtocoloResumen { id: string; especialidad: string; campos_preop: CampoPreop[] }
+export interface Integrante { id: string; nombre: string; rol: Rol; login: string }
+export interface CirugiaAgenda {
+  id: string;
+  quirofano_id: string;
+  quirofano: string;
+  fecha_programada: string;
+  duracion_min: number;
+  paciente: string;
+  procedimiento: string;
+  especialidad: string;
+  estado: 'programada' | 'en_curso' | 'realizada';
+}
+export interface NuevaCirugia {
+  quirofano_id: string;
+  protocolo_id: string;
+  fecha_programada: string; // ISO 8601
+  duracion_min: number;
+  paciente: { nombre: string; tipo_doc: string; num_doc: string; fecha_nacimiento: string; eps: string; hc: string };
+  procedimiento: string;
+  diagnostico: string;
+  lateralidad: string;
+  equipo_programado: Partial<Record<Rol, string>>; // rol → id del usuario
+  datos_preop: Record<string, string | number | null>;
+}
+export interface NuevoIntegrante { nombre: string; rol: Rol; login: string; clave: string }
+
 export interface Panel {
   cirugias: { programadas: number; en_curso: number; realizadas: number };
   checklists: { completas: number; incompletas: number };

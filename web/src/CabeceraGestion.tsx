@@ -21,9 +21,13 @@ export function Logo() {
   );
 }
 
-export function CabeceraGestion({ yo, actual }: { yo: Usuario; actual: 'inicio' | 'panel' | 'otra' }) {
+export function CabeceraGestion({ yo, actual }: { yo: Usuario; actual: 'inicio' | 'panel' | 'programacion' | 'personal' | 'otra' }) {
   const enlaces: [string, string, boolean][] = [['/', 'Cirugías de hoy', actual === 'inicio']];
-  if (esCoordinacion(yo)) enlaces.push(['/panel', 'Panel de gestión', actual === 'panel']);
+  if (esCoordinacion(yo)) enlaces.push(
+    ['/panel', 'Panel de gestión', actual === 'panel'],
+    ['/programacion', 'Programación', actual === 'programacion'],
+    ['/personal', 'Personal', actual === 'personal'],
+  );
   return (
     <header className="g-cabecera">
       <div className="g-cabecera-in">

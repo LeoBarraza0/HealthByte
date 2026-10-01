@@ -46,7 +46,7 @@ export function useSesion(cirugiaId: string) {
           setUltimoParcial(Date.now());
         } else if (m.tipo === 'voz') {
           setUltimaVoz({ fase: m.fase, en: Date.now() });
-        } else setAviso(m.texto);
+        } else if (m.tipo === 'aviso') setAviso(m.texto); // camara_codigo lo atiende la vista de la cámara
       };
       s.onclose = () => {
         if (!activo) return;
