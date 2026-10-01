@@ -11,6 +11,10 @@ HealthByte une Instrumentación Quirúrgica e Ingeniería de Sistemas para respo
 > [spec de diseño](../docs/superpowers/specs/2026-10-01-tablero-seguridad-quirurgica-design.md).
 > Este documento cubre la marca y las pantallas. Si algo de aquí contradice el spec,
 > manda el spec.
+>
+> **Pantallas para construir el front:** el canvas
+> [HealthByte · Diseño](https://claude.ai/artifact/BVc3RmxgBV4rEsipq6h74L), página
+> «Rediseño»: pared, tablet, gestión, Conti y el mapa de pantallas y flujo de datos.
 
 **Plataforma:** aplicación web que se adapta a TV, tablet o portátil. Una sola
 sesión funciona completa en un solo dispositivo, y otros dispositivos pueden abrirla
