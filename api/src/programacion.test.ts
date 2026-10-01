@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { validarNuevaCirugia } from './programacion.ts';
+import { validarNuevaCirugia, validarNuevoIntegrante } from './programacion.ts';
 
 const QX_ID = '11111111-1111-1111-1111-111111111111';
 const PROT_ID = '22222222-2222-2222-2222-222222222222';
@@ -116,3 +116,41 @@ test('validarNuevaCirugia valida roles y miembros del equipo', () => {
   const e2 = { ...cirugiaValida(), equipo_programado: { cirujano: 'no-uuid' } };
   assert.equal(typeof validarNuevaCirugia(e2), 'string');
 });
+
+test('validarNuevoIntegrante valida datos correctos y devuelve el objeto limpio', () => {
+  const valido = {
+    nombre: ' Carlos Gómez ',
+    rol: 'anestesiologo',
+    login: 'carlos.gomez',
+    clave: 'claveSecreta123',
+  };
+  const res = validarNuevoIntegrante(valido);
+  assert.equal(typeof res, 'object');
+  if (typeof res === 'object') {
+    assert.equal(res.nombre, 'Carlos Gómez');
+    assert.equal(res.rol, 'anestesiologo');
+    assert.equal(res.login, 'carlos.gomez');
+    assert.equal(res.clave, 'claveSecreta123');
+  }
+});
+
+test('validarNuevoIntegrante rechaza entradas inválidas', () => {
+  assert.equal(typeof validarNuevoIntegrante(null), 'string');
+  assert.equal(typeof validarNuevoIntegrante('cadena'), 'string');
+
+  // Nombre vacío
+  assert.equal(typeof validarNuevoIntegrante({ nombre: '  ', rol: 'cirujano', login: 'cirujano1', clave: 'password123' }), 'string');
+
+  // Rol inválido
+  assert.equal(typeof validarNuevoIntegrante({ nombre: 'Carlos', rol: 'astronauta', login: 'cirujano1', clave: 'password123' }), 'string');
+
+  // Login inválido (mayúsculas, caracteres especiales, longitud < 3 o > 30)
+  assert.equal(typeof validarNuevoIntegrante({ nombre: 'Carlos', rol: 'cirujano', login: 'AB', clave: 'password123' }), 'string');
+  assert.equal(typeof validarNuevoIntegrante({ nombre: 'Carlos', rol: 'cirujano', login: 'CarlosG', clave: 'password123' }), 'string');
+  assert.equal(typeof validarNuevoIntegrante({ nombre: 'Carlos', rol: 'cirujano', login: 'carlos@gomez', clave: 'password123' }), 'string');
+  assert.equal(typeof validarNuevoIntegrante({ nombre: 'Carlos', rol: 'cirujano', login: 'a'.repeat(31), clave: 'password123' }), 'string');
+
+  // Clave corta (< 8 caracteres)
+  assert.equal(typeof validarNuevoIntegrante({ nombre: 'Carlos', rol: 'cirujano', login: 'carlos.g', clave: '1234567' }), 'string');
+});
+

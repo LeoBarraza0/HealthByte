@@ -125,6 +125,33 @@ export function validarNuevaCirugia(x: unknown): NuevaCirugia | string {
   };
 }
 
-export function validarNuevoIntegrante(_x: unknown): NuevoIntegrante | string {
-  return 'No implementado';
+export function validarNuevoIntegrante(x: unknown): NuevoIntegrante | string {
+  if (!x || typeof x !== 'object' || Array.isArray(x)) {
+    return 'Datos de integrante requeridos';
+  }
+  const obj = x as Record<string, unknown>;
+
+  const errNom = validarTexto(obj.nombre, 'Nombre');
+  if (errNom) return errNom;
+
+  const rolesValidos = new Set<string>(ROLES);
+  if (typeof obj.rol !== 'string' || !rolesValidos.has(obj.rol)) {
+    return 'Rol inválido';
+  }
+
+  const LOGIN_REGEX = /^[a-z0-9._-]{3,30}$/;
+  if (typeof obj.login !== 'string' || !LOGIN_REGEX.test(obj.login.trim())) {
+    return 'Login inválido (3-30 caracteres en minúsculas, números, puntos, guiones)';
+  }
+
+  if (typeof obj.clave !== 'string' || obj.clave.length < 8) {
+    return 'La clave debe tener al menos 8 caracteres';
+  }
+
+  return {
+    nombre: (obj.nombre as string).trim(),
+    rol: obj.rol as Rol,
+    login: (obj.login as string).trim(),
+    clave: obj.clave,
+  };
 }

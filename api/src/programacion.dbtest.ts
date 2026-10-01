@@ -194,11 +194,80 @@ test('POST /api/cirugias permite a la coordinación programar cirugías y valida
     });
     assert.equal(rConflicto.statusCode, 409);
     assert.deepEqual(rConflicto.json(), { error: 'El quirófano ya está ocupado a esa hora' });
+
+    // Como norte / coordinador: la agenda de hoy NO trae la cirugía creada en caribe
+    const norteCoordCookie = await entrar('norte', 'coordinador');
+    const rAgendaNorte = await app.inject({ url: `/api/agenda?fecha=${hoy}`, cookies: { [COOKIE]: norteCoordCookie } });
+    assert.equal(rAgendaNorte.statusCode, 200);
+    const agendaNorte = rAgendaNorte.json() as CirugiaAgenda[];
+    assert.ok(!agendaNorte.some(c => c.id === cirugiaId));
   } finally {
     if (cirugiaId) {
       await pool.query('DELETE FROM cirugia WHERE id = $1', [cirugiaId]);
     }
     await pool.query("DELETE FROM paciente WHERE hc LIKE 'HC-TEST-%'");
+  }
+});
+
+test('POST /api/personal crea un integrante, valida roles, login único y permite login', async () => {
+  const coordCookie = await entrar('caribe', 'coordinador');
+  const circulanteCookie = await entrar('caribe', 'circulante');
+
+  const nuevoUsuario = {
+    nombre: 'Laura Enfermera',
+    rol: 'auxiliar_enfermeria',
+    login: 'laura.enfermera',
+    clave: 'claveSegura2026',
+  };
+
+  // Como circulante: 403
+  const rCirculante = await app.inject({
+    method: 'POST',
+    url: '/api/personal',
+    payload: nuevoUsuario,
+    cookies: { [COOKIE]: circulanteCookie },
+  });
+  assert.equal(rCirculante.statusCode, 403);
+  assert.deepEqual(rCirculante.json(), { error: 'Solo coordinación' });
+
+  let nuevoId: string | undefined;
+  try {
+    // Crea un integrante
+    const rCrear = await app.inject({
+      method: 'POST',
+      url: '/api/personal',
+      payload: nuevoUsuario,
+      cookies: { [COOKIE]: coordCookie },
+    });
+    assert.equal(rCrear.statusCode, 201);
+    const bodyCrear = rCrear.json() as { id: string };
+    nuevoId = bodyCrear.id;
+    assert.ok(nuevoId);
+
+    // Entra con su login y su clave -> 200
+    const rLogin = await app.inject({
+      method: 'POST',
+      url: '/api/login',
+      payload: { clinica: 'caribe', usuario: nuevoUsuario.login, clave: nuevoUsuario.clave },
+    });
+    assert.equal(rLogin.statusCode, 200);
+    const sesion = rLogin.json() as { nombre: string; rol: string };
+    assert.equal(sesion.nombre, 'Laura Enfermera');
+    assert.equal(sesion.rol, 'auxiliar_enfermeria');
+
+    // El mismo login otra vez -> 409
+    const rDuplicado = await app.inject({
+      method: 'POST',
+      url: '/api/personal',
+      payload: nuevoUsuario,
+      cookies: { [COOKIE]: coordCookie },
+    });
+    assert.equal(rDuplicado.statusCode, 409);
+    assert.deepEqual(rDuplicado.json(), { error: 'Ese usuario ya existe' });
+  } finally {
+    if (nuevoId) {
+      await pool.query('DELETE FROM usuario WHERE id = $1', [nuevoId]);
+    }
   }
 });
 

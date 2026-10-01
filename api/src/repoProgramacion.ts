@@ -1,5 +1,6 @@
+import { hashClave } from './clave.ts';
 import { conClinica } from './db.ts';
-import type { CirugiaAgenda, NuevaCirugia, ProtocoloResumen, Quirofano } from './tipos.ts';
+import type { CirugiaAgenda, NuevaCirugia, NuevoIntegrante, ProtocoloResumen, Quirofano } from './tipos.ts';
 
 export class ErrorHttp extends Error {
   codigo: number;
@@ -138,5 +139,20 @@ export async function programarCirugia(clinicaId: string, datos: NuevaCirugia): 
     ]);
 
     return { id: cirugiaRows[0].id };
+  });
+}
+
+export async function crearIntegrante(clinicaId: string, datos: NuevoIntegrante): Promise<{ id: string }> {
+  return conClinica(clinicaId, async c => {
+    const { rowCount } = await c.query('SELECT 1 FROM usuario WHERE login = $1', [datos.login]);
+    if (rowCount) {
+      throw new ErrorHttp(409, 'Ese usuario ya existe');
+    }
+    const hash = hashClave(datos.clave);
+    const { rows } = await c.query<{ id: string }>(
+      'INSERT INTO usuario (clinica_id, nombre, rol, login, hash_clave) VALUES ($1, $2, $3, $4, $5) RETURNING id',
+      [clinicaId, datos.nombre, datos.rol, datos.login, hash]
+    );
+    return { id: rows[0].id };
   });
 }
