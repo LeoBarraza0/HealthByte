@@ -22,6 +22,7 @@ No se editan a mano. Si cambia el diseño, se cambia en el canvas y se exporta d
 | `Pared-Salida.html` | Pared antes de salir, con el protocolo de conteo | igual | S1 + S2 |
 | `Panel.html` | Panel de gestión con filtros y paginación | `Panel.tsx` | G |
 | `Trazabilidad.html` | Registro cronológico de una cirugía | `Trazabilidad.tsx` | G |
+| `Reporte-Consumo.html` | Control de consumos de cirugía, como la planilla en papel, para imprimir o guardar en PDF | pendiente: botón en `Trazabilidad.tsx` | — |
 | `Programacion.html` | Agenda por quirófano y nueva cirugía | fuera de la ola 3 | — |
 | `Usuarios.html` | Personal | fuera de la ola 3 | — |
 | `Conti-Estados.html` | Los 10 estados de Conti | ya hecho: `web/public/conti/` | — |
