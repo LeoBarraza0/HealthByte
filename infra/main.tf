@@ -24,7 +24,7 @@ locals {
   etiquetas = { proyecto = "healthbyte" }
   apis = [
     "run.googleapis.com", "sqladmin.googleapis.com", "secretmanager.googleapis.com", "artifactregistry.googleapis.com",
-    "speech.googleapis.com", "cloudbuild.googleapis.com", "compute.googleapis.com", "billingbudgets.googleapis.com", "iam.googleapis.com",
+    "speech.googleapis.com", "aiplatform.googleapis.com", "cloudbuild.googleapis.com", "compute.googleapis.com", "billingbudgets.googleapis.com", "iam.googleapis.com",
   ]
 }
 
@@ -185,7 +185,7 @@ resource "google_service_account" "api" {
 }
 
 resource "google_project_iam_member" "api" {
-  for_each = toset(["roles/cloudsql.client", "roles/speech.client", "roles/secretmanager.secretAccessor"])
+  for_each = toset(["roles/cloudsql.client", "roles/speech.client", "roles/secretmanager.secretAccessor", "roles/aiplatform.user"])
   project  = google_project.p.project_id
   role     = each.value
   member   = "serviceAccount:${google_service_account.api.email}"
