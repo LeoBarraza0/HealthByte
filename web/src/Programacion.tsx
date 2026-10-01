@@ -11,10 +11,9 @@ import type {
 import { api } from './api.ts';
 import { CabeceraGestion, esCoordinacion } from './CabeceraGestion.tsx';
 import { ROLES } from './etiquetas.ts';
-import { aIsoBogota, bloque, horaBogota, hoyBogota } from './programacion.ts';
+import { aIsoBogota, bloque, horaBogota, hoyBogota, rangoAgenda } from './programacion.ts';
 import './programacion.css';
 
-const HORAS_AGENDA = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19];
 
 const DURACIONES: [number, string][] = [
   [60, '1 h'],
@@ -330,9 +329,13 @@ export function Programacion({ yo }: { yo: Usuario }) {
   const hoy = hoyBogota(ahora);
   const esHoy = fecha === hoy;
   const bogotaAhora = new Date(ahora - 5 * 3600 * 1000);
-  const minDesde7 = (bogotaAhora.getUTCHours() - 7) * 60 + bogotaAhora.getUTCMinutes();
-  const lineaRojaTop = Math.round(minDesde7 * (80 / 60));
-  const mostrarLineaRoja = esHoy && minDesde7 >= 0 && minDesde7 <= 12 * 60;
+  // La agenda se amplía para que ninguna cirugía quede fuera de la tabla.
+  const { desde, hasta } = rangoAgenda(agenda);
+  const horasAgenda = Array.from({ length: hasta - desde + 1 }, (_, i) => desde + i);
+  const altoAgenda = (hasta - desde) * 80;
+  const minDesdeInicio = (bogotaAhora.getUTCHours() - desde) * 60 + bogotaAhora.getUTCMinutes();
+  const lineaRojaTop = Math.round(minDesdeInicio * (80 / 60));
+  const mostrarLineaRoja = esHoy && minDesdeInicio >= 0 && minDesdeInicio <= (hasta - desde) * 60;
 
   const desplegando = desplegandoMaestros || desplegandoAgenda;
   const errorCarga = errorMaestros ?? errorAgenda;
@@ -437,10 +440,10 @@ export function Programacion({ yo }: { yo: Usuario }) {
                 )}
               </div>
 
-              <div className="prog-grid-cuerpo" style={{ gridTemplateColumns: quirofanos.length > 0 ? gridTemplate : '64px 1fr' }}>
+              <div className="prog-grid-cuerpo" style={{ gridTemplateColumns: quirofanos.length > 0 ? gridTemplate : '64px 1fr', height: altoAgenda }}>
                 {/* Columna de marcas horarias */}
-                <div className="prog-col-horas">
-                  {HORAS_AGENDA.map((h, i) => (
+                <div className="prog-col-horas" style={{ height: altoAgenda }}>
+                  {horasAgenda.map((h, i) => (
                     <span key={h} className="prog-hora-lbl" style={{ top: i * 80 }}>
                       {String(h).padStart(2, '0')}:00
                     </span>
@@ -462,12 +465,13 @@ export function Programacion({ yo }: { yo: Usuario }) {
                       <div
                         key={q.id}
                         className="prog-col-quirofano"
+                        style={{ height: altoAgenda }}
                         onClick={ev => {
                           const rect = ev.currentTarget.getBoundingClientRect();
                           const clickY = ev.clientY - rect.top;
-                          const minutosDesde7 = Math.max(0, Math.floor(clickY / (80 / 30)) * 30);
-                          const h = Math.min(20, Math.floor(minutosDesde7 / 60) + 7);
-                          const m = minutosDesde7 % 60;
+                          const minutosDesde = Math.max(0, Math.floor(clickY / (80 / 30)) * 30);
+                          const h = Math.max(6, Math.min(20, Math.floor(minutosDesde / 60) + desde));
+                          const m = h >= 20 ? 0 : minutosDesde % 60; // el formulario llega hasta las 20:00
                           const hh = String(h).padStart(2, '0');
                           const mm = String(m).padStart(2, '0');
                           setFormHora(`${hh}:${mm}`);
@@ -475,7 +479,7 @@ export function Programacion({ yo }: { yo: Usuario }) {
                         }}
                       >
                         {/* Líneas horarias */}
-                        {HORAS_AGENDA.map((h, i) => (
+                        {horasAgenda.map((h, i) => (
                           <span key={h} aria-hidden="true" className="prog-linea-hora" style={{ top: i * 80 }} />
                         ))}
 
@@ -484,7 +488,7 @@ export function Programacion({ yo }: { yo: Usuario }) {
                         )}
 
                         {cirugiasQ.map(c => {
-                          const { top, alto } = bloque(c.fecha_programada, c.duracion_min);
+                          const { top, alto } = bloque(c.fecha_programada, c.duracion_min, desde);
                           const ini = horaBogota(c.fecha_programada);
                           const fin = horaFin(c.fecha_programada, c.duracion_min);
                           const enlace = c.estado === 'realizada' ? `/trazabilidad/${c.id}` : `/sesion/${c.id}`;

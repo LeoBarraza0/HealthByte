@@ -81,3 +81,14 @@ test('generarClave produce contraseña legible de al menos 10 caracteres', () =>
   assert.ok(clave2.length >= 10, `Longitud insuficiente: ${clave2.length}`);
   assert.match(clave2, /^[a-z]+-[a-z]+-\d{2}$/);
 });
+
+test('la agenda va de 06:00 a 20:00 y se amplía para mostrar toda cirugía del día', async () => {
+  const { rangoAgenda } = await import('./programacion.ts');
+  assert.deepEqual(rangoAgenda([]), { desde: 6, hasta: 20 });
+  // 20:00 a 22:00 en Colombia (01:00 a 03:00 UTC del día siguiente)
+  assert.deepEqual(rangoAgenda([{ fecha_programada: '2026-10-02T01:00:00.000Z', duracion_min: 120 }]), { desde: 6, hasta: 22 });
+  // 05:30 a 06:30: empieza antes
+  assert.deepEqual(rangoAgenda([{ fecha_programada: '2026-10-01T10:30:00.000Z', duracion_min: 60 }]), { desde: 5, hasta: 20 });
+  // nunca pasa de medianoche
+  assert.deepEqual(rangoAgenda([{ fecha_programada: '2026-10-02T03:00:00.000Z', duracion_min: 300 }]), { desde: 6, hasta: 24 });
+});

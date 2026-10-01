@@ -30,6 +30,21 @@ export function bloque(
   return { top, alto };
 }
 
+/** Horas que muestra la agenda: de 06:00 a 20:00, como el formulario, ampliadas para que quepa toda cirugía del día. */
+export function rangoAgenda(cirugias: { fecha_programada: string; duracion_min: number }[]): { desde: number; hasta: number } {
+  let desde = 6;
+  let hasta = 20;
+  for (const c of cirugias) {
+    const d = new Date(c.fecha_programada);
+    if (isNaN(d.getTime())) continue;
+    const bogota = new Date(d.getTime() - 5 * 3600 * 1000);
+    const inicio = bogota.getUTCHours() + bogota.getUTCMinutes() / 60;
+    desde = Math.min(desde, Math.floor(inicio));
+    hasta = Math.max(hasta, Math.ceil(inicio + (Number(c.duracion_min) || 0) / 60));
+  }
+  return { desde, hasta: Math.min(24, hasta) };
+}
+
 /** Extrae la hora 'HH:MM' en huso de Colombia (UTC-5) de una fecha ISO. */
 export function horaBogota(iso: string): string {
   const d = new Date(iso);
