@@ -1,0 +1,77 @@
+/* Tokens y base compartida. Cada carril agrega su propio CSS (sesion.css, bloques.css, gestion.css)
+   y lo importa desde sus componentes; aquí solo cambia el orquestador. Valores tomados de Diseño/pantallas/. */
+:root {
+  --navy: #0A2C42;
+  --navy-linea: #22465E;
+  --sobre-navy: #C2DCEB;
+  --sobre-navy-2: #8FBDD8;
+  --azul: #0B5D8C;
+  --azul-osc: #08405F;
+  --azul-medio: #4F95C0;
+  --azul-claro: #E1EEF5;
+  --azul-tenue: #F0F6FA;
+  --tinta: #0D2232;
+  --tinta-2: #364856;
+  --tenue: #4D6170;
+  --gris: #8FA1AE;
+  --borde-fuerte: #B8C7D1;
+  --borde: #D3DDE4;
+  --linea: #E9EFF3;
+  --fondo: #F5F9FB;
+  --blanco: #FFFFFF;
+  --menta: #2FB596;
+  --ok: #0B6B5A;
+  --ok-fondo: #EAF7F2;
+  --critica: #C8372D;
+  --critica-txt: #A02A22;
+  --critica-osc: #7E211B;
+  --critica-fondo: #FBE9E7;
+  --aviso: #B26A00;
+  --aviso-txt: #8A4B00;
+  --display: 'Space Grotesk', 'Segoe UI', sans-serif;
+  --texto: 'IBM Plex Sans', 'Segoe UI', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--fondo);
+  color: var(--tinta);
+  font-family: var(--texto);
+  font-size: 16px;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+}
+
+h1, h2, h3, .display { font-family: var(--display); font-weight: 600; margin: 0; }
+a { color: var(--azul); }
+a:hover { color: var(--azul-osc); }
+:focus-visible { outline: 3px solid var(--azul); outline-offset: 2px; }
+
+/* Botón base: 44 px de alto para el dedo con guante. */
+.btn {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--borde-fuerte);
+  border-radius: 10px;
+  background: var(--blanco);
+  color: var(--tinta);
+  font: 600 15px var(--texto);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.btn:hover { background: var(--azul-tenue); }
+.btn:disabled { opacity: 0.45; cursor: default; }
+.btn-primario { background: var(--azul); border-color: var(--azul); color: var(--blanco); }
+.btn-primario:hover { background: var(--azul-osc); }
+
+/* Solo para lectores de pantalla. */
+.sr-solo { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
