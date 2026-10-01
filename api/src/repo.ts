@@ -1,7 +1,7 @@
 import { conClinica } from './db.ts';
 import { derivar } from './estado.ts';
 import type { NuevaCaptura } from './sesion.ts';
-import type { Captura, Cirugia, CirugiaActiva, EstadoCirugia, Evento, NuevoEvento, Protocolo, Rol } from './tipos.ts';
+import type { Captura, Cirugia, CirugiaActiva, EstadoCirugia, Evento, Integrante, NuevoEvento, Protocolo, Rol } from './tipos.ts';
 
 const SQL_CIRUGIA = `
   SELECT c.id, q.nombre AS quirofano, c.fecha_programada, c.procedimiento, c.diagnostico, c.lateralidad,
@@ -44,8 +44,10 @@ export async function cirugiasActivas(clinicaId: string): Promise<CirugiaActiva[
     JOIN quirofano q ON q.id = c.quirofano_id
     JOIN paciente pa ON pa.id = c.paciente_id
     JOIN protocolo p ON p.id = c.protocolo_id
-    WHERE NOT c.archivada AND NOT EXISTS (
-      SELECT 1 FROM evento e WHERE e.cirugia_id = c.id AND e.tipo = 'hora' AND e.datos->>'hora' = 'salida_recuperacion')
+    WHERE NOT c.archivada
+      AND c.fecha_programada < (date_trunc('day', now() AT TIME ZONE 'America/Bogota') + interval '1 day') AT TIME ZONE 'America/Bogota'
+      AND NOT EXISTS (
+        SELECT 1 FROM evento e WHERE e.cirugia_id = c.id AND e.tipo = 'hora' AND e.datos->>'hora' = 'salida_recuperacion')
     ORDER BY c.fecha_programada`)).rows);
 }
 
@@ -60,8 +62,8 @@ export async function insertarEventos(clinicaId: string, cirugiaId: string, even
   });
 }
 
-export async function personal(clinicaId: string): Promise<{ id: string; nombre: string; rol: Rol }[]> {
-  return conClinica(clinicaId, async c => (await c.query('SELECT id, nombre, rol FROM usuario ORDER BY rol, nombre')).rows);
+export async function personal(clinicaId: string): Promise<Integrante[]> {
+  return conClinica(clinicaId, async c => (await c.query('SELECT id, nombre, rol, login FROM usuario ORDER BY rol, nombre')).rows);
 }
 
 export async function cargarEstados(clinicaId: string, desde: string): Promise<EstadoCirugia[]> {

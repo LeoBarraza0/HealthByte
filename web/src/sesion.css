@@ -757,3 +757,33 @@
   font-weight: 600;
   color: var(--blanco);
 }
+
+/* ==================== SCROLL ==================== */
+/* El marco ocupa la pantalla: cabecera, pista y barra de voz quedan fijas y cada columna hace scroll por su cuenta. */
+.sesion-cuerpo > *,
+.sesion-lateral {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Pantallas angostas o bajas: la página entera hace scroll y la barra de voz queda pegada abajo. */
+@media (max-width: 900px), (max-height: 640px) {
+  .sesion,
+  .sesion.tablet,
+  .sesion.pared {
+    height: auto;
+    max-height: none;
+    min-height: 100vh;
+    overflow: visible;
+    grid-template-rows: auto auto auto auto;
+  }
+  .sesion.tablet .sesion-cuerpo,
+  .sesion.pared .sesion-cuerpo { grid-template-columns: minmax(0, 1fr); }
+  .sesion-cuerpo > *,
+  .sesion-lateral { overflow: visible; }
+  .barra-voz { position: sticky; bottom: 0; z-index: 10; }
+}
+
+/* Nivel del micrófono: se ve si capta la voz y dónde está el umbral. */
+.barra-voz-nivel { width: 120px; height: 10px; }
