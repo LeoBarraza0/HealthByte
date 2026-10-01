@@ -91,8 +91,9 @@ const antibioticoFueraDeVentana: Regla = s => {
 
 const betalactamicoConAlergia: Regla = s => {
   if (!ALERGIA_A_PENICILINA.test(String(s.datos.alergias ?? ''))) return [];
-  const dictado = s.eventos.some(e => e.datos.tipo === 'check' && e.datos.item === 'antibiotico' && BETALACTAMICOS.test(e.texto ?? ''));
-  return dictado ? [{ id: 'betalactamico', severidad: 'critica', mensaje: 'Alergia a penicilina y betalactámico dictado: confirme compatibilidad' }] : [];
+  // Cuenta el último antibiótico dictado: cambiar a uno que no es betalactámico resuelve la alerta.
+  const ultimo = s.eventos.findLast(e => e.datos.tipo === 'check' && e.datos.item === 'antibiotico');
+  return BETALACTAMICOS.test(ultimo?.texto ?? '') ? [{ id: 'betalactamico', severidad: 'critica', mensaje: 'Alergia a penicilina y betalactámico dictado: confirme compatibilidad' }] : [];
 };
 
 const REGLAS: Regla[] = [

@@ -157,6 +157,14 @@ test('alergia a penicilina con un betalactámico dictado', () => {
   assert.equal(alerta(s, 'betalactamico')?.severidad, 'critica');
 });
 
+test('cambiar a un antibiótico que no es betalactámico resuelve la alerta', () => {
+  const s = derivar(cirugiaPrueba({ ...DATOS_PRUEBA, alergias: 'Penicilina' }), P, [
+    ev({ tipo: 'check', fase: 'antes_incision', item: 'antibiotico', valor: 'si' }, 12, { texto: 'cefazolina dos gramos' }),
+    ev({ tipo: 'check', fase: 'antes_incision', item: 'antibiotico', valor: 'si' }, 13, { texto: 'cambiamos a clindamicina' }),
+  ]);
+  assert.equal(alerta(s, 'betalactamico')?.estado, 'resuelta');
+});
+
 test('la compatibilidad requiere alergia y dictado vigente de un betalactámico', () => {
   const check = ev({ tipo: 'check', fase: 'antes_incision', item: 'antibiotico', valor: 'si' }, 12,
     { texto: 'cefazolina dos gramos aplicada' });
