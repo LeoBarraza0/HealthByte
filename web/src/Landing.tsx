@@ -52,7 +52,7 @@ function TableroEjemplo() {
 export function Landing() {
   return <div className="hb-landing">
     <a className="saltar" href="#contenido">Saltar al contenido</a>
-    <header className="cabecera contenedor"><a href="/" aria-label="HealthByte, inicio"><Logo /></a><nav aria-label="Navegación principal"><a href="#solucion">La solución</a><a href="#flujo">Cómo funciona</a><a href="#clinica">Para tu clínica</a></nav><a className="acceso-cabecera" href={RUTA_LOGIN}>Iniciar sesión <Icono nombre="flecha" /></a></header>
+    <div className="cabecera-wrap"><header className="cabecera contenedor"><a href="/" aria-label="HealthByte, inicio"><Logo /></a><nav aria-label="Navegación principal"><a href="#solucion">La solución</a><a href="#flujo">Cómo funciona</a><a href="#clinica">Para tu clínica</a></nav><a className="acceso-cabecera" href={RUTA_LOGIN}>Iniciar sesión <Icono nombre="flecha" /></a></header></div>
     <main id="contenido">
       <section className="hero contenedor" aria-labelledby="titulo-presentacion">
         <div className="hero-texto"><h1 id="titulo-presentacion">La seguridad de tu quirófano,<br /><span>a la vista de todos.</span></h1><p>Tu equipo se enfoca en cuidar. HealthByte acompaña cada verificación, mantiene visibles los pendientes y conserva la historia de cada cirugía.</p><div className="acciones"><a className="boton primario" href={RUTA_LOGIN}>Entrar a HealthByte <Icono nombre="flecha" /></a><a className="enlace-texto" href="#flujo">Conoce cómo funciona <span aria-hidden="true">↓</span></a></div><div className="hero-nota"><Icono nombre="microfono" /><span>Habla con naturalidad.<br /><strong>El tablero registra contigo.</strong></span></div></div>

@@ -2,13 +2,13 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { setTimeout as esperar } from 'node:timers/promises';
 import { crearSalas, validarDatos } from './sesion.ts';
-import type { Cliente, EventosVoz } from './sesion.ts';
+import type { Cliente, ClienteCamara, Deps, EventosVoz } from './sesion.ts';
 import { derivar } from './estado.ts';
 import { PROTOCOLO_CARDIO } from './protocolos.ts';
 import { CIRUGIA_ID, SESION_PRUEBA, cirugiaPrueba } from './prueba.ts';
-import type { Decision, MsgServidor, NuevoEvento } from './tipos.ts';
+import type { Decision, MsgAlCelular, MsgServidor, NuevoEvento, ResultadoVision } from './tipos.ts';
 
-function montar(decision: Decision = { accion: 'ignorar' }) {
+function montar(decision: Decision = { accion: 'ignorar' }, extra: Partial<Deps> = {}) {
   const guardados: NuevoEvento[] = [];
   const audios: Uint8Array[] = [];
   let voz: EventosVoz | null = null;
@@ -20,13 +20,15 @@ function montar(decision: Decision = { accion: 'ignorar' }) {
     interpretar: async () => decision,
     abrirVoz: eventos => { voz = eventos; return { escribir: b => audios.push(b), cerrar() {} }; },
     esperaConfirmacionMs: 20,
+    ...extra,
   });
   return { salas, guardados, audios, voz: () => voz! };
 }
 
-function cliente(dispositivo: string): Cliente & { recibidos: MsgServidor[] } {
+function cliente(dispositivo: string): Cliente & { recibidos: MsgServidor[]; cuadros: Uint8Array[] } {
   const recibidos: MsgServidor[] = [];
-  return { sesion: SESION_PRUEBA, dispositivo, recibidos, enviar: m => recibidos.push(m) };
+  const cuadros: Uint8Array[] = [];
+  return { sesion: SESION_PRUEBA, dispositivo, recibidos, cuadros, enviar: m => recibidos.push(m), enviarCuadro: b => cuadros.push(b) };
 }
 
 const ultimoEstado = (c: { recibidos: MsgServidor[] }) =>

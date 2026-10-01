@@ -71,11 +71,30 @@ export interface Evento {
   datos: DatosEvento;
   registrado_por: string | null;
   rol_confirma: Rol | null;
-  origen: 'voz' | 'manual';
+  origen: 'voz' | 'manual' | 'camara'; // camara: lo propuso la cámara de la mesa y alguien lo confirmó
   texto: string | null;
   confianza: number | null;
 }
 export type NuevoEvento = Omit<Evento, 'id' | 'ts'>;
+
+/** Qué mira la cámara de la mesa: el material para el conteo o el indicador de esterilización de un paquete. */
+export type ModoCamara = 'conteo' | 'esterilizacion';
+/** Un objeto que vio la cámara. caja: [ymin, xmin, ymax, xmax] normalizada de 0 a 1000. cantidad > 1: un paquete cerrado. */
+export interface Deteccion { material: string; cantidad: number; caja: [number, number, number, number] }
+export interface LecturaIndicador { estado: 'viro' | 'no_viro' | 'no_visible'; lote: string | null; vence: string | null; caja: [number, number, number, number] | null }
+export interface ResultadoVision {
+  conteo: Record<string, number>; // unidades por material, la suma de las detecciones
+  detecciones: Deteccion[];
+  indicador: LecturaIndicador | null; // solo en modo esterilizacion
+  nota: string | null;
+}
+/** Una foto que analizó la cámara (tabla captura). La imagen se pide aparte: GET /api/capturas/:id/imagen. */
+export interface Captura { id: string; ts: string; modo: ModoCamara; resultado: ResultadoVision; dispositivo: string }
+export interface EstadoCamara {
+  conectada: { dispositivo: string; desde: string } | null;
+  analizando: boolean;
+  ultima: Captura | null; // la última foto analizada en esta sala desde que arrancó el servidor
+}
 
 export interface Alerta {
   id: string;
@@ -132,16 +151,34 @@ export type MsgCliente =
   | { tipo: 'confirmar'; si: boolean }
   | { tipo: 'deshacer' }
   | { tipo: 'tomar_microfono' }
-  | { tipo: 'soltar_microfono' };
+  | { tipo: 'soltar_microfono' }
+  | { tipo: 'camara_codigo' } // pide un código para vincular un celular como cámara
+  | { tipo: 'camara_contar'; modo: ModoCamara }
+  | { tipo: 'camara_ver'; ver: boolean } // recibir o no el video de la cámara
+  | { tipo: 'camara_desconectar' };
 
-export interface Pendiente { resumen: string; expira: number }
+/** origen camara: Conti pregunta si se registra lo que vio la cámara. */
+export interface Pendiente { resumen: string; expira: number; origen: 'voz' | 'camara' }
 /** Qué pasó con la última frase dictada; lo usa Conti, la mascota, para cambiar de estado. */
 export type FaseVoz = 'procesando' | 'registrado' | 'ignorado' | 'no_entendido';
+/** Además de estos mensajes, el servidor manda los cuadros del video como mensajes binarios (JPEG) a quien pidió verlo. */
 export type MsgServidor =
-  | { tipo: 'estado'; estado: EstadoCirugia; microfono: string | null; pendiente: Pendiente | null }
+  | { tipo: 'estado'; estado: EstadoCirugia; microfono: string | null; pendiente: Pendiente | null; camara: EstadoCamara }
   | { tipo: 'parcial'; texto: string }
   | { tipo: 'voz'; fase: FaseVoz; texto: string }
-  | { tipo: 'aviso'; texto: string };
+  | { tipo: 'aviso'; texto: string }
+  | { tipo: 'camara_codigo'; codigo: string; expira: number };
+
+// Celular que hace de cámara, por /api/camara/ws. Sin sesión: entra con el código de un solo uso que muestra la tablet.
+// Manda los cuadros como mensajes binarios: un byte de cabecera (0 video, 1 foto pedida) y el JPEG.
+export type MsgCamara =
+  | { tipo: 'vincular'; codigo: string; dispositivo: string }
+  | { tipo: 'reanudar'; vinculo: string; dispositivo: string } // reconexión con el vínculo que devolvió 'vinculada'
+  | { tipo: 'latido' };
+export type MsgAlCelular =
+  | { tipo: 'vinculada'; vinculo: string; quirofano: string }
+  | { tipo: 'foto' } // la sala pide una foto en alta resolución para analizarla
+  | { tipo: 'viendo'; n: number }; // cuántos dispositivos ven el video; con 0, el celular no manda cuadros
 
 export interface Sesion { usuario_id: string; clinica_id: string; rol: Rol; nombre: string }
 
