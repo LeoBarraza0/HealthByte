@@ -430,3 +430,130 @@
   accent-color: var(--azul);
   margin: 0;
 }
+
+/* Bloque Atención */
+.bloque-atencion {
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sesion.pared .bloque-atencion {
+  border-radius: 16px;
+  padding: 22px 26px;
+  gap: 16px;
+}
+
+.bloque-atencion.con-alerta-critica {
+  border: 2px solid var(--critica);
+}
+
+.atencion-cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.atencion-titulo {
+  font-family: var(--display);
+  font-size: 19px;
+  font-weight: 600;
+  margin: 0;
+  color: var(--tinta);
+}
+
+.sesion.pared .atencion-titulo {
+  font-size: 30px;
+}
+
+.contador-alertas {
+  min-width: 28px;
+  height: 28px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: var(--critica);
+  color: var(--blanco);
+  font-size: 15px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sesion.pared .contador-alertas {
+  min-width: 44px;
+  height: 44px;
+  padding: 0 12px;
+  font-size: 24px;
+}
+
+.alerta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--linea);
+}
+
+.sesion.pared .alerta-item {
+  gap: 12px;
+  padding-bottom: 16px;
+}
+
+.alerta-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.alerta-contenido {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+}
+
+.sesion.pared .alerta-contenido {
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: 14px;
+}
+
+.alerta-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.alerta-mensaje {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--tinta);
+}
+
+.sesion.pared .alerta-mensaje {
+  font-size: 25px;
+  line-height: 30px;
+}
+
+.alerta-meta {
+  font-size: 13px;
+  color: var(--tenue);
+}
+
+.sesion.pared .alerta-meta {
+  font-size: 19px;
+}
+
+.alerta-acciones {
+  display: flex;
+  gap: 8px;
+  margin-left: 32px;
+}
+
+.sesion.pared .alerta-acciones {
+  margin-left: 46px;
+}
+
