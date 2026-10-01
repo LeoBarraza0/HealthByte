@@ -37,6 +37,7 @@ const TIPOS_DOC = ['CC', 'TI', 'CE', 'PA'];
 const LATERALIDADES = ['No aplica', 'Derecha', 'Izquierda', 'Bilateral'];
 
 function sumarDias(fechaYmd: string, n: number): string {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(fechaYmd)) return hoyBogota();
   const [y, m, d] = fechaYmd.split('-').map(Number);
   const date = new Date(Date.UTC(y, m - 1, d + n));
   const yyyy = date.getUTCFullYear();
@@ -56,7 +57,10 @@ function formatoFechaLarga(fechaYmd: string): string {
 }
 
 function horaFin(fechaIso: string, duracionMin: number): string {
-  const finMs = new Date(fechaIso).getTime() + duracionMin * 60000;
+  const time = new Date(fechaIso).getTime();
+  if (isNaN(time)) return '';
+  const dur = Math.max(0, Number(duracionMin) || 0);
+  const finMs = time + dur * 60000;
   return horaBogota(new Date(finMs).toISOString());
 }
 
@@ -78,8 +82,17 @@ export function Programacion({ yo }: { yo: Usuario }) {
   const [personal, setPersonal] = useState<Integrante[]>([]);
   const [agenda, setAgenda] = useState<CirugiaAgenda[]>([]);
   const [cargando, setCargando] = useState(true);
-  const [desplegando, setDesplegando] = useState(false);
-  const [errorCarga, setErrorCarga] = useState<string | null>(null);
+  const [desplegandoMaestros, setDesplegandoMaestros] = useState(false);
+  const [desplegandoAgenda, setDesplegandoAgenda] = useState(false);
+  const [errorMaestros, setErrorMaestros] = useState<string | null>(null);
+  const [errorAgenda, setErrorAgenda] = useState<string | null>(null);
+
+  // Intervalo de tiempo para mantener actualizada la hora actual y la línea roja
+  const [ahora, setAhora] = useState(() => Date.now());
+  useEffect(() => {
+    const timer = setInterval(() => setAhora(Date.now()), 30000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Estados del formulario "Nueva cirugía"
   const [formQuirofano, setFormQuirofano] = useState('');
@@ -115,21 +128,43 @@ export function Programacion({ yo }: { yo: Usuario }) {
       api<Integrante[]>('/api/personal'),
     ]).then(([resQ, resP, resPers]) => {
       if (!activo) return;
+      let despliegue = false;
+      let err: string | null = null;
+
       if (resQ.status === 'fulfilled') {
-        setQuirofanos(resQ.value);
-        if (resQ.value.length > 0 && !formQuirofano) {
-          setFormQuirofano(resQ.value[0].id);
+        const qs = Array.isArray(resQ.value) ? resQ.value : [];
+        setQuirofanos(qs);
+        if (qs.length > 0 && !formQuirofano) {
+          setFormQuirofano(qs[0].id);
         }
+      } else {
+        const msg = resQ.reason instanceof Error ? resQ.reason.message : String(resQ.reason);
+        if (/404|not found|no encontrad/i.test(msg)) despliegue = true;
+        else err = msg;
       }
+
       if (resP.status === 'fulfilled') {
-        setProtocolos(resP.value);
-        if (resP.value.length > 0 && !formProtocolo) {
-          setFormProtocolo(resP.value[0].id);
+        const ps = Array.isArray(resP.value) ? resP.value : [];
+        setProtocolos(ps);
+        if (ps.length > 0 && !formProtocolo) {
+          setFormProtocolo(ps[0].id);
         }
+      } else {
+        const msg = resP.reason instanceof Error ? resP.reason.message : String(resP.reason);
+        if (/404|not found|no encontrad/i.test(msg)) despliegue = true;
+        else if (!err) err = msg;
       }
+
       if (resPers.status === 'fulfilled') {
-        setPersonal(resPers.value);
+        setPersonal(Array.isArray(resPers.value) ? resPers.value : []);
+      } else {
+        const msg = resPers.reason instanceof Error ? resPers.reason.message : String(resPers.reason);
+        if (/404|not found|no encontrad/i.test(msg)) despliegue = true;
+        else if (!err) err = msg;
       }
+
+      if (despliegue) setDesplegandoMaestros(true);
+      if (err) setErrorMaestros(err);
     });
 
     return () => {
@@ -140,18 +175,18 @@ export function Programacion({ yo }: { yo: Usuario }) {
   // Carga de la agenda según la fecha seleccionada
   const recargarAgenda = (fechaConsulta: string) => {
     setCargando(true);
-    setErrorCarga(null);
-    setDesplegando(false);
+    setErrorAgenda(null);
+    setDesplegandoAgenda(false);
 
     api<CirugiaAgenda[]>(`/api/agenda?fecha=${fechaConsulta}`)
       .then(ag => {
-        setAgenda(ag);
+        setAgenda(Array.isArray(ag) ? ag : []);
       })
       .catch((err: Error) => {
-        if (/404|not found/i.test(err.message)) {
-          setDesplegando(true);
+        if (/404|not found|no encontrad/i.test(err.message)) {
+          setDesplegandoAgenda(true);
         } else {
-          setErrorCarga(err.message);
+          setErrorAgenda(err.message);
         }
       })
       .finally(() => {
@@ -201,6 +236,14 @@ export function Programacion({ yo }: { yo: Usuario }) {
       setErrorEnvio('Seleccione un quirófano.');
       return;
     }
+    if (!formFecha) {
+      setErrorEnvio('Seleccione la fecha de la cirugía.');
+      return;
+    }
+    if (!formHora) {
+      setErrorEnvio('Seleccione la hora de inicio.');
+      return;
+    }
     if (!formProtocolo) {
       setErrorEnvio('Seleccione una especialidad.');
       return;
@@ -214,6 +257,12 @@ export function Programacion({ yo }: { yo: Usuario }) {
       return;
     }
 
+    const isoFecha = aIsoBogota(formFecha, formHora);
+    if (!isoFecha) {
+      setErrorEnvio('Fecha u hora de cirugía inválida.');
+      return;
+    }
+
     const datosPreopPayload: Record<string, string | number | null> = {};
     if (protocoloSel) {
       for (const campo of protocoloSel.campos_preop) {
@@ -221,7 +270,7 @@ export function Programacion({ yo }: { yo: Usuario }) {
         if (!val) {
           datosPreopPayload[campo.id] = null;
         } else if (campo.tipo === 'numero') {
-          const num = parseFloat(val.replace(',', '.'));
+          const num = Number(val.replace(',', '.'));
           datosPreopPayload[campo.id] = isNaN(num) ? null : num;
         } else {
           datosPreopPayload[campo.id] = val;
@@ -241,8 +290,8 @@ export function Programacion({ yo }: { yo: Usuario }) {
     const payload: NuevaCirugia = {
       quirofano_id: formQuirofano,
       protocolo_id: formProtocolo,
-      fecha_programada: aIsoBogota(formFecha, formHora),
-      duracion_min: Number(formDuracion),
+      fecha_programada: isoFecha,
+      duracion_min: Number(formDuracion) || 60,
       paciente: {
         tipo_doc: formTipoDoc,
         num_doc: formNumDoc.trim(),
@@ -261,12 +310,13 @@ export function Programacion({ yo }: { yo: Usuario }) {
     setEnviando(true);
     try {
       const res = await api<{ id: string }>('/api/cirugias', payload);
-      setExito({ id: res.id, esHoy: formFecha === hoyBogota() });
+      setExito({ id: res.id, esHoy: formFecha === hoyBogota(ahora) });
       limpiarFormulario();
-      recargarAgenda(fecha);
+      setFecha(formFecha);
+      recargarAgenda(formFecha);
     } catch (err) {
       const mensaje = err instanceof Error ? err.message : String(err);
-      if (/404|not found/i.test(mensaje)) {
+      if (/404|not found|no encontrad/i.test(mensaje)) {
         setErrorEnvio('Esta función se está desplegando');
       } else {
         setErrorEnvio(mensaje);
@@ -277,12 +327,15 @@ export function Programacion({ yo }: { yo: Usuario }) {
   };
 
   // Cálculo de la línea de tiempo actual en Bogotá
-  const hoy = hoyBogota();
+  const hoy = hoyBogota(ahora);
   const esHoy = fecha === hoy;
-  const bogotaAhora = new Date(Date.now() - 5 * 3600 * 1000);
+  const bogotaAhora = new Date(ahora - 5 * 3600 * 1000);
   const minDesde7 = (bogotaAhora.getUTCHours() - 7) * 60 + bogotaAhora.getUTCMinutes();
   const lineaRojaTop = Math.round(minDesde7 * (80 / 60));
   const mostrarLineaRoja = esHoy && minDesde7 >= 0 && minDesde7 <= 12 * 60;
+
+  const desplegando = desplegandoMaestros || desplegandoAgenda;
+  const errorCarga = errorMaestros ?? errorAgenda;
 
   const numQuirofanos = Math.max(quirofanos.length, 1);
   const gridTemplate = `64px repeat(${numQuirofanos}, minmax(0, 1fr))`;
@@ -337,7 +390,7 @@ export function Programacion({ yo }: { yo: Usuario }) {
               <button
                 type="button"
                 className="btn"
-                onClick={() => cambiarFechaVista(hoyBogota())}
+                onClick={() => cambiarFechaVista(hoyBogota(ahora))}
               >
                 Hoy
               </button>
@@ -358,16 +411,33 @@ export function Programacion({ yo }: { yo: Usuario }) {
 
           <section aria-label={`Agenda del ${formatoFechaLarga(fecha)}`} className="prog-pn prog-agenda-pn">
             <div className="prog-agenda-in">
-              <div className="prog-grid-encabezado" style={{ gridTemplateColumns: gridTemplate }}>
+              <div className="prog-grid-encabezado" style={{ gridTemplateColumns: quirofanos.length > 0 ? gridTemplate : '64px 1fr' }}>
                 <span />
-                {quirofanos.map(q => (
-                  <span key={q.id} className="d" style={{ fontSize: 17, fontWeight: 600, padding: '0 12px' }}>
-                    {q.nombre}
+                {quirofanos.length > 0 ? (
+                  quirofanos.map(q => (
+                    <span
+                      key={q.id}
+                      className="d"
+                      style={{
+                        fontSize: 17,
+                        fontWeight: 600,
+                        padding: '0 12px',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                      }}
+                    >
+                      {q.nombre}
+                    </span>
+                  ))
+                ) : (
+                  <span className="d" style={{ fontSize: 17, fontWeight: 600, padding: '0 12px' }}>
+                    Quirófanos
                   </span>
-                ))}
+                )}
               </div>
 
-              <div className="prog-grid-cuerpo" style={{ gridTemplateColumns: gridTemplate }}>
+              <div className="prog-grid-cuerpo" style={{ gridTemplateColumns: quirofanos.length > 0 ? gridTemplate : '64px 1fr' }}>
                 {/* Columna de marcas horarias */}
                 <div className="prog-col-horas">
                   {HORAS_AGENDA.map((h, i) => (
@@ -377,52 +447,80 @@ export function Programacion({ yo }: { yo: Usuario }) {
                   ))}
                 </div>
 
-                {/* Columnas por quirófano */}
-                {quirofanos.map(q => {
-                  const cirugiasQ = agenda.filter(c => c.quirofano_id === q.id || c.quirofano === q.nombre);
-                  return (
-                    <div
-                      key={q.id}
-                      className="prog-col-quirofano"
-                      onClick={() => setFormQuirofano(q.id)}
-                    >
-                      {/* Líneas horarias */}
-                      {HORAS_AGENDA.map((h, i) => (
-                        <span key={h} aria-hidden="true" className="prog-linea-hora" style={{ top: i * 80 }} />
-                      ))}
-
-                      {cirugiasQ.length === 0 && !cargando && (
-                        <span className="prog-libre">Libre todo el día.</span>
-                      )}
-
-                      {cirugiasQ.map(c => {
-                        const { top, alto } = bloque(c.fecha_programada, c.duracion_min);
-                        const ini = horaBogota(c.fecha_programada);
-                        const fin = horaFin(c.fecha_programada, c.duracion_min);
-                        const enlace = c.estado === 'realizada' ? `/trazabilidad/${c.id}` : `/sesion/${c.id}`;
-
-                        return (
-                          <a
-                            key={c.id}
-                            href={enlace}
-                            className={`prog-bloque ${c.estado}`}
-                            style={{ top, height: alto }}
-                            onClick={ev => ev.stopPropagation()}
-                          >
-                            <span className="prog-bloque-horas">{ini} a {fin}</span>
-                            <span className="prog-bloque-proc">{c.procedimiento}</span>
-                            <span className="prog-bloque-paciente">{c.paciente}</span>
-                          </a>
-                        );
-                      })}
-                    </div>
-                  );
-                })}
-
-                {/* Línea roja de hora actual */}
+                {/* Línea roja de hora actual (detrás de los bloques, z-index: 0) */}
                 {mostrarLineaRoja && (
                   <div aria-hidden="true" className="prog-linea-ahora" style={{ top: lineaRojaTop }}>
                     <span className="prog-linea-ahora-punto" />
+                  </div>
+                )}
+
+                {/* Columnas por quirófano */}
+                {quirofanos.length > 0 ? (
+                  quirofanos.map(q => {
+                    const cirugiasQ = agenda.filter(c => c.quirofano_id === q.id || c.quirofano === q.nombre);
+                    return (
+                      <div
+                        key={q.id}
+                        className="prog-col-quirofano"
+                        onClick={ev => {
+                          const rect = ev.currentTarget.getBoundingClientRect();
+                          const clickY = ev.clientY - rect.top;
+                          const minutosDesde7 = Math.max(0, Math.floor(clickY / (80 / 30)) * 30);
+                          const h = Math.min(20, Math.floor(minutosDesde7 / 60) + 7);
+                          const m = minutosDesde7 % 60;
+                          const hh = String(h).padStart(2, '0');
+                          const mm = String(m).padStart(2, '0');
+                          setFormHora(`${hh}:${mm}`);
+                          setFormQuirofano(q.id);
+                        }}
+                      >
+                        {/* Líneas horarias */}
+                        {HORAS_AGENDA.map((h, i) => (
+                          <span key={h} aria-hidden="true" className="prog-linea-hora" style={{ top: i * 80 }} />
+                        ))}
+
+                        {cirugiasQ.length === 0 && !cargando && (
+                          <span className="prog-libre">Libre todo el día.</span>
+                        )}
+
+                        {cirugiasQ.map(c => {
+                          const { top, alto } = bloque(c.fecha_programada, c.duracion_min);
+                          const ini = horaBogota(c.fecha_programada);
+                          const fin = horaFin(c.fecha_programada, c.duracion_min);
+                          const enlace = c.estado === 'realizada' ? `/trazabilidad/${c.id}` : `/sesion/${c.id}`;
+
+                          return (
+                            <a
+                              key={c.id}
+                              href={enlace}
+                              className={`prog-bloque ${c.estado}`}
+                              style={{ top, height: alto }}
+                              onClick={ev => ev.stopPropagation()}
+                            >
+                              <span className="prog-bloque-horas">{ini} a {fin}</span>
+                              <span className="prog-bloque-proc">{c.procedimiento}</span>
+                              <span className="prog-bloque-paciente">{c.paciente}</span>
+                            </a>
+                          );
+                        })}
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div
+                    className="prog-col-quirofano"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '0 24px',
+                      color: 'var(--tenue)',
+                      textAlign: 'center',
+                    }}
+                  >
+                    {desplegando
+                      ? 'Esta función se está desplegando. Los quirófanos aparecerán aquí cuando el servicio esté listo.'
+                      : (cargando ? 'Cargando quirófanos…' : 'No hay quirófanos registrados.')}
                   </div>
                 )}
               </div>
@@ -445,7 +543,11 @@ export function Programacion({ yo }: { yo: Usuario }) {
               className="btn"
               aria-label="Limpiar formulario"
               style={{ minWidth: 44, padding: 0, border: 0 }}
-              onClick={limpiarFormulario}
+              onClick={() => {
+                limpiarFormulario();
+                setExito(null);
+                setErrorEnvio(null);
+              }}
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
                 <path d="M18 6 6 18" />
@@ -741,7 +843,11 @@ export function Programacion({ yo }: { yo: Usuario }) {
               <button
                 type="button"
                 className="btn"
-                onClick={limpiarFormulario}
+                onClick={() => {
+                  limpiarFormulario();
+                  setExito(null);
+                  setErrorEnvio(null);
+                }}
               >
                 Limpiar
               </button>

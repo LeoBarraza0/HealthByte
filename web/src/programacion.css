@@ -84,6 +84,7 @@
   position: relative;
   height: 960px;
   border-left: 1px solid var(--borde);
+  cursor: pointer;
 }
 
 .prog-linea-hora {
