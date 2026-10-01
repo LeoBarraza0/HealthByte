@@ -129,9 +129,8 @@ export function BarraVoz({
         <div className="barra-voz-estado-txt">
           <span className="barra-voz-estado-titulo">{textoEnPalabras(estadoC, microfono)}</span>
           {modo === 'pared' ? (
-            <span className="barra-voz-sub">
-              {microfono ? `Escucha: ${microfono}` : 'Micrófono apagado'}
-            </span>
+            // En pausa el título ya dice si está apagado o quién escucha: no se repite.
+            microfono && estadoC !== 'paused' && <span className="barra-voz-sub">Escucha: {microfono}</span>
           ) : (
             <>
               {microfono && microfono !== dispositivo && (
