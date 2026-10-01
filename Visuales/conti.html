@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Conti animado</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<script src="conti/conti.js"></script>
+<style>
+  :root{
+    --brand:#0B5D8C; --ink:#0D2232; --muted:#4D6170; --steel:#B8C7D1;
+    --surface:#F5F9FB; --tint:#E1EEF5; --accent:#2FB596; --signal:#C8372D; --green:#0B6B5A;
+    --navy:#0A2C42;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--surface); color:var(--ink); font-family:'IBM Plex Sans',system-ui,sans-serif; font-size:16px; line-height:1.5}
+  .wrap{max-width:1100px; margin:0 auto; padding:48px 16px 80px}
+  .label{font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.08em; color:var(--muted)}
+  h1{font-family:'Space Grotesk',sans-serif; font-size:44px; line-height:1.05; font-weight:700; letter-spacing:-.025em; margin:8px 0 12px}
+  h2{font-family:'Space Grotesk',sans-serif; font-size:24px; font-weight:500; margin:64px 0 6px}
+  p{color:var(--muted); margin:0; max-width:64ch}
+  code{font-family:'IBM Plex Mono',monospace; font-size:.88em; background:var(--tint); padding:2px 6px; border-radius:4px; color:var(--ink)}
+
+  /* simulador */
+  .sim{margin-top:24px; display:grid; grid-template-columns:minmax(220px,300px) 1fr; gap:32px; align-items:center;
+       background:#fff; border:1px solid var(--steel); border-radius:16px; padding:32px}
+  .sim hb-conti{width:100%; max-width:280px; justify-self:center}
+  .bubble{font-family:'Space Grotesk',sans-serif; font-size:24px; line-height:1.25; color:var(--navy); min-height:2.6em}
+  .step{display:flex; align-items:center; gap:10px; margin-top:16px}
+  .chip{font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.06em; padding:6px 12px; border-radius:999px; background:var(--tint); color:var(--brand)}
+  .chip[data-tone="ok"]{background:#DDF1EA; color:var(--green)}
+  .chip[data-tone="err"]{background:#F8E1DF; color:var(--signal)}
+  .chip[data-tone="off"]{background:#E9EFF3; color:var(--muted)}
+  .controls{display:flex; flex-wrap:wrap; gap:8px; margin-top:24px}
+  button{font:600 14px 'IBM Plex Sans',sans-serif; min-height:44px; padding:0 18px; border-radius:10px; border:1px solid var(--steel); background:#fff; color:var(--ink); cursor:pointer}
+  button:hover{border-color:var(--brand)}
+  button[aria-pressed="true"]{background:var(--brand); border-color:var(--brand); color:#fff}
+  button.primary{background:var(--navy); border-color:var(--navy); color:#fff}
+
+  /* estados */
+  .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:16px; margin-top:24px}
+  .card{background:#fff; border:1px solid var(--steel); border-radius:14px; padding:20px 12px 16px; text-align:center}
+  .card hb-conti{width:130px}
+  .card b{display:block; font-family:'Space Grotesk',sans-serif; font-size:15px; margin-top:10px}
+  .card span{display:block; font-size:13px; color:var(--muted)}
+  .card code{display:inline-block; margin-top:6px; font-size:11px}
+
+  .row{display:flex; align-items:flex-end; gap:40px; flex-wrap:wrap; margin-top:24px; border-radius:14px; padding:28px; background:#fff; border:1px solid var(--steel)}
+  .row figure{margin:0; text-align:center}
+  .row figcaption{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--muted); margin-top:10px}
+  .row.dark{background:var(--navy); border-color:var(--navy)}
+  .row.dark figcaption{color:var(--steel)}
+  pre{background:var(--navy); color:#E1EEF5; border-radius:12px; padding:20px; overflow:auto; font:13px/1.6 'IBM Plex Mono',monospace; margin-top:16px}
+
+  @media (max-width:640px){
+    .sim{grid-template-columns:1fr; padding:20px}
+    h1{font-size:34px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <span class="label">HEALTHBYTE · MASCOTA</span>
+  <h1>Conti animado</h1>
+  <p>El cuerpo es el render aprobado, recortado en seis piezas que flotan con desfase. La cara se dibuja encima para que ojos y boca cambien con cada estado.</p>
+
+  <h2>Simulación del dictado</h2>
+  <p>El flujo de la pantalla de pared: Conti pregunta, escucha, procesa y confirma. La segunda vuelta muestra un error.</p>
+  <div class="sim">
+    <hb-conti id="live" state="idle"></hb-conti>
+    <div>
+      <div class="bubble" id="say" aria-live="polite">Listo para el siguiente paso.</div>
+      <div class="step"><span class="chip" id="chip">REPOSO</span></div>
+      <div class="controls" id="controls">
+        <button class="primary" id="play">Reproducir flujo</button>
+      </div>
+    </div>
+  </div>
+
+  <h2>Estados</h2>
+  <p>Cada estado cambia los ojos, la boca y, cuando aplica, el color del byte.</p>
+  <div class="grid" id="grid"></div>
+
+  <h2>Tamaños</h2>
+  <div class="row">
+    <figure><hb-conti state="idle" style="width:220px"></hb-conti><figcaption>220 px · hero y cierre</figcaption></figure>
+    <figure><hb-conti state="listening" style="width:120px"></hb-conti><figcaption>120 px · panel de dictado</figcaption></figure>
+    <figure><hb-conti state="error" style="width:72px"></hb-conti><figcaption>72 px · banda de alertas</figcaption></figure>
+    <figure><hb-conti state="listening" style="width:40px"></hb-conti><figcaption>40 px · chip</figcaption></figure>
+  </div>
+  <div class="row dark">
+    <figure><hb-conti state="idle" style="width:140px"></hb-conti><figcaption>reposo</figcaption></figure>
+    <figure><hb-conti state="verified" style="width:140px"></hb-conti><figcaption>verificado</figcaption></figure>
+    <figure><hb-conti state="paused" style="width:140px"></hb-conti><figcaption>en pausa</figcaption></figure>
+  </div>
+
+  <h2>Cómo se usa</h2>
+  <pre>&lt;script src="conti/conti.js"&gt;&lt;/script&gt;
+&lt;hb-conti state="listening" style="width:160px"&gt;&lt;/hb-conti&gt;
+
+// cuando cambia el estado del dictado
+conti.setAttribute('state', 'verified');</pre>
+</div>
+
+<script>
+const STATES = [
+  ['idle','Reposo','flota y parpadea'],
+  ['listening','Escuchando','boca de onda, byte late'],
+  ['processing','Procesando','mira arriba, tres puntos'],
+  ['verified','Verificado','ojos felices, levanta las manos'],
+  ['error','Error','ojos en X, byte rojo'],
+  ['paused','En pausa','ojos cerrados, byte gris'],
+];
+const grid = document.getElementById('grid');
+for (const [s, name, note] of STATES) {
+  grid.insertAdjacentHTML('beforeend',
+    `<div class="card"><hb-conti state="${s}"></hb-conti><b>${name}</b><span>${note}</span><code>state="${s}"</code></div>`);
+}
+
+const live = document.getElementById('live');
+const say = document.getElementById('say');
+const chip = document.getElementById('chip');
+const controls = document.getElementById('controls');
+const CHIP = {
+  idle:['REPOSO',''], listening:['ESCUCHANDO',''], processing:['PROCESANDO',''],
+  verified:['✓ VERIFICADO','ok'], error:['! NO COINCIDE','err'], paused:['MICRÓFONO EN PAUSA','off'],
+};
+function set(state, text) {
+  live.setAttribute('state', state);
+  chip.textContent = CHIP[state][0];
+  chip.dataset.tone = CHIP[state][1];
+  if (text) say.textContent = text;
+  for (const b of controls.querySelectorAll('[data-s]')) b.setAttribute('aria-pressed', b.dataset.s === state);
+}
+for (const [s, name] of STATES) {
+  const b = document.createElement('button');
+  b.textContent = name; b.dataset.s = s; b.setAttribute('aria-pressed', s === 'idle');
+  b.onclick = () => { stop(); set(s); };
+  controls.appendChild(b);
+}
+
+const FLOW = [
+  ['idle', 'Paso 11 de 17 · Antibiótico profiláctico.', 1600],
+  ['listening', '«Cefazolina dos gramos intravenosa, a las once cuarenta y seis.»', 3200],
+  ['processing', 'Convirtiendo lo dictado en registro…', 1800],
+  ['verified', 'Cefazolina · 2 g · IV · 11:46. Registrado.', 2600],
+  ['listening', '«Recuento final: nueve compresas.»', 2800],
+  ['processing', 'Comparando con el recuento inicial…', 1600],
+  ['error', 'El recuento inicial fue de 10 compresas. Falta 1.', 3200],
+  ['paused', 'Micrófono en pausa hasta que se resuelva.', 2400],
+  ['idle', 'Listo para el siguiente paso.', 0],
+];
+let timer = null;
+function stop() { clearTimeout(timer); timer = null; }
+document.getElementById('play').onclick = () => {
+  stop();
+  let i = 0;
+  const next = () => {
+    const [s, t, ms] = FLOW[i++];
+    set(s, t);
+    if (i < FLOW.length) timer = setTimeout(next, ms);
+  };
+  next();
+};
+</script>
+</body>
+</html>
