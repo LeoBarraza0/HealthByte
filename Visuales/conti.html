@@ -80,7 +80,7 @@
   </div>
 
   <h2>Estados</h2>
-  <p>Cada estado cambia los ojos, la boca y, cuando aplica, el color del byte.</p>
+  <p>Cada estado cambia cuatro cosas a la vez: la cara, la postura, el aura de color y la insignia. Las tres últimas se leen a varios metros, en la pantalla de pared.</p>
   <div class="grid" id="grid"></div>
 
   <h2>Tamaños</h2>
@@ -107,11 +107,11 @@ conti.setAttribute('state', 'verified');</pre>
 <script>
 const STATES = [
   ['idle','Reposo','flota y parpadea'],
-  ['listening','Escuchando','boca de onda, byte late'],
-  ['processing','Procesando','mira arriba, tres puntos'],
-  ['verified','Verificado','ojos felices, levanta las manos'],
-  ['error','Error','ojos en X, byte rojo'],
-  ['paused','En pausa','ojos cerrados, byte gris'],
+  ['listening','Escuchando','manos a la cara, aura azul, micrófono'],
+  ['processing','Procesando','malabares, tres puntos, ruedita'],
+  ['verified','Verificado','salta, ojos felices, ✓'],
+  ['error','Error','ojos en X, tiembla, aura roja, !'],
+  ['paused','En pausa','se hunde y se apaga, ojos cerrados'],
 ];
 const grid = document.getElementById('grid');
 for (const [s, name, note] of STATES) {

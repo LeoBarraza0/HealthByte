@@ -5,6 +5,7 @@
  *   <hb-conti state="listening" style="width:160px"></hb-conti>
  *
  * Estados: idle · listening · processing · verified · error · paused
+ * Cada estado cambia cara, postura, aura de color e insignia, para leerse de lejos.
  * Cambiar de estado en vivo: el.setAttribute('state', 'verified')
  *
  * El cuerpo son las piezas del render original; la cara se dibuja encima en SVG
@@ -84,8 +85,6 @@
   hb-conti[state="paused"] .m-flat{opacity:1}
 
   /* --- estados: cuerpo y byte --- */
-  hb-conti[state="listening"] .byte-in{animation:hbc-glow 1.6s ease-in-out infinite;transform-origin:880px 180px}
-  @keyframes hbc-glow{0%,100%{transform:scale(1);filter:drop-shadow(0 0 0 rgba(47,181,150,0))}50%{transform:scale(1.07);filter:drop-shadow(0 0 22px rgba(47,181,150,.75))}}
 
   hb-conti[state="verified"] .hl{animation:hbc-cheer-l 1.8s ease-in-out infinite}
   hb-conti[state="verified"] .hr{animation:hbc-cheer-r 1.8s ease-in-out infinite}
@@ -96,14 +95,65 @@
 
   hb-conti[state="error"] .b-mint,hb-conti[state="alert"] .b-mint{opacity:0}
   hb-conti[state="error"] .b-red,hb-conti[state="alert"] .b-red{opacity:1}
-  hb-conti[state="error"] .shake,hb-conti[state="alert"] .shake{animation:hbc-shake 2.4s ease-in-out infinite}
-  @keyframes hbc-shake{0%,62%,100%{transform:translateX(0)}66%{transform:translateX(-14px)}72%{transform:translateX(12px)}78%{transform:translateX(-8px)}84%{transform:translateX(4px)}}
+  hb-conti[state="error"] .shake,hb-conti[state="alert"] .shake{animation:hbc-shake 1.6s ease-in-out infinite}
+  @keyframes hbc-shake{0%,50%,100%{transform:translateX(0)}56%{transform:translateX(-34px)}63%{transform:translateX(30px)}70%{transform:translateX(-22px)}77%{transform:translateX(12px)}}
 
   hb-conti[state="paused"] .b-mint{opacity:0}
   hb-conti[state="paused"] .b-grey{opacity:1}
   hb-conti[state="paused"] .fig,hb-conti[state="paused"] .cap,hb-conti[state="paused"] .hl,
   hb-conti[state="paused"] .hr,hb-conti[state="paused"] .ft,hb-conti[state="paused"] .byte{animation-duration:6.5s}
   hb-conti[state="paused"] .eyes{animation:none}
+
+  /* --- señales que se leen de lejos: aura, insignia y postura --- */
+  hb-conti{--hbc-c:transparent}
+  hb-conti[state="listening"]{--hbc-c:#1E75A8}
+  hb-conti[state="processing"]{--hbc-c:#8FA1AE}
+  hb-conti[state="verified"]{--hbc-c:#0B6B5A}
+  hb-conti[state="error"],hb-conti[state="alert"]{--hbc-c:#C8372D}
+  hb-conti .aura{opacity:0;transition:opacity .4s;transform-origin:627px 640px;animation:hbc-aura 2s ease-in-out infinite}
+  hb-conti[state="listening"] .aura,hb-conti[state="processing"] .aura,hb-conti[state="verified"] .aura,
+  hb-conti[state="error"] .aura,hb-conti[state="alert"] .aura{opacity:1}
+  @keyframes hbc-aura{0%,100%{transform:scale(.94)}50%{transform:scale(1.04)}}
+  hb-conti[state="error"] .aura,hb-conti[state="alert"] .aura{animation-duration:.9s}
+
+  hb-conti .badge{transform-origin:1040px 1050px;transform:scale(0);transition:transform .35s cubic-bezier(.3,1.6,.5,1)}
+  hb-conti .badge>circle{fill:var(--hbc-b)}
+  hb-conti .ic{display:none}
+  hb-conti[state="listening"]{--hbc-b:#0B5D8C}
+  hb-conti[state="processing"]{--hbc-b:#364856}
+  hb-conti[state="verified"]{--hbc-b:#0B6B5A}
+  hb-conti[state="error"],hb-conti[state="alert"]{--hbc-b:#C8372D}
+  hb-conti[state="paused"]{--hbc-b:#6B7E8C}
+  hb-conti[state="listening"] .badge,hb-conti[state="processing"] .badge,hb-conti[state="verified"] .badge,
+  hb-conti[state="error"] .badge,hb-conti[state="alert"] .badge,hb-conti[state="paused"] .badge{transform:scale(1)}
+  hb-conti[state="listening"] .ic-mic,hb-conti[state="processing"] .ic-spin,hb-conti[state="verified"] .ic-ok,
+  hb-conti[state="error"] .ic-err,hb-conti[state="alert"] .ic-err,hb-conti[state="paused"] .ic-pause{display:inline}
+  hb-conti .ic-spin{transform-origin:1040px 1050px;animation:hbc-spin .9s linear infinite}
+  @keyframes hbc-spin{to{transform:rotate(360deg)}}
+
+  /* escuchando: manos a los lados de la cara */
+  hb-conti[state="listening"] .hl{animation:hbc-ear-l 1.4s ease-in-out infinite}
+  hb-conti[state="listening"] .hr{animation:hbc-ear-r 1.4s ease-in-out infinite}
+  @keyframes hbc-ear-l{0%,100%{transform:translate(38px,-110px) rotate(-14deg)}50%{transform:translate(44px,-122px) rotate(-17deg)}}
+  @keyframes hbc-ear-r{0%,100%{transform:translate(-38px,-110px) rotate(14deg)}50%{transform:translate(-44px,-122px) rotate(17deg)}}
+  hb-conti[state="listening"] .hl{transform-origin:250px 680px}
+  hb-conti[state="listening"] .hr{transform-origin:1005px 680px}
+
+  /* procesando: manos alternan como malabares */
+  hb-conti[state="processing"] .hl{animation:hbc-jug .9s ease-in-out infinite}
+  hb-conti[state="processing"] .hr{animation:hbc-jug .9s ease-in-out infinite;animation-delay:-.45s}
+  @keyframes hbc-jug{0%,100%{transform:translateY(20px)}50%{transform:translateY(-90px)}}
+
+  /* verificado: salta */
+  hb-conti[state="verified"] .fig{animation:hbc-hop 1.8s cubic-bezier(.3,0,.3,1) infinite}
+  @keyframes hbc-hop{0%,55%,100%{transform:translateY(0)}20%{transform:translateY(-95px)}35%{transform:translateY(8px)}}
+
+  /* error: tiembla fuerte y ladea el gorro */
+  hb-conti[state="error"] .cap,hb-conti[state="alert"] .cap{animation:none;transform:rotate(-9deg) translate(-10px,6px);transform-origin:627px 330px;transition:transform .3s}
+
+  /* pausa: se hunde y se apaga */
+  hb-conti[state="paused"] .shake{transform:translateY(40px) scale(.95);transform-origin:627px 700px;filter:saturate(.3) brightness(1.05);opacity:.75;transition:transform .5s,filter .5s,opacity .5s}
+  hb-conti .shake{transition:transform .5s,filter .5s,opacity .5s}
 
   @media (prefers-reduced-motion:reduce){hb-conti *{animation:none!important}}
   `;
@@ -124,12 +174,17 @@
       <feOffset dx="-2" dy="2" result="b"/>
       <feFlood flood-color="#7FA9C2" flood-opacity=".55"/>
       <feComposite in2="b" operator="in" result="s"/>
-      <feMorphology in="SourceAlpha" operator="dilate" radius="2.6" result="rim"/>
-      <feFlood flood-color="#FFFFFF" flood-opacity=".85"/>
+      <feMorphology in="SourceAlpha" operator="dilate" radius="2" result="rim"/>
+      <feFlood flood-color="#FFFFFF" flood-opacity=".55"/>
       <feComposite in2="rim" operator="in" result="r"/>
       <feMerge><feMergeNode in="s"/><feMergeNode in="r"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
+    <radialGradient id="au${id}">
+      <stop offset=".35" style="stop-color:var(--hbc-c);stop-opacity:.42"/>
+      <stop offset="1" style="stop-color:var(--hbc-c);stop-opacity:0"/>
+    </radialGradient>
   </defs>
+  <circle class="aura" cx="627" cy="640" r="600" fill="url(#au${id})"/>
 
   <g class="shake">
     <g class="fig">
@@ -186,6 +241,16 @@
     <g class="b-red">${img('byte', 'byte-red')}</g>
     <g class="b-grey">${img('byte', 'byte-grey')}</g>
   </g></g>
+  <g class="badge">
+    <circle cx="1040" cy="1050" r="112" stroke="#FFFFFF" stroke-width="16"/>
+    <g fill="none" stroke="#FFFFFF" stroke-width="22" stroke-linecap="round" stroke-linejoin="round">
+      <g class="ic ic-mic"><rect x="1016" y="982" width="48" height="80" rx="24" fill="#FFFFFF" stroke="none"/><path d="M990 1040 a50 50 0 0 0 100 0 M1040 1092 v22"/></g>
+      <path class="ic ic-spin" d="M1040 995 a55 55 0 1 1 -55 55"/>
+      <path class="ic ic-ok" d="M992 1052 l32 32 l60 -66"/>
+      <g class="ic ic-err"><path d="M1040 992 v62"/><circle cx="1040" cy="1102" r="14" fill="#FFFFFF" stroke="none"/></g>
+      <path class="ic ic-pause" d="M1016 1010 v80 M1064 1010 v80"/>
+    </g>
+  </g>
 </svg>`;
 
   if (!document.getElementById('hb-conti-css')) {
