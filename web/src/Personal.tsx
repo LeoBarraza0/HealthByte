@@ -142,6 +142,10 @@ export function Personal({ yo }: { yo: Usuario }) {
       setErrorEnvio('Ingrese el nombre de usuario.');
       return;
     }
+    if (clave.length < 8) {
+      setErrorEnvio('La contraseña debe tener al menos 8 caracteres.');
+      return;
+    }
 
     const payload: NuevoIntegrante = {
       nombre: nombreLimpio,
@@ -447,7 +451,10 @@ export function Personal({ yo }: { yo: Usuario }) {
                   id={claveInputId}
                   type="text"
                   value={clave}
-                  readOnly
+                  onChange={e => setClave(e.target.value)}
+                  minLength={8}
+                  autoComplete="new-password"
+                  aria-describedby={`${claveInputId}-ayuda`}
                   style={{ letterSpacing: '0.02em' }}
                 />
                 <button
@@ -459,8 +466,8 @@ export function Personal({ yo }: { yo: Usuario }) {
                   Generar otra
                 </button>
               </div>
-              <span className="prog-ay">
-                Se muestra solo ahora. Entréguela en persona.
+              <span id={`${claveInputId}-ayuda`} className="prog-ay">
+                Escríbala o genere una. Mínimo 8 caracteres. Se muestra solo ahora: entréguela en persona.
               </span>
             </div>
 
