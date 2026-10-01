@@ -1,0 +1,706 @@
+/* Estilos para el marco de la sesión quirúrgica en vivo (modo pared y modo tablet) */
+
+.sesion {
+  width: 100%;
+  height: 100vh;
+  max-height: 100vh;
+  background: var(--fondo);
+  color: var(--tinta);
+  font-family: var(--texto);
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.sesion.conectando {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: var(--tenue);
+}
+
+.sesion.tablet {
+  display: grid;
+  grid-template-rows: 92px 86px minmax(0, 1fr) 116px;
+}
+
+.sesion.pared {
+  display: grid;
+  grid-template-rows: 176px 128px minmax(0, 1fr) 152px;
+}
+
+/* ==================== 1. CABECERA ==================== */
+
+.cabecera {
+  background: var(--navy);
+  color: var(--blanco);
+  display: grid;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.sesion.tablet .cabecera {
+  padding: 14px 20px;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) auto;
+  gap: 20px;
+}
+
+.sesion.pared .cabecera {
+  padding: 24px 40px;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) auto;
+  gap: 48px;
+}
+
+.cabecera-paciente-col {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.sesion.tablet .cabecera-paciente-col { gap: 6px; }
+.sesion.pared .cabecera-paciente-col { gap: 12px; }
+
+.cabecera-nombre-fila {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.sesion.tablet .cabecera-nombre-fila { gap: 10px; }
+.sesion.pared .cabecera-nombre-fila { gap: 20px; }
+
+.sesion.tablet .cabecera-nombre {
+  font-size: 26px;
+  line-height: 30px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.sesion.pared .cabecera-nombre {
+  font-size: 50px;
+  line-height: 56px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.cabecera-alergia {
+  display: inline-flex;
+  align-items: center;
+  background: var(--critica);
+  color: var(--blanco);
+  font-weight: 700;
+}
+
+.sesion.tablet .cabecera-alergia {
+  gap: 6px;
+  border-radius: 8px;
+  padding: 3px 10px 3px 8px;
+  font-size: 14px;
+}
+
+.sesion.pared .cabecera-alergia {
+  gap: 10px;
+  border-radius: 10px;
+  padding: 8px 18px 8px 14px;
+  font-size: 24px;
+}
+
+.cabecera-paciente-datos {
+  display: flex;
+  color: var(--sobre-navy);
+}
+
+.sesion.tablet .cabecera-paciente-datos {
+  gap: 16px;
+  font-size: 14px;
+}
+
+.sesion.pared .cabecera-paciente-datos {
+  gap: 32px;
+  font-size: 22px;
+}
+
+.cabecera-cirugia-col {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border-left: 1px solid var(--navy-linea);
+}
+
+.sesion.tablet .cabecera-cirugia-col {
+  gap: 6px;
+  padding-left: 20px;
+}
+
+.sesion.pared .cabecera-cirugia-col {
+  gap: 12px;
+  padding-left: 40px;
+}
+
+.sesion.tablet .cabecera-procedimiento {
+  font-size: 19px;
+  font-weight: 500;
+}
+
+.sesion.pared .cabecera-procedimiento {
+  font-size: 34px;
+  line-height: 40px;
+  font-weight: 500;
+}
+
+.cabecera-detalles {
+  color: var(--sobre-navy);
+}
+
+.sesion.tablet .cabecera-detalles {
+  font-size: 14px;
+}
+
+.sesion.pared .cabecera-detalles {
+  font-size: 22px;
+  display: flex;
+  gap: 32px;
+}
+
+.cabecera-acciones-col {
+  display: flex;
+}
+
+.sesion.tablet .cabecera-acciones-col {
+  align-items: center;
+  gap: 14px;
+}
+
+.sesion.pared .cabecera-acciones-col {
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.sesion.tablet .cabecera-reloj {
+  font-size: 34px;
+  font-weight: 500;
+}
+
+.sesion.pared .cabecera-reloj {
+  font-size: 76px;
+  line-height: 76px;
+  font-weight: 500;
+}
+
+.cabecera-sala {
+  font-size: 20px;
+  color: var(--sobre-navy);
+}
+
+.cabecera-botones {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-cabecera {
+  background: transparent;
+  color: var(--blanco);
+  border-color: var(--azul-medio);
+}
+
+.btn-cabecera:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.btn-icono {
+  min-width: 44px;
+  padding: 0;
+}
+
+/* ==================== 2. PISTA (LÍNEA DE TIEMPO) ==================== */
+
+.pista {
+  background: var(--blanco);
+  border-bottom: 1px solid var(--borde);
+  display: grid;
+  align-items: start;
+  box-sizing: border-box;
+}
+
+.sesion.tablet .pista {
+  padding: 12px 20px 0;
+  grid-template-columns: 96px minmax(0, 1fr) 96px minmax(0, 1fr) 120px minmax(0, 1fr) 96px minmax(0, 1fr) 110px;
+}
+
+.sesion.pared .pista {
+  padding: 22px 40px 0;
+  grid-template-columns: 150px minmax(0, 1fr) 150px minmax(0, 1fr) 150px minmax(0, 1fr) 150px minmax(0, 1fr) 150px;
+}
+
+.pista-nodo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.sesion.tablet .pista-nodo { gap: 2px; }
+.sesion.pared .pista-nodo { gap: 6px; }
+
+.pista-nodo-circulo {
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sesion.tablet .pista-nodo-circulo {
+  width: 22px;
+  height: 22px;
+}
+
+.sesion.pared .pista-nodo-circulo {
+  width: 32px;
+  height: 32px;
+}
+
+.pista-nodo.registrado .pista-nodo-circulo {
+  background: var(--azul);
+  color: var(--blanco);
+}
+
+.pista-nodo.proximo .pista-nodo-circulo {
+  background: var(--blanco);
+  border: 3px solid var(--azul);
+}
+
+.sesion.pared .pista-nodo.proximo .pista-nodo-circulo {
+  border: 4px solid var(--azul);
+}
+
+.pista-nodo.futuro .pista-nodo-circulo {
+  background: var(--blanco);
+  border: 2px solid var(--borde-fuerte);
+}
+
+.sesion.tablet .pista-nodo-nombre {
+  font-size: 13px;
+  color: var(--tenue);
+}
+
+.sesion.pared .pista-nodo-nombre {
+  font-size: 19px;
+  color: var(--tenue);
+}
+
+.sesion.tablet .pista-nodo-hora {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--tinta);
+}
+
+.sesion.pared .pista-nodo-hora {
+  font-size: 28px;
+  line-height: 30px;
+  font-weight: 600;
+  color: var(--tinta);
+}
+
+.pista-nodo-hora.pista-vacia {
+  color: var(--gris);
+}
+
+.btn-marcar {
+  min-height: 32px;
+  padding: 0 10px;
+  font-size: 14px;
+  color: var(--azul);
+  border-color: var(--azul);
+}
+
+.btn-marcar:hover {
+  background: var(--azul-tenue);
+}
+
+.pista-tramo {
+  display: flex;
+  flex-direction: column;
+}
+
+.sesion.tablet .pista-tramo {
+  padding-top: 8px;
+  gap: 8px;
+}
+
+.sesion.pared .pista-tramo {
+  padding-top: 12px;
+  gap: 14px;
+}
+
+.pista-tramo-barra {
+  border-radius: 999px;
+}
+
+.sesion.tablet .pista-tramo-barra {
+  height: 6px;
+  margin: 0 -37px;
+  background: var(--linea);
+}
+
+.sesion.pared .pista-tramo-barra {
+  height: 8px;
+  margin: 0 -59px;
+  background: var(--linea);
+}
+
+.pista-tramo.completado .pista-tramo-barra {
+  background: var(--azul);
+}
+
+.sesion.tablet .pista-tramo.ahora .pista-tramo-barra {
+  height: 10px;
+  margin: -2px -37px 0;
+  background: var(--azul);
+  box-shadow: 0 0 0 3px var(--azul-claro);
+}
+
+.sesion.pared .pista-tramo.ahora .pista-tramo-barra {
+  height: 14px;
+  margin: -3px -59px 0;
+  background: var(--azul);
+  box-shadow: 0 0 0 4px var(--azul-claro);
+}
+
+.pista-tramo-info {
+  text-align: center;
+}
+
+.sesion.tablet .pista-tramo-info {
+  font-size: 14px;
+  color: var(--tinta-2);
+}
+
+.sesion.pared .pista-tramo-info {
+  font-size: 21px;
+  color: var(--tinta-2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+
+.pista-tramo.ahora .pista-tramo-destacado {
+  color: var(--azul);
+  font-weight: 700;
+}
+
+.pista-tramo.ahora .pista-tramo-minutos {
+  color: var(--azul);
+  font-weight: 600;
+}
+
+.pista-tramo.futuro .pista-tramo-inactivo {
+  color: var(--gris);
+}
+
+/* ==================== 3. CUERPO (MAIN CON DOS COLUMNAS) ==================== */
+
+.sesion-cuerpo {
+  display: grid;
+  min-height: 0;
+  box-sizing: border-box;
+}
+
+.sesion.tablet .sesion-cuerpo {
+  padding: 16px 20px;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  gap: 20px;
+}
+
+.sesion.pared .sesion-cuerpo {
+  padding: 28px 40px;
+  grid-template-columns: minmax(0, 1fr) 620px;
+  gap: 40px;
+}
+
+.sesion-lateral {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.sesion.tablet .sesion-lateral {
+  gap: 14px;
+}
+
+.sesion.pared .sesion-lateral {
+  gap: 22px;
+}
+
+/* ==================== 4. BARRA DE VOZ ==================== */
+
+.barra-voz {
+  background: var(--navy);
+  color: var(--blanco);
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr) auto;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.sesion.tablet .barra-voz {
+  padding: 0 20px;
+  gap: 20px;
+}
+
+.sesion.pared .barra-voz {
+  padding: 0 40px;
+  gap: 36px;
+}
+
+.barra-voz-conti-bloque {
+  display: flex;
+  align-items: center;
+}
+
+.sesion.tablet .barra-voz-conti-bloque {
+  gap: 12px;
+}
+
+.sesion.pared .barra-voz-conti-bloque {
+  gap: 16px;
+}
+
+.barra-voz-estado-txt {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.sesion.tablet .barra-voz-estado-txt {
+  gap: 4px;
+}
+
+.sesion.pared .barra-voz-estado-txt {
+  gap: 2px;
+}
+
+.sesion.tablet .barra-voz-estado-titulo {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.sesion.pared .barra-voz-estado-titulo {
+  font-size: 25px;
+  font-weight: 600;
+}
+
+.barra-voz-sub {
+  color: var(--sobre-navy-2);
+}
+
+.sesion.tablet .barra-voz-sub {
+  font-size: 12px;
+}
+
+.sesion.pared .barra-voz-sub {
+  font-size: 19px;
+}
+
+.btn-mic {
+  min-height: 44px;
+  padding: 0 12px;
+  font-size: 14px;
+  background: var(--blanco);
+  color: var(--tinta);
+  border: 1px solid var(--borde-fuerte);
+  align-self: flex-start;
+}
+
+.btn-mic.activo {
+  background: var(--menta);
+  color: var(--navy);
+  border: 0;
+}
+
+.barra-voz-sensibilidad {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--sobre-navy-2);
+}
+
+.barra-voz-sensibilidad input[type="range"] {
+  width: 110px;
+  accent-color: var(--menta);
+}
+
+.barra-voz-dictado {
+  margin: 0;
+  color: var(--azul-claro);
+}
+
+.sesion.tablet .barra-voz-dictado {
+  font-size: 19px;
+  line-height: 26px;
+}
+
+.sesion.pared .barra-voz-dictado {
+  font-size: 32px;
+  line-height: 40px;
+}
+
+.barra-voz-aviso {
+  margin: 0;
+  font-size: 15px;
+  color: var(--sobre-navy);
+}
+
+.sesion.pared .barra-voz-aviso {
+  font-size: 22px;
+}
+
+.barra-voz-aviso.error {
+  color: #FFA49E;
+}
+
+/* Confirmación pendiente */
+.barra-voz-pendiente {
+  display: flex;
+  align-items: center;
+  background: var(--blanco);
+  color: var(--tinta);
+}
+
+.sesion.tablet .barra-voz-pendiente {
+  border-radius: 12px;
+  padding: 10px 10px 10px 16px;
+  gap: 10px;
+}
+
+.sesion.pared .barra-voz-pendiente {
+  border-radius: 16px;
+  padding: 16px 18px 16px 24px;
+  gap: 18px;
+}
+
+.barra-voz-pendiente-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.sesion.tablet .barra-voz-pendiente-pregunta {
+  font-size: 13px;
+  color: var(--tenue);
+}
+
+.sesion.pared .barra-voz-pendiente-pregunta {
+  font-size: 19px;
+  color: var(--tenue);
+}
+
+.sesion.tablet .barra-voz-pendiente-resumen {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.sesion.pared .barra-voz-pendiente-resumen {
+  font-size: 27px;
+  line-height: 32px;
+  font-weight: 600;
+}
+
+.sesion.tablet .barra-voz-pendiente-expira {
+  font-size: 12px;
+  color: var(--tenue);
+}
+
+.sesion.pared .barra-voz-pendiente-expira {
+  font-size: 18px;
+  color: var(--tenue);
+}
+
+.btn-si {
+  min-height: 52px;
+  min-width: 72px;
+  font-size: 18px;
+  background: var(--ok);
+  color: var(--blanco);
+  border-color: var(--ok);
+}
+
+.btn-si:hover {
+  background: #08574A;
+}
+
+.btn-no {
+  min-height: 52px;
+  min-width: 72px;
+  font-size: 18px;
+}
+
+/* Último registro */
+.barra-voz-ultimo {
+  display: flex;
+  align-items: center;
+}
+
+.sesion.tablet .barra-voz-ultimo {
+  gap: 12px;
+}
+
+.sesion.pared .barra-voz-ultimo {
+  gap: 20px;
+}
+
+.barra-voz-check-icono {
+  border-radius: 999px;
+  background: var(--menta);
+  color: var(--navy);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sesion.tablet .barra-voz-check-icono {
+  width: 36px;
+  height: 36px;
+}
+
+.sesion.pared .barra-voz-check-icono {
+  width: 56px;
+  height: 56px;
+}
+
+.barra-voz-ultimo-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sesion.tablet .barra-voz-ultimo-hora {
+  font-size: 13px;
+  color: var(--sobre-navy-2);
+}
+
+.sesion.pared .barra-voz-ultimo-hora {
+  font-size: 19px;
+  color: var(--sobre-navy-2);
+}
+
+.sesion.tablet .barra-voz-ultimo-desc {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--blanco);
+}
+
+.sesion.pared .barra-voz-ultimo-desc {
+  font-size: 27px;
+  line-height: 32px;
+  font-weight: 600;
+  color: var(--blanco);
+}
