@@ -784,3 +784,6 @@
   .sesion-lateral { overflow: visible; }
   .barra-voz { position: sticky; bottom: 0; z-index: 10; }
 }
+
+/* Nivel del micrófono: se ve si capta la voz y dónde está el umbral. */
+.barra-voz-nivel { width: 120px; height: 10px; }

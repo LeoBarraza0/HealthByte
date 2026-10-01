@@ -65,6 +65,7 @@ export function crearCanalVoz(o: OpcionesCanal): CanalVoz {
       if (parcial) o.onParcial(parcial);
     });
     s.on('error', e => {
+      console.error('Chirp 3:', e.message); // sin esto, una falla de Speech solo se ve como «Micrófono reconectando…»
       if (stream === s) stream = null;
       o.onError(e);
     });

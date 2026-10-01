@@ -55,8 +55,10 @@ export function BarraVoz({
 
   // Microfono táctil en modo tablet
   const [apagar, setApagar] = useState<(() => void) | null>(null);
-  const [, setNivel] = useState(0);
-  const [umbral, setUmbral] = useState(() => Number(preferencia('hb_umbral') ?? 0.02));
+  const [nivel, setNivel] = useState(0);
+  // Sensibilidad de 1 a 10: más alta, más sensible (umbral de volumen más bajo). 8 capta la voz normal de un portátil.
+  const [sensibilidad, setSensibilidad] = useState(() => Number(preferencia('hb_sensibilidad') ?? 8));
+  const umbral = (11 - sensibilidad) * 0.003;
   const [errorMic, setErrorMic] = useState('');
 
   const umbralRef = useRef(umbral);
@@ -164,15 +166,17 @@ export function BarraVoz({
                 <input
                   type="range"
                   min="1"
-                  max="20"
-                  value={Math.round(umbral * 100)}
+                  max="10"
+                  value={sensibilidad}
                   onChange={e => {
-                    const v = Number(e.target.value) / 100;
-                    setUmbral(v);
-                    guardarPreferencia('hb_umbral', String(v));
+                    setSensibilidad(Number(e.target.value));
+                    guardarPreferencia('hb_sensibilidad', e.target.value);
                   }}
                 />
               </label>
+              {apagar && (
+                <meter className="barra-voz-nivel" min={0} max={0.06} low={umbral} value={nivel} aria-label="Nivel del micrófono" />
+              )}
             </>
           )}
         </div>
@@ -181,6 +185,8 @@ export function BarraVoz({
       <div className="barra-voz-centro">
         {parcial ? (
           <p className="barra-voz-dictado display">«{parcial}»</p>
+        ) : apagar && nivel >= umbral ? (
+          <p className="barra-voz-aviso">Te escucho…</p>
         ) : errorMic ? (
           <p className="barra-voz-aviso error">{errorMic}</p>
         ) : aviso ? (
