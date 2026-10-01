@@ -539,6 +539,66 @@ Al terminar, reporta:
 
 ---
 
+## Reparto de GESTIÓN entre los dos Antigravity (ya está el inicio)
+
+El orquestador ya subió `Inicio.tsx`, `CabeceraGestion.tsx` (`<CabeceraGestion yo actual>` y `esCoordinacion`), `gestion.css` y `gestion.ts` (`csv`, `csvConsumo` y `descargar`, con sus pruebas). Esos archivos no se tocan: se importan.
+
+### Prompt TRAZABILIDAD (Antigravity 1)
+
+```text
+Trabajas en el repo HealthByte (rama main, tu propio worktree). La entrega es en menos de 1 hora y main se despliega: nunca lo rompas. `git pull --rebase origin main`, `cd web && npm ci`.
+
+Lee en docs/agentes/ola-3-rapida.md el «Prompt GESTIÓN» completo, para el contexto, las rutas del API y las reglas. Haz SOLO su punto 2, TRAZABILIDAD, con estos cambios:
+- Usa `<CabeceraGestion yo={yo} actual="otra" />` de web/src/CabeceraGestion.tsx. Ya existe; no lo modifiques.
+- Para el CSV usa `csvConsumo(estado)` y `descargar('consumo-<procedimiento>.csv', …)` de web/src/gestion.ts. Ya existen, con prueba; no los modifiques.
+- Tus estilos van en web/src/trazabilidad.css, NO en gestion.css.
+- Diseño: Diseño/pantallas/Trazabilidad.html. Tómale la estructura: cabecera de la cirugía, resumen, registro cronológico por fase con los anulados tachados y, a la derecha, alertas, novedades y tiempos. Suma la sección «Consumo de la cirugía», con su tabla y el botón «Descargar consumo (CSV)».
+- Los eventos completos están en `GET /api/cirugias/:id/eventos` (ya existe); si falla, usa `estado.eventos`.
+- Agrega un enlace «Abrir sesión» a `/sesion/:id`.
+
+Solo puedes crear o modificar: web/src/Trazabilidad.tsx y web/src/trazabilidad.css
+
+Antes de CADA push: `cd web && npm run tipos && npm test && npm run build`, todo en verde. Después: `git pull --rebase origin main && git push origin HEAD:main`. Haz commits pequeños: primero la tabla de consumo con el CSV, que es lo nuevo, y después el resto.
+
+Commit: «feat(web): agregar la trazabilidad con la hoja de consumo». En español, sin atribución a IA.
+
+Para verlo: `docker compose -f db/docker-compose.yml up -d`, `cd api && npm run dev` y `cd web && npm run dev`. Entra como caribe / coordinador con la clave CLAVE_DEMO de api/src/siembra.ts y abre /trazabilidad/<id> de una cirugía realizada; los id salen de GET /api/panel → lista.
+
+Al terminar, reporta qué quedó, qué no y la salida de las verificaciones.
+```
+
+### Prompt PANEL (Antigravity 2)
+
+```text
+Trabajas en el repo HealthByte (rama main, tu propio worktree). La entrega es en menos de 1 hora y main se despliega: nunca lo rompas. `git pull --rebase origin main`, `cd web && npm ci`.
+
+Lee en docs/agentes/ola-3-rapida.md el «Prompt GESTIÓN» completo, para el contexto, las rutas del API y las reglas. Haz SOLO su punto 3, PANEL, con estos cambios:
+- Usa `<CabeceraGestion yo={yo} actual="panel" />` de web/src/CabeceraGestion.tsx. Ya existe; no lo modifiques.
+- Para «Exportar CSV» usa `csv(filas)` y `descargar('cirugias.csv', …)` de web/src/gestion.ts. Ya existen; no los modifiques.
+- Las funciones puras de la lista van en web/src/panelLista.ts, con prueba en web/src/panelLista.test.ts (TDD):
+  - `filtrar(lista, filtros)`;
+  - `paginar(lista, pagina, porPagina)`;
+  - `opciones(lista)`, que da los quirófanos y especialidades que existen, para los select.
+- Tus estilos van en web/src/panel.css, NO en gestion.css.
+- Diseño: Diseño/pantallas/Panel.html.
+- Prioridad si no alcanza el tiempo:
+  1. las 4 métricas y «Cirugías del periodo» con filtros, paginación y enlace a /trazabilidad/:id;
+  2. «Ahora en los quirófanos»;
+  3. lo demás.
+
+Solo puedes crear o modificar: web/src/Panel.tsx, web/src/panelLista.ts, web/src/panelLista.test.ts y web/src/panel.css
+
+Antes de CADA push: `cd web && npm run tipos && npm test && npm run build`, todo en verde. Después: `git pull --rebase origin main && git push origin HEAD:main`. Haz commits pequeños: sube apenas la lista con filtros funcione.
+
+Commit: «feat(web): agregar el panel de gestión con filtros y paginación». En español, sin atribución a IA.
+
+Para verlo: `docker compose -f db/docker-compose.yml up -d`, `cd api && npm run dev` y `cd web && npm run dev`. Entra como caribe / coordinador con la clave CLAVE_DEMO de api/src/siembra.ts y abre /panel.
+
+Al terminar, reporta qué quedó, qué no y la salida de las verificaciones.
+```
+
+---
+
 ## Lista para el compañero que prueba (en la URL desplegada)
 
 Cada vez que el Codex 1 avise de un redespliegue:
