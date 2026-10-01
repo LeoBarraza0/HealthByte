@@ -221,6 +221,7 @@ function generarEventos(p: Protocolo, equipo: Record<string, Persona>, inicio: n
     add({ tipo: 'alerta_cierre', alerta: 'critico:antes_incision.antibiotico', motivo: 'Antibiótico administrado en hospitalización' });
   }
   add({ tipo: 'hora', hora: 'inicio_cirugia' }, 10 + r() * 20);
+  const inicioCirugia = t;
   for (const [material, n] of [['Compresas', 10], ['Gasas', 10], ['Agujas Sutura', 6]] as const) {
     add({ tipo: 'conteo', material, cantidad: n }, 0);
   }
@@ -239,6 +240,7 @@ function generarEventos(p: Protocolo, equipo: Record<string, Persona>, inicio: n
     add({ tipo: 'novedad_solucionada', novedad_id: novedad, acciones: 'Se reemplazó el equipo' }, 3 + r() * 12);
   }
   add({ tipo: 'hora', hora: 'fin_cirugia' }, (cardio ? 40 : 30) + r() * 60);
+  const finCirugia = t;
   const descuadre = r() < 0.05;
   add({ tipo: 'conteo', material: 'Compresas', cantidad: descuadre ? -9 : -10 }, 2);
   add({ tipo: 'conteo', material: 'Gasas', cantidad: -10 });
@@ -246,5 +248,13 @@ function generarEventos(p: Protocolo, equipo: Record<string, Persona>, inicio: n
   if (descuadre) add({ tipo: 'conteo', material: 'Compresas', cantidad: -1 }, 4);
   verificar(f3, r() < 0.08 ? 'muestras' : undefined);
   add({ tipo: 'hora', hora: 'salida_recuperacion' }, 8 + r() * 15);
+  const consumos = 3 + Math.floor(r() * 4);
+  for (let i = 0; i < consumos; i++) {
+    filas.push({
+      id: randomUUID(), ts: new Date(inicioCirugia + r() * (finCirugia - inicioCirugia)).toISOString(),
+      datos: { tipo: 'consumo', insumo: elegir(r, INSUMOS).nombre, cantidad: 1 + Math.floor(r() * 8) },
+      rol: null, origen: 'manual',
+    });
+  }
   return filas;
 }

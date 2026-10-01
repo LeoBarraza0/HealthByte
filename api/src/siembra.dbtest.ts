@@ -41,3 +41,27 @@ test('cada clínica tiene el catálogo de instrumental sin duplicados tras resem
     WHERE c.slug IN ('caribe', 'norte') GROUP BY c.slug ORDER BY c.slug`);
   assert.deepEqual(rows, [{ slug: 'caribe', n: INSTRUMENTOS.length }, { slug: 'norte', n: INSTRUMENTOS.length }]);
 });
+
+test('cada cirugía realizada del historial tiene de tres a seis consumos dentro de la cirugía', async () => {
+  const { rows } = await pool.query(`
+    SELECT c.id,
+      min(e.ts) FILTER (WHERE e.datos->>'hora' = 'inicio_cirugia') AS inicio,
+      min(e.ts) FILTER (WHERE e.datos->>'hora' = 'fin_cirugia') AS fin,
+      coalesce(jsonb_agg(jsonb_build_object('ts', e.ts, 'datos', e.datos, 'origen', e.origen))
+        FILTER (WHERE e.tipo = 'consumo' AND NOT EXISTS (
+          SELECT 1 FROM evento a WHERE a.anula_evento_id = e.id)), '[]'::jsonb) AS consumos
+    FROM cirugia c JOIN evento e ON e.cirugia_id = c.id
+    WHERE EXISTS (SELECT 1 FROM evento s WHERE s.cirugia_id = c.id AND s.datos->>'hora' = 'salida_recuperacion')
+    GROUP BY c.id`);
+  assert.equal(rows.length, 120);
+  const nombres = new Set(INSUMOS.map(i => i.nombre));
+  for (const fila of rows) {
+    assert.ok(fila.consumos.length >= 3 && fila.consumos.length <= 6);
+    for (const e of fila.consumos) {
+      assert.ok(nombres.has(e.datos.insumo));
+      assert.ok(Number.isInteger(e.datos.cantidad) && e.datos.cantidad >= 1 && e.datos.cantidad <= 8);
+      assert.equal(e.origen, 'manual');
+      assert.ok(Date.parse(e.ts) >= Date.parse(fila.inicio) && Date.parse(e.ts) <= Date.parse(fila.fin));
+    }
+  }
+});
