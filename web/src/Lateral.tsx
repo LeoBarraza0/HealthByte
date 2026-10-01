@@ -13,12 +13,6 @@ export function Lateral({ estado, modo, registrar }: PropsBloque) {
   const [materialSeleccionado, setMaterialSeleccionado] = useState(estado.protocolo.materiales[0] ?? 'Compresas');
   const [cantidadEntrada, setCantidadEntrada] = useState(10);
 
-  // En tablet, mientras se ve el protocolo de conteo, Lateral puede devolver null
-  const hayAlertaConteo = estado.alertas.some(a => a.estado === 'abierta' && a.id.startsWith('conteo:'));
-  if (esTablet && hayAlertaConteo && !mostrarConsumo) {
-    return null;
-  }
-
   // Manejo de tecla Escape para el modal de entrada de material
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
@@ -29,6 +23,13 @@ export function Lateral({ estado, modo, registrar }: PropsBloque) {
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [dialogoMaterial]);
+
+  // En tablet, mientras se ve el protocolo de conteo, Lateral se oculta. Va después de todos los hooks: si fuera
+  // antes, al resolverse el conteo cambiaría el número de hooks entre renders y React tumbaría la página.
+  const hayAlertaConteo = estado.alertas.some(a => a.estado === 'abierta' && a.id.startsWith('conteo:'));
+  if (esTablet && hayAlertaConteo && !mostrarConsumo) {
+    return null;
+  }
 
   function confirmarEntradaMaterial() {
     if (!materialSeleccionado || cantidadEntrada <= 0) return;
