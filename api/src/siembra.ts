@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import type pg from 'pg';
 import { pool } from './db.ts';
 import { hashClave } from './clave.ts';
+import { INSUMOS } from './insumos.ts';
 import { PROTOCOLO_CARDIO, PROTOCOLO_GENERAL, conMarcacion } from './protocolos.ts';
 import type { DatosEvento, Fase, Persona, Protocolo, Rol } from './tipos.ts';
 
@@ -77,12 +78,21 @@ async function enTransaccion(fn: (c: pg.PoolClient) => Promise<void>): Promise<v
   }
 }
 
+// También actualiza las clínicas de bases que ya estaban sembradas.
+async function sembrarInsumos(): Promise<void> {
+  await pool.query(`
+    INSERT INTO insumo (clinica_id, nombre, categoria)
+    SELECT c.id, i.nombre, i.categoria FROM clinica c, jsonb_to_recordset($1::jsonb) AS i(nombre text, categoria text)
+    ON CONFLICT (clinica_id, nombre) DO NOTHING`, [JSON.stringify(INSUMOS)]);
+}
+
 export async function sembrar(): Promise<void> {
   const { rowCount } = await pool.query("SELECT 1 FROM clinica WHERE slug = 'caribe'");
-  if (rowCount) return;
+  if (rowCount) return sembrarInsumos();
   const r = prng(2026);
   const hash = hashClave(CLAVE_DEMO);
   for (const def of CLINICAS) await enTransaccion(c => sembrarClinica(c, def, hash, r));
+  await sembrarInsumos();
 }
 
 /** Archiva las cirugías sin terminar y vuelve a programar las del día. Corre como dueño de las tablas. */

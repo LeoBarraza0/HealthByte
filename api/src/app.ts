@@ -2,7 +2,7 @@ import Fastify from 'fastify';
 import cookie from '@fastify/cookie';
 import websocket from '@fastify/websocket';
 import { COOKIE, leerSesion, login } from './auth.ts';
-import { cargarEstado, cargarEstados, cirugiasActivas, insertarEventos, personal } from './repo.ts';
+import { cargarEstado, cargarEstados, cirugiasActivas, eventosDe, insertarEventos, personal } from './repo.ts';
 import { resumir } from './panel.ts';
 import { reiniciarDemo } from './siembra.ts';
 import { crearSalas } from './sesion.ts';
@@ -64,6 +64,9 @@ export async function crearApp(opciones: Partial<OpcionesApp> = {}) {
   });
 
   app.get('/api/personal', async req => personal(req.sesion.clinica_id));
+
+  app.get<{ Params: { id: string } }>('/api/cirugias/:id/eventos', async req =>
+    UUID.test(req.params.id) ? eventosDe(req.sesion.clinica_id, req.params.id) : []);
 
   app.post('/api/demo/reiniciar', async (req, rep) => {
     if (req.sesion.rol !== 'coordinador' && req.sesion.rol !== 'admin') return rep.code(403).send({ error: 'Solo coordinación' });

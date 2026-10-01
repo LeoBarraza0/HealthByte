@@ -2,9 +2,10 @@ import { after, before, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { crearApp } from './app.ts';
 import { COOKIE } from './auth.ts';
+import { insertarEventos } from './repo.ts';
 import { migrar, pool } from './db.ts';
 import { CLAVE_DEMO, sembrar } from './siembra.ts';
-import type { CirugiaActiva, EstadoCirugia, Panel } from './tipos.ts';
+import type { CirugiaActiva, EstadoCirugia, Evento, Panel, Sesion } from './tipos.ts';
 
 const app = await crearApp();
 before(async () => { await migrar(); await sembrar(); });
@@ -70,4 +71,30 @@ test('el panel resume el último mes de la clínica y respeta su sesión', async
   const norte = await entrar('norte', 'coordinador');
   const otra = (await app.inject({ url: '/api/panel?dias=30', cookies: { [COOKIE]: norte } })).json() as Panel;
   assert.ok(p.lista.every(c => !otra.lista.some(x => x.id === c.id)));
+});
+
+test('el estado trae insumos y la trazabilidad conserva eventos anulados y aísla clínicas', async () => {
+  const cookie = await entrar('caribe', 'circulante');
+  const panel = (await app.inject({ url: '/api/panel?dias=30', cookies: { [COOKIE]: cookie } })).json() as Panel;
+  const c = panel.lista.find(x => x.estado === 'realizada')!;
+  const e = (await app.inject({ url: `/api/cirugias/${c.id}`, cookies: { [COOKIE]: cookie } })).json() as EstadoCirugia;
+  assert.ok(e.insumos.some(i => i.nombre === 'Guantes, par' && i.categoria === 'general'));
+  const sesion = (await app.inject({ url: '/api/yo', cookies: { [COOKIE]: cookie } })).json() as Sesion;
+  const autor = { registrado_por: sesion.usuario_id, rol_confirma: null, origen: 'manual' as const, texto: null, confianza: null };
+  await insertarEventos(sesion.clinica_id, c.id, [{ ...autor, datos: { tipo: 'consumo', insumo: 'Guantes, par', cantidad: 2 } }]);
+  const ruta = `/api/cirugias/${c.id}/eventos`;
+  const previos = (await app.inject({ url: ruta, cookies: { [COOKIE]: cookie } })).json() as Evento[];
+  const consumo = previos.at(-1)!;
+  await insertarEventos(sesion.clinica_id, c.id, [{ ...autor, datos: { tipo: 'anulacion', evento_id: consumo.id } }]);
+  const r = await app.inject({ url: ruta, cookies: { [COOKIE]: cookie } });
+  assert.equal(r.statusCode, 200);
+  const eventos = r.json() as Evento[];
+  assert.ok(eventos.some(x => x.id === consumo.id));
+  assert.ok(eventos.some(x => x.datos.tipo === 'anulacion' && x.datos.evento_id === consumo.id));
+  const vigente = (await app.inject({ url: `/api/cirugias/${c.id}`, cookies: { [COOKIE]: cookie } })).json() as EstadoCirugia;
+  assert.ok(!vigente.eventos.some(x => x.id === consumo.id));
+  const norte = await entrar('norte', 'circulante');
+  for (const [id, sesionCookie] of [[c.id, norte], ['invalido', cookie], ['00000000-0000-0000-0000-000000000000', cookie]]) {
+    assert.deepEqual((await app.inject({ url: `/api/cirugias/${id}/eventos`, cookies: { [COOKIE]: sesionCookie } })).json(), []);
+  }
 });

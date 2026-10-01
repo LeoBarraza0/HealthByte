@@ -157,7 +157,7 @@ export function crearSalas(deps: Deps) {
       onParcial: texto => difundir(s, { tipo: 'parcial', texto }),
       onFinal: texto => { alFinal(s, texto).catch(() => difundir(s, { tipo: 'aviso', texto: 'No se pudo registrar por voz' })); },
       onError: () => difundir(s, { tipo: 'aviso', texto: 'Micrófono reconectando…' }),
-    }, vocabulario(s.estado.protocolo));
+    }, [...vocabulario(s.estado.protocolo), ...s.estado.insumos.map(i => i.nombre)].slice(0, 1000));
     difundirEstado(s);
   }
 

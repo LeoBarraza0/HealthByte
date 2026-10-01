@@ -27,7 +27,9 @@ export async function cargarEstado(clinicaId: string, cirugiaId: string): Promis
     if (!fila) return null;
     const { cirugia, protocolo } = separar(fila);
     const { rows } = await c.query(SQL_EVENTOS, [[cirugiaId]]);
-    return derivar(cirugia, protocolo, rows);
+    const estado = derivar(cirugia, protocolo, rows);
+    estado.insumos = (await c.query('SELECT nombre, categoria FROM insumo ORDER BY categoria, nombre')).rows;
+    return estado;
   });
 }
 
@@ -70,4 +72,9 @@ export async function cargarEstados(clinicaId: string, desde: string): Promise<E
       return derivar(cirugia, protocolo, porCirugia.get(fila.id) ?? []);
     });
   });
+}
+
+/** Incluye los eventos anulados y sus anulaciones para la trazabilidad. */
+export async function eventosDe(clinicaId: string, cirugiaId: string): Promise<Evento[]> {
+  return conClinica(clinicaId, async c => (await c.query<Evento>(SQL_EVENTOS, [[cirugiaId]])).rows);
 }
