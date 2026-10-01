@@ -46,3 +46,15 @@ test('solo coordinación puede reiniciar la demo', async () => {
   const circulante = await entrar('caribe', 'circulante');
   assert.equal((await app.inject({ method: 'POST', url: '/api/demo/reiniciar', payload: {}, cookies: { [COOKIE]: circulante } })).statusCode, 403);
 });
+
+test('el WebSocket entrega el estado al unirse', async () => {
+  const cookie = await entrar('caribe', 'circulante');
+  const c = await demo(cookie);
+  const ws = await app.injectWS('/api/ws', { headers: { cookie: `${COOKIE}=${encodeURIComponent(cookie)}` } });
+  const primero = new Promise<{ tipo: string; estado: EstadoCirugia }>(ok => ws.once('message', (d: unknown) => ok(JSON.parse(String(d)))));
+  ws.send(JSON.stringify({ tipo: 'unirse', cirugia_id: c.id, dispositivo: 'Prueba' }));
+  const m = await primero;
+  assert.equal(m.tipo, 'estado');
+  assert.equal(m.estado.cirugia.id, c.id);
+  ws.terminate();
+});
