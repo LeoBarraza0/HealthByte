@@ -7,6 +7,8 @@ import { Inicio } from './Inicio.tsx';
 import { Sesion } from './Sesion.tsx';
 import { Panel } from './Panel.tsx';
 import { Trazabilidad } from './Trazabilidad.tsx';
+import { Programacion } from './Programacion.tsx';
+import { Personal } from './Personal.tsx';
 
 // Rutas por pathname y navegación con <a href> (recarga completa): sin librería de rutas.
 const SESION = /^\/sesion\/([0-9a-f-]{36})$/;
@@ -28,5 +30,7 @@ export function App() {
   const traza = ruta.match(TRAZABILIDAD);
   if (traza) return <Trazabilidad cirugiaId={traza[1]} yo={yo} />;
   if (ruta === '/panel') return <Panel yo={yo} />;
+  if (ruta === '/programacion') return <Programacion yo={yo} />;
+  if (ruta === '/personal') return <Personal yo={yo} />;
   return <Inicio yo={yo} />;
 }

@@ -57,6 +57,7 @@ CREATE TABLE IF NOT EXISTS cirugia (
   datos_preop jsonb NOT NULL,
   archivada boolean NOT NULL DEFAULT false
 );
+ALTER TABLE cirugia ADD COLUMN IF NOT EXISTS duracion_min integer NOT NULL DEFAULT 120;
 CREATE TABLE IF NOT EXISTS evento (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   clinica_id uuid NOT NULL REFERENCES clinica,
@@ -105,3 +106,4 @@ END $$;
 GRANT USAGE ON SCHEMA public TO healthbyte_app;
 GRANT SELECT ON clinica, quirofano, usuario, protocolo, paciente, cirugia, evento, insumo, instrumento TO healthbyte_app;
 GRANT INSERT ON evento TO healthbyte_app; -- sin UPDATE ni DELETE: los eventos son inmutables
+GRANT INSERT ON paciente, cirugia, usuario TO healthbyte_app; -- programación y personal, siempre dentro de la clínica (RLS)
