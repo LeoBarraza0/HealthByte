@@ -1,0 +1,18 @@
+[
+  { "frase": "paciente en sala", "despues_de": [], "espera": "hora" },
+  { "frase": "inicia anestesia", "despues_de": ["ingreso"], "espera": "hora" },
+  { "frase": "confirmo identidad, procedimiento y sitio", "despues_de": ["ingreso"], "espera": "check" },
+  { "frase": "cefazolina aplicada", "despues_de": ["ingreso", "anestesia"], "espera": "check" },
+  { "frase": "entran diez compresas", "despues_de": ["ingreso", "anestesia", "inicio_cirugia"], "espera": "conteo" },
+  { "frase": "entran diez gasas y cinco agujas de sutura", "despues_de": ["ingreso", "anestesia", "inicio_cirugia"], "espera": "conteo" },
+  { "frase": "salen nueve compresas", "despues_de": ["ingreso", "anestesia", "inicio_cirugia", "fin_cirugia"], "espera": "conteo" },
+  { "frase": "glucometría ciento dos", "despues_de": ["ingreso"], "espera": "medicion" },
+  { "frase": "peso setenta y uno punto tres kilos", "despues_de": [], "espera": "dato" },
+  { "frase": "se administra heparina", "despues_de": ["ingreso", "anestesia", "inicio_cirugia"], "espera": "hito" },
+  { "frase": "entramos en bomba", "despues_de": ["ingreso", "anestesia", "inicio_cirugia"], "espera": "hito" },
+  { "frase": "se dañó el aspirador", "despues_de": ["ingreso", "anestesia", "inicio_cirugia"], "espera": "novedad" },
+  { "frase": "fin de la cirugía", "despues_de": ["ingreso", "anestesia", "inicio_cirugia"], "espera": "hora" },
+  { "frase": "deshaz lo último", "despues_de": ["ingreso"], "espera": "deshacer" },
+  { "frase": "¿alguien vio mi celular?", "despues_de": ["ingreso"], "espera": "ignorar" },
+  { "frase": "pásame la pinza kelly", "despues_de": ["ingreso", "anestesia", "inicio_cirugia"], "espera": "ignorar" }
+]
