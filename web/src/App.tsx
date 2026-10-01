@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { Sesion as Usuario } from '../../api/src/tipos.ts';
 import { api } from './api.ts';
 import { Login } from './Login.tsx';
+import { Landing } from './Landing.tsx';
 import { Inicio } from './Inicio.tsx';
 import { Sesion } from './Sesion.tsx';
 import { Panel } from './Panel.tsx';
@@ -14,8 +15,12 @@ const TRAZABILIDAD = /^\/trazabilidad\/([0-9a-f-]{36})$/;
 export function App() {
   const [yo, setYo] = useState<Usuario | null>();
   useEffect(() => { api<Usuario>('/api/yo').then(setYo, () => setYo(null)); }, []);
+  useEffect(() => {
+    if (yo && location.pathname === '/entrar') location.replace('/');
+  }, [yo]);
   if (yo === undefined) return null;
-  if (yo === null) return <Login onEntrar={setYo} />;
+  if (location.pathname === '/entrar') return yo ? null : <Login onEntrar={setYo} />;
+  if (yo === null) return location.pathname === '/' ? <Landing /> : <Login onEntrar={setYo} />;
 
   const ruta = location.pathname;
   const sesion = ruta.match(SESION);

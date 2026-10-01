@@ -41,14 +41,17 @@ resource "terraform_data" "guardia_cuenta" {
   }
 }
 
-# El proyecto completo se borra con terraform destroy: nada queda suelto.
+# Proyecto personal existente: se importa y se conserva su organización.
 resource "google_project" "p" {
   project_id      = var.project_id
-  name            = "HealthByte Hackathon"
+  name            = "HealthByte"
   billing_account = var.billing_account
-  deletion_policy = "DELETE"
+  deletion_policy = "PREVENT"
   labels          = local.etiquetas
   depends_on      = [terraform_data.guardia_cuenta]
+  lifecycle {
+    ignore_changes = [org_id]
+  }
 }
 
 resource "google_project_service" "apis" {
@@ -71,6 +74,20 @@ resource "google_artifact_registry_repository" "repo" {
   format        = "DOCKER"
   labels        = local.etiquetas
   depends_on    = [time_sleep.apis]
+}
+
+# Reutiliza la cuenta de construcción de la primera publicación.
+data "google_service_account" "construccion" {
+  project    = var.project_id
+  account_id = "healthbyte-build"
+}
+
+resource "google_artifact_registry_repository_iam_member" "construccion" {
+  project    = var.project_id
+  location   = var.region
+  repository = google_artifact_registry_repository.repo.repository_id
+  role       = "roles/artifactregistry.writer"
+  member     = "serviceAccount:${data.google_service_account.construccion.email}"
 }
 
 resource "google_sql_database_instance" "db" {

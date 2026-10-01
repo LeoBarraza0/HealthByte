@@ -74,7 +74,7 @@ resource "google_cloud_run_v2_service" "api" {
         value_source {
           secret_key_ref {
             secret  = google_secret_manager_secret.jev.secret_id
-            version = "latest"
+            version = var.jev_version
           }
         }
       }
@@ -94,7 +94,7 @@ resource "google_cloud_run_v2_service" "api" {
 resource "google_cloud_run_v2_service" "web" {
   count                = local.con_servicios ? 1 : 0
   project              = google_project.p.project_id
-  name                 = "web"
+  name                 = "healthbyte-web"
   location             = var.region
   ingress              = "INGRESS_TRAFFIC_ALL"
   deletion_protection  = false

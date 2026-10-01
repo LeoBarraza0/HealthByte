@@ -10,3 +10,5 @@ steps:
 images:
   - '${_REGISTRO}/api:${_TAG}'
   - '${_REGISTRO}/web:${_TAG}'
+options:
+  logging: CLOUD_LOGGING_ONLY

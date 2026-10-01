@@ -24,6 +24,12 @@ variable "tag" {
   description = "Tag de las imágenes. Vacío: no se crean los servicios de Cloud Run."
 }
 
+variable "jev_version" {
+  type        = string
+  default     = "latest"
+  description = "Versión habilitada de Jev; el script fija su número para desplegar las rotaciones."
+}
+
 variable "api_min_instancias" {
   type        = number
   default     = 0
