@@ -9,7 +9,7 @@
   .login-conti h2 { font-size: 32px; line-height: 38px; margin-bottom: 10px; }
   .login-conti p { margin: 0; font-size: 18px; line-height: 27px; color: var(--sobre-navy); max-width: 380px; }
   .login-nota { margin: 0; font-size: 14px; color: var(--sobre-navy-2); }
-  .login-acceso { display: flex; align-items: center; justify-content: center; padding: 40px; }
+  .login-acceso { display: flex; align-items: center; justify-content: center; padding: 40px; min-width: 0; }
   form { width: 420px; max-width: 100%; display: flex; flex-direction: column; gap: 20px; }
   h1 { font-size: 30px; line-height: 36px; }
   form > div:first-child p { margin: 6px 0 0; color: var(--tenue); }
@@ -28,5 +28,5 @@
   .login-volver { font-size: 14px; padding-block: 8px; }
   button:disabled, input:disabled { opacity: .65; cursor: wait; }
   @media (max-width: 800px) { grid-template-columns: 36% minmax(0, 1fr); .login-bienvenida { padding: 30px 24px; } .login-acceso { padding: 32px 24px; } }
-  @media (max-width: 600px) { grid-template-columns: 1fr; .login-bienvenida { padding: 24px; gap: 0; } .login-conti, .login-nota { display: none; } .login-acceso { padding: 36px 24px; } }
+  @media (max-width: 600px) { grid-template-columns: minmax(0, 1fr); .login-bienvenida { padding: 24px; gap: 0; } .login-conti, .login-nota { display: none; } .login-acceso { padding: 36px 24px; } }
 }
