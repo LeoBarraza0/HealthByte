@@ -18,9 +18,11 @@ const FASES: Fase[] = [
     items: [
       { id: 'identidad', texto: 'Identidad del paciente', rol: 'anestesiologo', critico: true },
       { id: 'procedimiento', texto: 'Procedimiento', rol: 'cirujano', critico: true },
-      { id: 'sitio', texto: 'Sitio quirúrgico', rol: 'cirujano', critico: true },
+      { id: 'sitio', texto: 'Sitio quirúrgico y lateralidad', rol: 'cirujano', critico: true },
       { id: 'alergias', texto: 'Alergias', rol: 'anestesiologo' },
       { id: 'riesgos', texto: 'Riesgos relevantes', rol: 'anestesiologo' },
+      { id: 'via_aerea', texto: 'Vía aérea difícil o riesgo de aspiración', rol: 'anestesiologo' },
+      { id: 'sangrado', texto: 'Riesgo de sangrado mayor a 500 ml', rol: 'anestesiologo' },
       { id: 'equipamiento', texto: 'Equipamiento disponible', rol: 'instrumentador' },
     ],
   },
@@ -29,8 +31,9 @@ const FASES: Fase[] = [
     items: [
       { id: 'confirma_paciente', texto: 'Confirmación del paciente', rol: 'cirujano' },
       { id: 'confirma_procedimiento', texto: 'Confirmación del procedimiento', rol: 'cirujano' },
-      { id: 'confirma_sitio', texto: 'Confirmación del sitio quirúrgico', rol: 'cirujano' },
+      { id: 'confirma_sitio', texto: 'Confirmación del sitio y la lateralidad', rol: 'cirujano' },
       { id: 'equipo', texto: 'Identificación del equipo quirúrgico', rol: 'auxiliar_enfermeria' },
+      { id: 'esterilizacion', texto: 'Indicadores de esterilización del instrumental', rol: 'instrumentador', critico: true },
       { id: 'antibiotico', texto: 'Antibiótico profiláctico', rol: 'anestesiologo', critico: true },
       { id: 'riesgos_previstos', texto: 'Riesgos previstos', rol: 'cirujano' },
     ],
@@ -52,14 +55,14 @@ const MATERIALES = [
   'Hiladillos', 'Agujas Hipodérmicas', 'Agujas Sutura', 'Hojas de Bisturí', 'Drenes',
 ];
 
-const GLUCOMETRIA = { id: 'glucometria', etiqueta: 'Glucometría', unidad: 'mg/dl' };
+const GLUCOMETRIA = { id: 'glucometria', etiqueta: 'Glucometría', unidad: 'mg/dl', rango: { min: 70, max: 250 } };
 
 export const PROTOCOLO_CARDIO: Protocolo = {
   especialidad: 'Cardiovascular',
   campos_preop: [
     ...CAMPOS_BASE,
     { id: 'reserva_sangre', etiqueta: 'Reserva de Sangre y Cantidad', tipo: 'texto', obligatorio: true },
-    { id: 'glucometria', etiqueta: 'Glucometría', tipo: 'numero', unidad: 'mg/dl', obligatorio: true },
+    { id: 'glucometria', etiqueta: 'Glucometría', tipo: 'numero', unidad: 'mg/dl', obligatorio: true, rango: { min: 70, max: 250 } },
   ],
   fases: FASES,
   materiales: MATERIALES,
