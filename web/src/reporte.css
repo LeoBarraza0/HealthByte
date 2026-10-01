@@ -1,0 +1,65 @@
+/* Reporte «Control de consumos de cirugía»: en pantalla una hoja sobre fondo gris; impreso, solo la hoja. */
+.rp-fondo { min-height: 100vh; background: var(--linea); padding: 0 16px 32px; }
+.rp-barra { position: sticky; top: 0; z-index: 5; max-width: 816px; margin: 0 auto; padding: 12px 0; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; background: var(--linea); }
+.rp-barra span { font-size: 14px; color: var(--tinta-2); margin-right: auto; }
+.rp-estado { padding: 40px; text-align: center; color: var(--tenue); }
+
+.rp-hoja { width: 816px; max-width: 100%; margin: 0 auto; background: var(--blanco); padding: 32px 40px 24px; display: flex; flex-direction: column; gap: 10px; color: var(--tinta); box-shadow: 0 2px 12px rgba(13, 34, 50, 0.12); }
+.rp-cabecera { display: grid; grid-template-columns: 200px minmax(0, 1fr) 190px; border: 1px solid var(--borde-fuerte); border-radius: 4px; }
+.rp-marca { display: flex; flex-direction: column; justify-content: center; gap: 2px; padding: 8px 12px; border-right: 1px solid var(--borde-fuerte); }
+.rp-marca .display { font-size: 17px; font-weight: 500; }
+.rp-marca b { color: var(--azul); font-weight: 700; }
+.rp-marca > span:last-child { font-size: 10px; color: var(--tinta-2); }
+.rp-cabecera h1 { display: flex; align-items: center; justify-content: center; text-align: center; font-size: 19px; line-height: 24px; padding: 8px; }
+.rp-meta { display: grid; grid-template-rows: repeat(3, 1fr); border-left: 1px solid var(--borde-fuerte); font-size: 10px; }
+.rp-meta div { padding: 3px 8px; border-bottom: 1px solid var(--linea); }
+.rp-meta div:last-child { border-bottom: 0; }
+.rp-meta span { color: var(--tenue); }
+
+.rp-sec { margin: 0; font-family: var(--texto); font-size: 12px; font-weight: 700; color: var(--blanco); background: var(--azul); padding: 4px 10px; border-radius: 4px 4px 0 0; }
+.rp-gr { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid var(--borde-fuerte); border-top: 0; border-radius: 0 0 4px 4px; }
+.rp-cp { display: flex; flex-direction: column; padding: 3px 8px; border-right: 1px solid var(--linea); border-bottom: 1px solid var(--linea); min-width: 0; }
+.rp-cp span { font-size: 9px; line-height: 12px; color: var(--tenue); }
+.rp-cp b { font-size: 11px; line-height: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rp-sn { display: inline-flex; gap: 4px; }
+.rp-sn i { font-style: normal; font-size: 10px; font-weight: 600; padding: 0 5px; border: 1px solid var(--borde-fuerte); border-radius: 3px; color: var(--gris); }
+
+.rp-columnas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: start; }
+.rp-columnas > div { display: flex; flex-direction: column; gap: 10px; }
+.rp-tb { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 10px; line-height: 13px; break-inside: avoid; }
+.rp-tb caption { text-align: left; font-size: 11px; font-weight: 700; color: var(--azul-osc); background: var(--azul-claro); padding: 3px 8px; border: 1px solid var(--borde-fuerte); border-bottom: 0; }
+.rp-tb th { font-size: 9.5px; font-weight: 600; color: var(--tenue); text-align: left; padding: 2px 6px; border: 1px solid var(--borde-fuerte); background: var(--fondo); }
+.rp-tb td { padding: 0 6px; border: 1px solid var(--borde); height: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rp-tb .rp-cs { width: 104px; color: var(--tenue); font-size: 9px; }
+.rp-tb .rp-t { width: 40px; text-align: right; }
+.rp-tb .rp-cd { width: 52px; }
+.rp-tb tr.rp-u td { font-weight: 600; color: var(--tinta); }
+.rp-tb tr.rp-u .rp-cs { color: var(--azul); font-weight: 500; }
+.rp-tb tr.rp-u .rp-t { background: var(--azul-tenue); }
+.rp-mc { margin-left: 6px; font-size: 8.5px; font-weight: 600; color: var(--ok); background: var(--ok-fondo); border-radius: 3px; padding: 0 4px; }
+
+.rp-equipos { column-count: 4; column-gap: 14px; padding: 8px 10px 2px; border: 1px solid var(--borde-fuerte); border-top: 0; border-radius: 0 0 4px 4px; }
+.rp-eq { display: flex; flex-direction: column; gap: 1px; font-size: 9.5px; break-inside: avoid; margin-bottom: 6px; }
+.rp-eq b { color: var(--azul-osc); }
+.rp-ck { display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+.rp-ck i { font-style: normal; width: 11px; height: 11px; border: 1px solid var(--gris); border-radius: 2px; display: inline-flex; align-items: center; justify-content: center; font-size: 9px; line-height: 1; flex-shrink: 0; }
+.rp-ck i.on { background: var(--azul); border-color: var(--azul); color: var(--blanco); }
+
+.rp-firmas { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 230px; gap: 20px; align-items: end; margin-top: 16px; }
+.rp-firmas > div:not(.rp-resumen) { display: flex; flex-direction: column; gap: 2px; font-size: 10.5px; }
+.rp-firmas b { font-size: 12px; }
+.rp-firmas > div:not(.rp-resumen) span { border-top: 1px solid var(--tinta); padding-top: 3px; color: var(--tenue); }
+.rp-resumen { background: var(--azul-tenue); border-radius: 6px; padding: 8px 10px; font-size: 10.5px; line-height: 15px; }
+.rp-pie { margin-top: 6px; border-top: 1px solid var(--borde); padding-top: 8px; font-size: 9.5px; line-height: 14px; color: var(--tenue); display: flex; flex-direction: column; gap: 6px; }
+.rp-pie p { margin: 0; }
+.rp-copias { display: flex; gap: 28px; }
+
+/* Impreso o guardado en PDF: solo la hoja, tamaño oficio, con sus colores. */
+@page { size: legal portrait; margin: 8mm; }
+@media print {
+  body { background: var(--blanco); }
+  .rp-fondo { background: none; padding: 0; min-height: 0; }
+  .rp-barra { display: none; }
+  .rp-hoja { width: 816px; box-shadow: none; padding: 0; zoom: 0.8; } /* cabe en una hoja oficio, como la planilla */
+  .rp-hoja, .rp-hoja * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
