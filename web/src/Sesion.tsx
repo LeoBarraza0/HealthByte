@@ -9,6 +9,7 @@ import { BarraVoz } from './BarraVoz.tsx';
 import { Ahora } from './Ahora.tsx';
 import { Atencion } from './Atencion.tsx';
 import { Lateral } from './Lateral.tsx';
+import { Bitacora } from './Bitacora.tsx';
 import './sesion.css';
 
 export function Sesion({ cirugiaId }: { cirugiaId: string; yo: Usuario }) {
@@ -52,6 +53,7 @@ export function Sesion({ cirugiaId }: { cirugiaId: string; yo: Usuario }) {
         <aside className="sesion-lateral">
           <Atencion estado={s.estado} modo={modo} registrar={registrar} />
           <Lateral estado={s.estado} modo={modo} registrar={registrar} />
+          <Bitacora estado={s.estado} modo={modo} />
         </aside>
       </main>
       <BarraVoz

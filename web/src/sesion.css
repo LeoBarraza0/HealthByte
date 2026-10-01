@@ -787,3 +787,18 @@
 
 /* Nivel del micrófono: se ve si capta la voz y dónde está el umbral. */
 .barra-voz-nivel { width: 120px; height: 10px; }
+
+/* ==================== BITÁCORA ==================== */
+.bitacora { background: var(--blanco); border: 1px solid var(--borde); border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
+.bitacora-titulo { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.bitacora-titulo h2 { font-size: 18px; }
+.bitacora-titulo span, .bitacora-vacio { font-size: 14px; color: var(--tenue); margin: 0; }
+.bitacora ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.bitacora li { display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; gap: 10px; align-items: baseline; padding: 8px 0; border-bottom: 1px solid var(--linea); font-size: 15px; }
+.bitacora li:last-child { border-bottom: 0; }
+.bitacora time { font-weight: 600; color: var(--tinta-2); }
+.bitacora-origen { font-size: 13px; color: var(--tenue); }
+.bitacora-todo { font-size: 15px; font-weight: 600; min-height: 44px; display: inline-flex; align-items: center; }
+.sesion.pared .bitacora h2 { font-size: 26px; }
+.sesion.pared .bitacora li { font-size: 22px; grid-template-columns: 72px minmax(0, 1fr) auto; }
+.sesion.pared .bitacora-origen { font-size: 18px; }
