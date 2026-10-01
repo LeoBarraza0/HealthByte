@@ -11,7 +11,8 @@ funcional). Sale de la sesión de definición del 1 de octubre de 2026. Insumos:
 
 - El reto oficial, «Tablero Inteligente de Seguridad Quirúrgica».
 - Los campos del tablero físico que hoy llena el equipo: [campos-tablero-fisico](../../../Notas/campos-tablero-fisico.md).
-- La investigación previa: [problematicas-y-soluciones](../../../Notas/problematicas-y-soluciones.md).
+- La investigación previa (cifras D1 a D15): `Notas/problematicas-y-soluciones.md`, retirada del repo; consultarla con `git show 9b5024d^:Notas/problematicas-y-soluciones.md`.
+- El análisis crítico del equipo: [analisis_critico_requerimientos_vs_propuesta](../../../Notas/analisis_critico_requerimientos_vs_propuesta.md). Las decisiones que generó están al final del plan, en «Ola 2».
 
 ## 1. Decisiones tomadas
 

@@ -5291,3 +5291,607 @@ git pull --rebase && git push
 - Exportar la cirugía a PDF.
 - Mostrar los eventos anulados en la trazabilidad (hoy el detalle muestra solo los vigentes; los anulados siguen en la base).
 - Deshacer una frase completa cuando registró varios ítems a la vez (hoy deshace el último).
+
+---
+
+## Ola 2: ajustes a tareas existentes y tareas nuevas
+
+Decisiones del 1 de octubre, tras el [análisis crítico](../../../Notas/analisis_critico_requerimientos_vs_propuesta.md):
+
+- **Entran:** reglas clínicas, ítems de checklist que faltaban, protocolo ante conteo descuadrado, seudonimización antes de Jev y Conti (la mascota) en la barra de voz.
+- **No entran:** doble confirmación, PIN personal, bloqueo por inactividad y modo sin conexión.
+
+El orquestador ya amplió `api/src/tipos.ts`:
+- `Rango` y `rango?` en `CampoPreop` y `Medicion`.
+- `AccionConteo` y el evento `accion_conteo`.
+- `acciones_conteo` en `EstadoCirugia`, que `estado.ts` ya llena.
+- `FaseVoz` y el mensaje `{ tipo: 'voz' }` en `MsgServidor`.
+- `no_entendido?` en la decisión `ignorar`.
+- `atrapados` en `Panel`.
+
+Las tareas de abajo **reemplazan o completan** el código de las tareas originales donde se indica.
+
+### Cambios a la Tarea 7 (salas en vivo)
+
+1. En `FORMAS` de `sesion.ts`, agrega:
+
+```ts
+  accion_conteo: { accion: 'string' },
+```
+
+y en `validarDatos`, después de la validación de `check`:
+
+```ts
+  if (o.tipo === 'accion_conteo' && !['cirujano_avisado', 'busqueda_en_campo', 'rx_solicitada'].includes(o.accion as string)) return null;
+```
+
+2. Reemplaza `alFinal` por esta versión, que avisa a los dispositivos qué pasó con cada frase (lo usa Conti):
+
+```ts
+  async function alFinal(s: Sala, frase: string): Promise<void> {
+    const c = s.microfono;
+    if (!c) return;
+    difundir(s, { tipo: 'voz', fase: 'procesando', texto: frase });
+    let d: Decision;
+    try {
+      d = await deps.interpretar(frase, s.estado, s.pendiente !== null);
+    } catch {
+      difundir(s, { tipo: 'voz', fase: 'no_entendido', texto: frase });
+      difundir(s, { tipo: 'aviso', texto: `No interpretada: «${frase}». Regístrala a mano.` });
+      return;
+    }
+    if (d.accion === 'ignorar') {
+      difundir(s, { tipo: 'voz', fase: d.no_entendido ? 'no_entendido' : 'ignorado', texto: frase });
+      return;
+    }
+    if (d.accion === 'confirmar') {
+      const eventos = d.eventos.map(x => nuevo(s, c, x, 'voz', frase, d.confianza));
+      limpiarPendiente(s);
+      s.pendiente = {
+        eventos, resumen: d.resumen, expira: Date.now() + espera,
+        timer: setTimeout(() => { s.pendiente = null; difundirEstado(s); }, espera),
+      };
+      difundirEstado(s);
+      return;
+    }
+    if (d.accion === 'responder') {
+      await responder(s, d.si);
+      difundir(s, { tipo: 'voz', fase: d.si ? 'registrado' : 'ignorado', texto: frase });
+      return;
+    }
+    if (d.accion === 'deshacer') await deshacer(s, c, 'voz');
+    else await registrar(s, d.eventos.map(x => nuevo(s, c, x, 'voz', frase, d.confianza)));
+    difundir(s, { tipo: 'voz', fase: 'registrado', texto: frase });
+  }
+```
+
+3. Agrega a `sesion.test.ts`:
+
+```ts
+test('avisa qué pasó con cada frase dictada', async () => {
+  const a = montar({ accion: 'registrar', eventos: [{ tipo: 'hito', hito: 'Heparina' }], confianza: 0.95, resumen: 'Heparina' });
+  const tablet = cliente('Tablet');
+  await a.salas.mensaje(tablet, { tipo: 'unirse', cirugia_id: CIRUGIA_ID, dispositivo: 'Tablet' });
+  await a.salas.mensaje(tablet, { tipo: 'tomar_microfono' });
+  a.voz().onFinal('heparina');
+  await esperar(5);
+  const fases = tablet.recibidos.flatMap(m => (m.tipo === 'voz' ? [m.fase] : []));
+  assert.deepEqual(fases, ['procesando', 'registrado']);
+
+  const b = montar({ accion: 'ignorar', no_entendido: true });
+  const otra = cliente('Tablet');
+  await b.salas.mensaje(otra, { tipo: 'unirse', cirugia_id: CIRUGIA_ID, dispositivo: 'Tablet' });
+  await b.salas.mensaje(otra, { tipo: 'tomar_microfono' });
+  b.voz().onFinal('ruido');
+  await esperar(5);
+  assert.equal(otra.recibidos.filter(m => m.tipo === 'voz').at(-1)?.fase, 'no_entendido');
+});
+```
+
+### Cambios a la Tarea 8 (intérprete)
+
+1. En `preguntas.ts`, agrega antes de `describir`:
+
+```ts
+export const ACCIONES_CONTEO: Record<AccionConteo, string> = {
+  cirujano_avisado: 'Cirujano avisado del conteo',
+  busqueda_en_campo: 'Búsqueda en campo y cubetas',
+  rx_solicitada: 'Rx intraoperatoria solicitada',
+};
+```
+
+Agrega `AccionConteo` al `import type` de `./tipos.ts`, y en el `switch` de `describir`:
+
+```ts
+    case 'accion_conteo': return ACCIONES_CONTEO[d.accion];
+```
+
+2. En `interprete.ts`, haz la Tarea 19 primero y luego:
+   - importa `seudonimizar` de `./privacidad.ts`;
+   - al inicio de `interpretar`, `const segura = seudonimizar(frase, s.cirugia);`. Usa `segura` (no `frase`) en `estadoParaJev`, `construirPreguntas`, `numerosConContexto`, `primerNumero` y en los textos de `novedad`, `novedad_atendida`, `novedad_solucionada` y `alerta_cierre`;
+   - marca lo que iba dirigido pero no se entendió:
+
+```ts
+  if (!intencion || intencion.confidence < UMBRALES.minimo) return { accion: 'ignorar', no_entendido: true };
+```
+
+   y agrega `case 'nada': return { accion: 'ignorar' };` al `switch`. Cambia los dos `return { accion: 'ignorar' };` del final (sin eventos y confianza baja) por `return { accion: 'ignorar', no_entendido: true };`.
+
+3. Agrega a `interprete.test.ts`:
+
+```ts
+test('no envía la identidad del paciente a Jev', async () => {
+  let enviado: unknown;
+  const espia: PreguntarFn = async state => { enviado = state; return { dirigida: noul(0.1) }; };
+  await interpretar('entra Prueba con cédula 41 728 305', estado(), false, espia);
+  assert.equal((enviado as { frase: string }).frase, 'entra [PACIENTE] con cédula [ID]');
+});
+
+test('una frase dirigida que no se entiende queda marcada', async () => {
+  const d = await interpretar('eh, el coso ese', estado(), false, jev({ dirigida: noul(0.8), intencion: choice('hito', 0.4) }));
+  assert.deepEqual(d, { accion: 'ignorar', no_entendido: true });
+});
+```
+
+### Cambios a la Tarea 11 (panel)
+
+En `panel.ts`, agrega:
+
+```ts
+// Alertas que de verdad atraparon un riesgo; se excluyen los pendientes rutinarios del checklist.
+const CATEGORIAS: [RegExp, string][] = [
+  [/^dato:/, 'Dato del paciente completado'],
+  [/^alergia$/, 'Alergia validada'],
+  [/^betalactamico$/, 'Compatibilidad de antibiótico confirmada'],
+  [/^rango:/, 'Valor clínico fuera de rango atendido'],
+  [/^negado:/, 'Discrepancia con lo programado corregida'],
+  [/^conteo:/, 'Conteo corregido antes de cerrar'],
+];
+```
+
+y en el objeto que devuelve `resumir`, después de `alertas`:
+
+```ts
+    atrapados: CATEGORIAS
+      .map(([re, categoria]) => ({ categoria, veces: alertas.filter(a => a.estado === 'resuelta' && re.test(a.id)).length }))
+      .filter(x => x.veces > 0),
+```
+
+Prueba en `panel.test.ts`:
+
+```ts
+test('cuenta como atrapado un conteo que se corrigió antes de cerrar', () => {
+  const s = derivar(cirugiaPrueba(), P, [
+    ...flujoHasta('fin_cirugia'),
+    ev({ tipo: 'conteo', material: 'Compresas', cantidad: -9 }, 111),
+    ev({ tipo: 'conteo', material: 'Compresas', cantidad: -1 }, 113),
+  ]);
+  assert.deepEqual(resumir([s]).atrapados, [{ categoria: 'Conteo corregido antes de cerrar', veces: 1 }]);
+});
+```
+
+### Cambios a las Tareas 12 y 13 (front)
+
+1. En `web/src/etiquetas.ts`, en el `switch` de `describir`:
+
+```ts
+    case 'accion_conteo': return { cirujano_avisado: 'Cirujano avisado del conteo', busqueda_en_campo: 'Búsqueda en campo y cubetas', rx_solicitada: 'Rx intraoperatoria solicitada' }[d.accion];
+```
+
+2. En `web/src/useSesion.ts`, guarda las señales que necesita Conti. Agrega estos estados:
+
+```ts
+  const [ultimoParcial, setUltimoParcial] = useState<number | null>(null);
+  const [ultimaVoz, setUltimaVoz] = useState<{ fase: FaseVoz; en: number } | null>(null);
+```
+
+reemplaza el manejo de mensajes por:
+
+```ts
+      s.onmessage = ev => {
+        const m = JSON.parse(ev.data as string) as MsgServidor;
+        if (m.tipo === 'estado') {
+          setEstado(m.estado);
+          setMicrofono(m.microfono);
+          setPendiente(m.pendiente);
+          setParcial('');
+        } else if (m.tipo === 'parcial') {
+          setParcial(m.texto);
+          setUltimoParcial(Date.now());
+        } else if (m.tipo === 'voz') {
+          setUltimaVoz({ fase: m.fase, en: Date.now() });
+        } else setAviso(m.texto);
+      };
+```
+
+y devuelve también `ultimoParcial` y `ultimaVoz` (agrega `FaseVoz` al `import type`).
+
+---
+
+### Tarea 18: Reglas e ítems clínicos
+
+**Archivos:**
+- Modificar: `api/src/protocolos.ts`, `api/src/alertas.ts`, `api/src/alertas.test.ts`
+
+**Interfaces:**
+- Consume: `Rango` y `rango?` del contrato.
+- Produce: tres alertas nuevas con estos `id`: `rango:<variable>` (crítica), `antibiotico_ventana` (advertencia) y `betalactamico` (crítica). También cuatro ítems nuevos de checklist.
+- **No cambies los `id` de los ítems existentes**: otras tareas y pruebas dependen de ellos.
+
+- [ ] **Paso 1: Ítems y rangos en los protocolos**
+
+En `protocolos.ts`:
+- En `antes_anestesia`: el texto de `sitio` pasa a `'Sitio quirúrgico y lateralidad'`. Después de `riesgos` agrega:
+
+```ts
+      { id: 'via_aerea', texto: 'Vía aérea difícil o riesgo de aspiración', rol: 'anestesiologo' },
+      { id: 'sangrado', texto: 'Riesgo de sangrado mayor a 500 ml', rol: 'anestesiologo' },
+```
+
+- En `antes_incision`: el texto de `confirma_sitio` pasa a `'Confirmación del sitio y la lateralidad'`. Después de `equipo` agrega:
+
+```ts
+      { id: 'esterilizacion', texto: 'Indicadores de esterilización del instrumental', rol: 'instrumentador', critico: true },
+```
+
+- `GLUCOMETRIA` y el campo `glucometria` de `PROTOCOLO_CARDIO` llevan `rango: { min: 70, max: 250 }`.
+
+- [ ] **Paso 2: Escribir las pruebas**
+
+En `alertas.test.ts`, la prueba del antibiótico ahora espera dos críticos pendientes:
+
+```ts
+  assert.deepEqual(abiertas(derivar(c, P, base)), ['critico:antes_incision.antibiotico', 'critico:antes_incision.esterilizacion']);
+```
+
+Y agrega:
+
+```ts
+test('glucometría fuera de rango y su resolución con una medición nueva', () => {
+  const alta = derivar(cirugiaPrueba({ ...DATOS_PRUEBA, glucometria: 380 }), P, []);
+  assert.ok(abiertas(alta).includes('rango:glucometria'));
+  assert.equal(alerta(alta, 'rango:glucometria')?.mensaje, 'Glucometría fuera de rango: 380 mg/dl');
+  const corregida = derivar(cirugiaPrueba({ ...DATOS_PRUEBA, glucometria: 380 }), P, [
+    ev({ tipo: 'medicion', medicion: 'glucometria', valor: 180 }, 30),
+  ]);
+  assert.equal(alerta(corregida, 'rango:glucometria')?.estado, 'resuelta');
+});
+
+test('antibiótico verificado más de 60 minutos antes de la incisión', () => {
+  const s = derivar(c, P, [
+    ...flujoHasta('anestesia'),
+    ev({ tipo: 'check', fase: 'antes_incision', item: 'antibiotico', valor: 'si' }, 12),
+    ev({ tipo: 'hora', hora: 'inicio_cirugia' }, 80),
+  ]);
+  assert.ok(abiertas(s).includes('antibiotico_ventana'));
+});
+
+test('alergia a penicilina con un betalactámico dictado', () => {
+  const s = derivar(cirugiaPrueba({ ...DATOS_PRUEBA, alergias: 'Penicilina' }), P, [
+    ev({ tipo: 'hora', hora: 'ingreso' }, 0),
+    ev({ tipo: 'check', fase: 'antes_incision', item: 'antibiotico', valor: 'si' }, 12, { texto: 'cefazolina dos gramos aplicada' }),
+  ]);
+  assert.ok(abiertas(s).includes('betalactamico'));
+});
+```
+
+- [ ] **Paso 3: Correr y verificar que fallan**
+
+Run: `cd api && npm test`
+Expected: FAIL en las cuatro pruebas tocadas.
+
+- [ ] **Paso 4: Implementar las reglas**
+
+En `alertas.ts`, agrega `Rango` al `import type` y estas reglas antes de `REGLAS`:
+
+```ts
+const BETALACTAMICOS = /cefazolin|cefalotin|cefuroxim|ceftriaxon|ampicilin|amoxicilin|penicilin|piperacilin/i;
+const ALERGIA_A_PENICILINA = /penicilin|betalact/i;
+
+// Último valor de cada variable con rango: la medición más reciente o, si no hay, el dato preoperatorio.
+const fueraDeRango: Regla = s => {
+  const variables = new Map<string, { etiqueta: string; unidad: string; rango: Rango }>();
+  for (const c of s.protocolo.campos_preop) if (c.rango) variables.set(c.id, { etiqueta: c.etiqueta, unidad: c.unidad ?? '', rango: c.rango });
+  for (const m of s.protocolo.mediciones) if (m.rango) variables.set(m.id, { etiqueta: m.etiqueta, unidad: m.unidad, rango: m.rango });
+  return [...variables].flatMap(([id, v]): AlertaActiva[] => {
+    const ultima = s.eventos.findLast(e => e.datos.tipo === 'medicion' && e.datos.medicion === id);
+    const valor = ultima?.datos.tipo === 'medicion' ? ultima.datos.valor : s.datos[id];
+    if (typeof valor !== 'number' || (valor >= v.rango.min && valor <= v.rango.max)) return [];
+    return [{ id: `rango:${id}`, severidad: 'critica', mensaje: `${v.etiqueta} fuera de rango: ${valor} ${v.unidad}`.trim() }];
+  });
+};
+
+// La hora del check es cuándo se verificó, no cuándo se aplicó: es una aproximación conservadora.
+const antibioticoFueraDeVentana: Regla = s => {
+  const c = s.checks['antes_incision.antibiotico'];
+  const incision = s.horas.inicio_cirugia;
+  if (c?.valor !== 'si' || !incision) return [];
+  const minutos = Math.round((Date.parse(incision) - Date.parse(c.ts)) / 60_000);
+  return minutos > 60
+    ? [{ id: 'antibiotico_ventana', severidad: 'advertencia', mensaje: `Antibiótico verificado ${minutos} min antes de la incisión: evaluar dosis de refuerzo` }]
+    : [];
+};
+
+const betalactamicoConAlergia: Regla = s => {
+  if (!ALERGIA_A_PENICILINA.test(String(s.datos.alergias ?? ''))) return [];
+  const dictado = s.eventos.some(e => e.datos.tipo === 'check' && e.datos.item === 'antibiotico' && BETALACTAMICOS.test(e.texto ?? ''));
+  return dictado ? [{ id: 'betalactamico', severidad: 'critica', mensaje: 'Alergia a penicilina y betalactámico dictado: confirme compatibilidad' }] : [];
+};
+```
+
+Agrega `fueraDeRango, antibioticoFueraDeVentana, betalactamicoConAlergia` al final del arreglo `REGLAS`.
+
+- [ ] **Paso 5: Correr las pruebas**
+
+Run: `cd api && npm test && npm run tipos`
+Expected: todas en PASS y `tsc` sin errores.
+
+- [ ] **Paso 6: Commit**
+
+```bash
+git add api/src/protocolos.ts api/src/alertas.ts api/src/alertas.test.ts
+git commit -m "feat(api): agregar reglas clínicas e ítems de checklist que faltaban"
+git pull --rebase && git push
+```
+
+---
+
+### Tarea 19: Seudonimización antes de Jev
+
+**Archivos:**
+- Crear: `api/src/privacidad.ts`
+- Prueba: `api/src/privacidad.test.ts`
+
+**Interfaces:**
+- Consume: `normalizar` (1) y `Cirugia` (contrato).
+- Produce: `seudonimizar(texto: string, cirugia: Cirugia): string`. Reemplaza las palabras del nombre del paciente por `[PACIENTE]` y los números de 6 dígitos o más (con espacios, puntos o guiones) por `[ID]`.
+
+El audio que va a Chirp 3 no se puede seudonimizar. Se mitiga porque la identidad llega de la programación y no se dicta.
+
+- [ ] **Paso 1: Escribir la prueba**
+
+`api/src/privacidad.test.ts`:
+
+```ts
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { seudonimizar } from './privacidad.ts';
+import { cirugiaPrueba } from './prueba.ts';
+
+const c = { ...cirugiaPrueba(), paciente: { ...cirugiaPrueba().paciente, nombre: 'Rosa Elena Martínez' } };
+
+test('reemplaza el nombre del paciente, con o sin tildes', () => {
+  assert.equal(seudonimizar('ingresa Rosa Elena Martinez a sala', c), 'ingresa [PACIENTE] a sala');
+});
+
+test('reemplaza documentos y deja los conteos', () => {
+  assert.equal(seudonimizar('cédula 41.728.305, entran diez compresas y 20 gasas', c), 'cédula [ID], entran diez compresas y 20 gasas');
+});
+
+test('no toca frases sin datos personales', () => {
+  assert.equal(seudonimizar('confirmo identidad, procedimiento y sitio', c), 'confirmo identidad, procedimiento y sitio');
+});
+```
+
+- [ ] **Paso 2: Correr y verificar que falla**
+
+Run: `cd api && npm test`
+Expected: FAIL con `Cannot find module` sobre `privacidad.ts`.
+
+- [ ] **Paso 3: Implementar**
+
+`api/src/privacidad.ts`:
+
+```ts
+import type { Cirugia } from './tipos.ts';
+import { normalizar } from './numeros.ts';
+
+/** Quita la identidad del paciente del texto que sale hacia servicios externos (Ley 1581 de 2012). */
+export function seudonimizar(texto: string, cirugia: Cirugia): string {
+  const nombre = new Set(normalizar(cirugia.paciente.nombre).split(/\s+/).filter(p => p.length >= 3));
+  return texto
+    .replace(/\d[\d.\s-]{4,}\d/g, '[ID]')
+    .replace(/\p{L}+/gu, palabra => (nombre.has(normalizar(palabra)) ? '[PACIENTE]' : palabra))
+    .replace(/\[PACIENTE\](\s+\[PACIENTE\])+/g, '[PACIENTE]');
+}
+```
+
+- [ ] **Paso 4: Correr las pruebas**
+
+Run: `cd api && npm test && npm run tipos`
+Expected: todas en PASS y `tsc` sin errores.
+
+- [ ] **Paso 5: Commit**
+
+```bash
+git add api/src/privacidad.ts api/src/privacidad.test.ts
+git commit -m "feat(api): seudonimizar la identidad del paciente antes de Jev"
+git pull --rebase && git push
+```
+
+---
+
+### Tarea 20: Conti en el front
+
+**Archivos:**
+- Crear: `web/public/conti/` (copia de `Visuales/conti/`), `web/src/estadoConti.ts`, `web/src/estadoConti.test.ts`, `web/src/conti.d.ts`
+- Modificar: `web/public/conti/conti.js`
+
+**Interfaces:**
+- Consume: `FaseVoz` (contrato) y la especificación [Diseño/conti-estados.md](../../../Diseño/conti-estados.md).
+- Produce:
+  - `<hb-conti state="…" calma>` con los estados `paused`, `idle`, `listening`, `processing`, `asking`, `verified`, `confused`, `alert`, `celebrate` y `greeting`.
+  - `estadoConti(s: SenalesConti): ContiEstado`.
+
+- [ ] **Paso 1: Copiar el componente**
+
+Run: `mkdir -p web/public/conti && cp Visuales/conti/* web/public/conti/`
+
+- [ ] **Paso 2: Estados que faltan en `conti.js`**
+
+En el SVG, dentro de `<g class="eyes">`, agrega los ojos de pregunta y los planos:
+
+```html
+            <g class="e e-ask">
+              <rect x="530" y="635" width="38" height="87" rx="19"/>
+              <rect x="687" y="648" width="34" height="66" rx="17"/>
+            </g>
+            <g class="e e-flat">
+              <rect x="526" y="668" width="46" height="16" rx="8"/>
+              <rect x="681" y="668" width="46" height="16" rx="8"/>
+            </g>
+```
+
+Y junto a las otras bocas:
+
+```html
+          <circle class="m m-o" cx="627" cy="735" r="15" fill="url(#inkv${id})"/>
+          <path class="m m-wavy" d="M596 734 q10 -12 20 0 t20 0 t20 0" fill="none" stroke="url(#inkv${id})" stroke-width="11"/>
+```
+
+Al final de `CSS`, antes de la regla de `prefers-reduced-motion`:
+
+```css
+  hb-conti[state="asking"] .e-ask,hb-conti[state="confused"] .e-flat,
+  hb-conti[state="celebrate"] .e-happy,hb-conti[state="greeting"] .e-happy{opacity:1}
+  hb-conti[state="asking"] .m-o,hb-conti[state="confused"] .m-wavy,
+  hb-conti[state="celebrate"] .m-open,hb-conti[state="greeting"] .m-smile{opacity:1}
+  hb-conti[state="asking"] .hr{animation:none;transform:translate(10px,-90px) rotate(12deg);transform-origin:1005px 680px}
+  hb-conti[state="confused"] .shake{transform:rotate(-6deg);transform-origin:627px 640px}
+  hb-conti[state="confused"] .b-mint{opacity:0}
+  hb-conti[state="confused"] .b-grey{opacity:1}
+  hb-conti[state="celebrate"] .hl{animation:hbc-cheer-l 1.8s ease-in-out infinite;transform-origin:250px 680px}
+  hb-conti[state="celebrate"] .hr{animation:hbc-cheer-r 1.8s ease-in-out infinite;transform-origin:1005px 680px}
+  hb-conti[state="celebrate"] .byte-in{transform:scale(1.18);transform-origin:880px 180px}
+  hb-conti[state="greeting"] .hl{animation:hbc-saludo 1.6s ease-in-out infinite;transform-origin:250px 680px}
+  @keyframes hbc-saludo{0%,100%{transform:rotate(0)}25%{transform:translateY(-60px) rotate(-14deg)}75%{transform:translateY(-60px) rotate(8deg)}}
+  hb-conti[calma] .fig{animation-name:hbc-float-calma}
+  @keyframes hbc-float-calma{0%,100%{transform:translateY(0)}50%{transform:translateY(-13px)}}
+```
+
+Para que el lector de pantalla diga el estado, en la clase del `customElements.define` agrega:
+
+```js
+    static observedAttributes = ['state'];
+    attributeChangedCallback() { this._etiqueta(); }
+    _etiqueta() {
+      const nombres = { idle: 'atento', listening: 'escuchando', processing: 'procesando', asking: 'pregunta',
+        verified: 'registrado', confused: 'no entendió', alert: 'alerta', error: 'alerta', paused: 'en pausa',
+        celebrate: 'cierre seguro', greeting: 'saludando' };
+      this.querySelector('svg')?.setAttribute('aria-label', `Conti: ${nombres[this.getAttribute('state')] ?? 'atento'}`);
+    }
+```
+
+y llama `this._etiqueta();` al final de `connectedCallback`.
+
+- [ ] **Paso 3: Escribir la prueba del estado**
+
+`web/src/estadoConti.test.ts`:
+
+```ts
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { estadoConti, type SenalesConti } from './estadoConti.ts';
+
+const base: SenalesConti = {
+  ahora: 10_000, microfonoActivo: true, ultimoParcial: null, pendiente: false,
+  ultimaVoz: null, ultimaAlertaCritica: null, cierreSeguro: null,
+};
+
+test('sin micrófono está en pausa, aunque haya algo pendiente', () => {
+  assert.equal(estadoConti({ ...base, microfonoActivo: false, pendiente: true }), 'paused');
+});
+
+test('la confirmación pendiente manda sobre todo lo demás', () => {
+  assert.equal(estadoConti({ ...base, pendiente: true, ultimaAlertaCritica: 9_000 }), 'asking');
+});
+
+test('del procesamiento al registro y de vuelta al reposo', () => {
+  assert.equal(estadoConti({ ...base, ultimaVoz: { fase: 'procesando', en: 9_800 } }), 'processing');
+  assert.equal(estadoConti({ ...base, ultimaVoz: { fase: 'registrado', en: 9_000 } }), 'verified');
+  assert.equal(estadoConti({ ...base, ultimaVoz: { fase: 'registrado', en: 7_000 } }), 'idle');
+});
+
+test('si alguien habla, escucha', () => {
+  assert.equal(estadoConti({ ...base, ultimoParcial: 9_500, ultimaVoz: { fase: 'registrado', en: 9_000 } }), 'listening');
+});
+
+test('la conversación ignorada no cambia a Conti', () => {
+  assert.equal(estadoConti({ ...base, ultimaVoz: { fase: 'ignorado', en: 9_900 } }), 'idle');
+});
+
+test('no entendió, alerta y cierre seguro', () => {
+  assert.equal(estadoConti({ ...base, ultimaVoz: { fase: 'no_entendido', en: 9_000 } }), 'confused');
+  assert.equal(estadoConti({ ...base, ultimaAlertaCritica: 8_000 }), 'alert');
+  assert.equal(estadoConti({ ...base, cierreSeguro: 8_000 }), 'celebrate');
+});
+```
+
+- [ ] **Paso 4: Correr y verificar que falla**
+
+Run: `cd web && npm test`
+Expected: FAIL con `Cannot find module` sobre `estadoConti.ts`.
+
+- [ ] **Paso 5: Implementar**
+
+`web/src/estadoConti.ts`:
+
+```ts
+import type { FaseVoz } from '../../api/src/tipos.ts';
+
+export type ContiEstado = 'paused' | 'idle' | 'listening' | 'processing' | 'asking' | 'verified' | 'confused' | 'alert' | 'celebrate';
+
+export interface SenalesConti {
+  ahora: number;
+  microfonoActivo: boolean; // algún dispositivo de la sala tiene el micrófono
+  ultimoParcial: number | null;
+  pendiente: boolean;
+  ultimaVoz: { fase: FaseVoz; en: number } | null;
+  ultimaAlertaCritica: number | null; // cuándo se abrió la última alerta crítica nueva
+  cierreSeguro: number | null; // cuándo se registró la salida sin alertas abiertas
+}
+
+const DURA = { parcial: 1500, procesando: 5000, registrado: 2500, no_entendido: 3000, alerta: 4000, cierre: 4000 };
+
+/** Prioridad de Diseño/conti-estados.md: paused > asking > alert > processing > listening > verified > confused > celebrate > idle. */
+export function estadoConti(s: SenalesConti): ContiEstado {
+  const reciente = (t: number | null, ms: number) => t !== null && s.ahora - t < ms;
+  const v = s.ultimaVoz;
+  if (!s.microfonoActivo) return 'paused';
+  if (s.pendiente) return 'asking';
+  if (reciente(s.ultimaAlertaCritica, DURA.alerta)) return 'alert';
+  if (v?.fase === 'procesando' && reciente(v.en, DURA.procesando)) return 'processing';
+  if (reciente(s.ultimoParcial, DURA.parcial)) return 'listening';
+  if (v?.fase === 'registrado' && reciente(v.en, DURA.registrado)) return 'verified';
+  if (v?.fase === 'no_entendido' && reciente(v.en, DURA.no_entendido)) return 'confused';
+  if (reciente(s.cierreSeguro, DURA.cierre)) return 'celebrate';
+  return 'idle';
+}
+```
+
+`web/src/conti.d.ts`:
+
+```ts
+import type { CSSProperties } from 'react';
+
+declare module 'react' {
+  namespace JSX {
+    interface IntrinsicElements {
+      'hb-conti': { state?: string; calma?: boolean; className?: string; style?: CSSProperties };
+    }
+  }
+}
+```
+
+- [ ] **Paso 6: Correr las pruebas**
+
+Run: `cd web && npm test && npm run tipos`
+Expected: todas en PASS y `tsc` sin errores. Para revisar los estados a ojo, abre `Visuales/conti.html` con la copia nueva de `conti.js`, o crea una página temporal con un `<hb-conti>` por estado y no la subas.
+
+- [ ] **Paso 7: Commit**
+
+```bash
+git add web/public/conti web/src/estadoConti.ts web/src/estadoConti.test.ts web/src/conti.d.ts
+git commit -m "feat(web): agregar a Conti con sus estados de voz"
+git pull --rebase && git push
+```

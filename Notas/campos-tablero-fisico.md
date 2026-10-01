@@ -12,7 +12,7 @@ estado: por validar con la instrumentadora
 Transcripción de los campos del tablero físico que hoy llena el equipo quirúrgico en
 una IPS colaboradora, a partir de dos fotos que compartió la integrante de
 Instrumentación. Son el vocabulario base del sistema: los nombres se conservan tal
-como están impresos. Complementa [[problematicas-y-soluciones]] y el reto oficial.
+como están impresos. Complementa [[Tablero_inteligente_de_seguridad_quirurgica]], el reto oficial.
 
 > [!warning] Datos personales
 > Las fotos originales muestran nombre, documento e historia clínica de pacientes
