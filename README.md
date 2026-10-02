@@ -65,7 +65,7 @@ Abre la tablet con la dirección de red que muestra Vite (`https://<ip>:5173`, n
 
 ## Desplegar en GCP
 
-Proyecto personal **healthbyte-510314**, cuenta **juniorrdsr12@gmail.com**, configuración de gcloud **healthbyte**. Nunca se usa la configuración corporativa. Terraform mantiene la guardia `cuenta_esperada`.
+Proyecto personal **tu-proyecto-gcp**, cuenta **tu-correo-personal@example.com**, configuración de gcloud **healthbyte**. Nunca se usa la configuración corporativa. Terraform mantiene la guardia `cuenta_esperada`.
 
 La infraestructura existente en `infra/main.tf` y `infra/servicios.tf` administra la base, el registro, los secretos y los servicios. El proyecto existente se importó al estado; no se crea otro proyecto ni se cambia su organización. Cloud SQL tarda varios minutos en estar disponible. El proyecto usa `deletion_policy = "PREVENT"`; no ejecutar `terraform destroy`.
 
@@ -88,7 +88,7 @@ El script obtiene el token personal, usa el commit actual como etiqueta, constru
 `jev-api-key` requiere una versión habilitada. El usuario carga la clave directamente en Secret Manager, nunca en el repositorio:
 
 ```powershell
-gcloud secrets versions add jev-api-key --data-file=- --project=healthbyte-510314 --configuration=healthbyte --account=juniorrdsr12@gmail.com
+gcloud secrets versions add jev-api-key --data-file=- --project=tu-proyecto-gcp --configuration=healthbyte --account=tu-correo-personal@example.com
 ```
 
 Introducir la clave por stdin y terminar la entrada. El script selecciona la versión habilitada más reciente y fija su número en la revisión de API; una rotación se incorpora en el siguiente despliegue. No lee ni imprime la clave.
