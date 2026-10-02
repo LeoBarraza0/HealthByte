@@ -45,7 +45,7 @@ Cinco carriles en paralelo, sin archivos compartidos. Cada uno trabaja en **su p
 
 - **Cuando todos terminen, decir «valida la ola 3».** El orquestador corre las pruebas, revisa las pantallas contra el canvas y une lo que falte.
 - **Jev en local.** Pon `JEV_API_KEY` en `api/.env`; el carril C puede correr `npm run oro` con ella.
-- **Chirp 3 en local.** Con la cuenta personal `juniorrdsr12@gmail.com`, nunca la corporativa:
+- **Chirp 3 en local.** Con la cuenta personal `tu-correo-personal@example.com`, nunca la corporativa:
   ```bash
   gcloud auth application-default login --configuration=healthbyte
   ```

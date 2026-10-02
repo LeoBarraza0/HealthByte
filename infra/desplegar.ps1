@@ -2,11 +2,11 @@ $ErrorActionPreference = 'Stop'
 $raizHealthByte = Split-Path -Parent $PSScriptRoot
 Push-Location $raizHealthByte
 try {
-    $proyectoHealthByte = 'healthbyte-510314'
-    $cuentaHealthByte = 'juniorrdsr12@gmail.com'
+    $proyectoHealthByte = if ($env:HB_GCP_PROJECT) { $env:HB_GCP_PROJECT } else { 'tu-proyecto-gcp' }
+    $cuentaHealthByte = if ($env:HB_GCP_ACCOUNT) { $env:HB_GCP_ACCOUNT } else { 'tu-correo-personal@example.com' }
     $cuentaConfigurada = gcloud config get-value core/account --configuration=healthbyte 2>$null
     if ($LASTEXITCODE -ne 0 -or $cuentaConfigurada.Trim() -ne $cuentaHealthByte) {
-        throw 'La configuración healthbyte debe usar la cuenta personal juniorrdsr12@gmail.com.'
+        throw "La configuración healthbyte debe usar la cuenta personal $cuentaHealthByte."
     }
     git diff --quiet HEAD
     if ($LASTEXITCODE -ne 0) { throw 'Hay cambios sin commit. Publica y verifica main antes de desplegar.' }
@@ -18,11 +18,12 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'No se pudo obtener el token personal.' }
     Remove-Item Env:GOOGLE_CLOUD_QUOTA_PROJECT -ErrorAction SilentlyContinue
     $proyectoEstado = terraform -chdir=infra output -raw proyecto
-    if ($LASTEXITCODE -ne 0 -or $proyectoEstado -ne $proyectoHealthByte) { throw 'El estado de infra debe pertenecer a healthbyte-510314.' }
+    if ($LASTEXITCODE -ne 0 -or $proyectoEstado -ne $proyectoHealthByte) { throw "El estado de infra debe pertenecer a $proyectoHealthByte." }
     $versionJev = gcloud secrets versions list jev-api-key --project=$proyectoHealthByte --configuration=healthbyte --account=$cuentaHealthByte --filter=state=ENABLED '--sort-by=~createTime' --limit=1 '--format=value(name)'
     if ($LASTEXITCODE -ne 0 -or !$versionJev) { throw 'Cargue una versión habilitada de jev-api-key directamente en Secret Manager.' }
     $env:TF_VAR_jev_version = ($versionJev -split '/')[-1]
-    gcloud builds submit --config=cloudbuild.yaml --project=$proyectoHealthByte --configuration=healthbyte --account=$cuentaHealthByte "--service-account=projects/$proyectoHealthByte/serviceAccounts/healthbyte-build@$proyectoHealthByte.iam.gserviceaccount.com" --gcs-source-staging-dir=gs://healthbyte-510314-web-fuentes/source "--substitutions=_REGISTRO=us-east1-docker.pkg.dev/$proyectoHealthByte/healthbyte,_TAG=$TAG"
+    $bucketFuentes = "${proyectoHealthByte}-web-fuentes"
+    gcloud builds submit --config=cloudbuild.yaml --project=$proyectoHealthByte --configuration=healthbyte --account=$cuentaHealthByte "--service-account=projects/$proyectoHealthByte/serviceAccounts/healthbyte-build@$proyectoHealthByte.iam.gserviceaccount.com" "--gcs-source-staging-dir=gs://$bucketFuentes/source" "--substitutions=_REGISTRO=us-east1-docker.pkg.dev/$proyectoHealthByte/healthbyte,_TAG=$TAG"
     if ($LASTEXITCODE -ne 0) { throw 'Cloud Build falló. Se conserva el despliegue anterior.' }
     $env:GOOGLE_OAUTH_ACCESS_TOKEN = gcloud auth print-access-token --configuration=healthbyte --account=$cuentaHealthByte
     if ($LASTEXITCODE -ne 0) { throw 'No se pudo renovar el token personal.' }

@@ -19,7 +19,7 @@ No se editaron componentes de sesión, bloques, gestión ni `api/src`. Sus cambi
 
 ## Infraestructura y despliegue
 
-Proyecto: `healthbyte-510314`. Cuenta: `juniorrdsr12@gmail.com`. Configuración de gcloud: `healthbyte`. Región: `us-east1`. Se mantuvo la guardia `cuenta_esperada`; no se utilizó la configuración corporativa ni `emuclient`.
+Proyecto: `tu-proyecto-gcp`. Cuenta: `tu-correo-personal@example.com`. Configuración de gcloud: `healthbyte`. Región: `us-east1`. Se mantuvo la guardia `cuenta_esperada`; no se utilizó la configuración corporativa ni `emuclient`.
 
 La base se aplicó con el módulo existente: 27 recursos añadidos, un cambio de metadatos del proyecto y ningún borrado. Cloud SQL tardó 10 minutos y 18 segundos en crearse. La facturación usa COP; la alerta de presupuesto quedó en 100.000 COP y no constituye un límite de consumo.
 
@@ -32,7 +32,7 @@ Se ejecutó `infra/desplegar.ps1` y ambas construcciones finalizaron correctamen
 - API: `api-00002-nc2`, imagen `healthbyte/api:e7bdc5f`.
 - Web: `healthbyte-web-00003-n5p`, imagen `healthbyte/web:e7bdc5f`.
 
-Ambas imágenes están en `us-east1-docker.pkg.dev/healthbyte-510314/`. El script está en main. La revisión de este chat se programó cada 20 minutos para traer main, verificar y redesplegar, informando el commit y la URL.
+Ambas imágenes están en `us-east1-docker.pkg.dev/tu-proyecto-gcp/`. El script está en main. La revisión de este chat se programó cada 20 minutos para traer main, verificar y redesplegar, informando el commit y la URL.
 
 ## Comprobaciones
 

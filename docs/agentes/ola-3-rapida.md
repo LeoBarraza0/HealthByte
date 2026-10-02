@@ -57,7 +57,7 @@ Login:
 Despliegue:
 1. USA la infraestructura que ya existe en infra/ (main.tf y servicios.tf, ya validados). No escribas Terraform nuevo para lo que ya está.
 2. Sigue el README y el plan (docs/superpowers/plans/…, Tarea 16 paso 3 y la sección «Desplegar en GCP»).
-3. SOLO la cuenta personal juniorrdsr12@gmail.com (configuración de gcloud `healthbyte`), nunca la corporativa. Terraform tiene una guardia con `cuenta_esperada`: no la quites.
+3. SOLO la cuenta personal tu-correo-personal@example.com (configuración de gcloud `healthbyte`), nunca la corporativa. Terraform tiene una guardia con `cuenta_esperada`: no la quites.
 4. El usuario te autoriza `terraform apply`, `gcloud builds submit` y `gcloud run` para este despliegue. `terraform destroy` no.
 5. Empieza YA el `terraform apply` de la base: Cloud SQL tarda entre 10 y 15 minutos en crearse.
 6. Antes de aplicar los servicios, el secreto `jev-api-key` necesita una versión. Pídele al usuario que la cargue con `gcloud secrets versions add jev-api-key --data-file=-`. La clave nunca va al repo ni a un archivo versionado.
