@@ -1,6 +1,6 @@
 variable "project_id" {
   type        = string
-  description = "ID nuevo y único, por ejemplo healthbyte-hack-1001. Un ID borrado no se puede reusar durante 30 días."
+  description = "ID nuevo y único, por ejemplo healthbyte-510314. Un ID borrado no se puede reusar durante 30 días."
 }
 
 variable "billing_account" {
